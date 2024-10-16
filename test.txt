@@ -1,0 +1,94 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from sklearn.preprocessing import PowerTransformer
+
+# Function to apply appropriate transformation based on skewness and return the transformation type and reasoning
+def treat_non_normal_distribution(df, columns):
+    transformed_columns = {}
+    transformation_types = {}
+    transformation_reasons = {}
+
+    for col in columns:
+        # Handle missing data by dropping NaNs
+        col_data = df[col].dropna()
+
+        skewness = col_data.skew()
+        plt.figure(figsize=(14, 6))
+
+        # Plot the original distribution
+        plt.subplot(1, 2, 1)
+        sns.histplot(col_data, kde=True, bins=30)
+        plt.title(f'Original Distribution: {col} (Skewness: {skewness:.2f})')
+
+        # Apply appropriate transformation based on skewness
+        if skewness > 0.5:  # Positively skewed
+            if all(col_data > 0):  # Ensure positive values for Log and Box-Cox transformation
+                # Decide between Logarithmic and Box-Cox based on data range
+                if col_data.min() > 1e-3:  # Use Log if values are sufficiently large
+                    transformed_col = np.log1p(col_data)  # log(1 + x) to handle zero values
+                    transformation = 'Logarithmic Transformation'
+                    reason = 'Applied due to high positive skewness (skewness > 0.5) and positive data values.'
+                else:
+                    # Try Box-Cox transformation for data that fits better with it
+                    transformed_col, fitted_lambda = stats.boxcox(col_data)
+                    transformation = 'Box-Cox Transformation'
+                    reason = 'Applied due to high positive skewness (skewness > 0.5) and positive data values.'
+            else:
+                # Apply Yeo-Johnson transformation for negative and positive data
+                pt = PowerTransformer(method='yeo-johnson')
+                transformed_col = pt.fit_transform(col_data.values.reshape(-1, 1)).flatten()
+                transformation = 'Yeo-Johnson Transformation'
+                reason = 'Applied due to high positive skewness (skewness > 0.5) with non-positive data.'
+        elif skewness < -0.5:  # Negatively skewed
+            # Apply Exponential transformation to adjust left-skewed data
+            transformed_col = np.expm1(col_data.max() - col_data + 1)
+            transformation = 'Exponential Transformation'
+            reason = 'Applied due to high negative skewness (skewness < -0.5).'
+        else:
+            transformed_col = col_data  # No transformation needed
+            transformation = 'No Transformation Needed'
+            reason = 'Data has low or no skewness (skewness between -0.5 and 0.5), so no transformation was applied.'
+
+        # Plot the transformed distribution
+        plt.subplot(1, 2, 2)
+        sns.histplot(transformed_col, kde=True, bins=30)
+        plt.title(f'Transformed Distribution ({transformation}): {col}')
+
+        # Save the transformed column, the transformation type, and the reason for the transformation
+        transformed_columns[col] = transformed_col
+        transformation_types[col] = transformation
+        transformation_reasons[col] = reason
+
+        plt.show()
+
+    # Convert the transformed columns to a DataFrame
+    transformed_df = pd.DataFrame(transformed_columns)
+
+    # Create a DataFrame to store the transformation types and reasons for each column
+    transformation_summary = pd.DataFrame({
+        'Column': list(transformation_types.keys()),
+        'Transformation Type': list(transformation_types.values()),
+        'Reason for Transformation': list(transformation_reasons.values())
+    })
+
+    return transformed_df, transformation_summary
+
+# Example usage
+# Sample DataFrame
+data = {
+    'Feature1': [1, 2, 3, 4, 5],            # Mild skewness (no transformation)
+    'Feature2': [10, 100, 1000, 10000, 100000],  # Highly skewed (use Log or Box-Cox)
+    'Feature3': [50, 48, 47, 46, 45]        # Left-skewed (use Exponential)
+}
+
+df = pd.DataFrame(data)
+
+# Normalize the columns
+transformed_df, transformation_summary = treat_non_normal_distribution(df, ['Feature1', 'Feature2', 'Feature3'])
+
+# Output the transformed data and the transformation summary
+print("Transformed DataFrame:\n", transformed_df)
+print("\nTransformation Summary:\n", transformation_summary)
