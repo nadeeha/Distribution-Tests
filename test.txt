@@ -19,12 +19,12 @@ def treat_non_normal_distribution(df, columns):
             transformation_reasons[col] = 'Transformation not applicable for categorical data (dtype == object).'
             continue
         
-        # Handle missing data by dropping NaNs
-        col_data = df[col].dropna()
+        # Handle missing data by keeping the original NaNs (don't drop them)
+        col_data = df[col]
 
         # Skip columns with less than 6 distinct values
-        if len(col_data.unique()) < 6:
-            transformed_columns[col] = df[col]
+        if len(col_data.dropna().unique()) < 6:
+            transformed_columns[col] = col_data  # Keep the original data without transformation
             transformation_types[col] = 'No Transformation (Low Number of Unique Values)'
             transformation_reasons[col] = 'Transformation skipped due to less than 6 distinct values in the column.'
             continue
@@ -34,25 +34,27 @@ def treat_non_normal_distribution(df, columns):
 
         # Plot the original distribution
         plt.subplot(1, 2, 1)
-        sns.histplot(col_data, kde=True, bins=30)
+        sns.histplot(col_data.dropna(), kde=True, bins=30)  # Drop NaNs for visualization
         plt.title(f'Original Distribution: {col} (Skewness: {skewness:.2f})')
 
         # Apply appropriate transformation based on skewness
         if skewness > 0.5:  # Positively skewed
-            if all(col_data > 0):  # Ensure positive values for Log or Box-Cox transformation
+            if all(col_data.dropna() > 0):  # Ensure positive values for Log or Box-Cox transformation
                 if skewness > 1.5:  # Use log transformation for highly skewed data
                     transformed_col = np.log1p(col_data)  # log(1 + x) to handle zeros
                     transformation = 'Logarithmic Transformation'
                     reason = 'Applied due to very high positive skewness (skewness > 1.5) and positive data values.'
                 else:
                     # Try Box-Cox transformation for moderate skewness
-                    transformed_col, fitted_lambda = stats.boxcox(col_data)
+                    transformed_col, fitted_lambda = stats.boxcox(col_data.dropna())
+                    transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
                     transformation = 'Box-Cox Transformation'
                     reason = 'Applied due to moderate positive skewness (0.5 < skewness < 1.5) and positive data values.'
             else:
                 # Apply Yeo-Johnson transformation for negative and positive data
                 pt = PowerTransformer(method='yeo-johnson')
-                transformed_col = pt.fit_transform(col_data.values.reshape(-1, 1)).flatten()
+                transformed_col = pt.fit_transform(col_data.dropna().values.reshape(-1, 1)).flatten()
+                transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
                 transformation = 'Yeo-Johnson Transformation'
                 reason = 'Applied due to high positive skewness (skewness > 0.5) with non-positive data.'
         elif skewness < -0.5:  # Negatively skewed
@@ -67,11 +69,11 @@ def treat_non_normal_distribution(df, columns):
 
         # Plot the transformed distribution
         plt.subplot(1, 2, 2)
-        sns.histplot(transformed_col, kde=True, bins=30)
+        sns.histplot(transformed_col.dropna(), kde=True, bins=30)  # Drop NaNs for visualization
         plt.title(f'Transformed Distribution ({transformation}): {col}')
 
-        # Save the transformed column, the transformation type, and the reason for the transformation
-        transformed_columns[col] = transformed_col
+        # Fill in the transformed data and NaN values where applicable
+        transformed_columns[col] = transformed_col.reindex(df.index)  # Re-index to ensure same length
         transformation_types[col] = transformation
         transformation_reasons[col] = reason
 
