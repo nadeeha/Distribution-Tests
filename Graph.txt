@@ -1,6 +1,7 @@
 import os
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
+from PIL import Image as PILImage  # To get the size of the image
 
 # Step 1: Load the Excel file and access the "Outlier Details" sheet
 excel_file_path = 'example.xlsx'  # Path to your Excel file
@@ -22,7 +23,18 @@ if column_index is None:
 graph_column_index = sheet.max_column + 1
 sheet.cell(row=1, column=graph_column_index, value='Graph')  # Add 'Graph' header
 
-# Step 4: Loop through the rows of the 'Column' column, and insert the corresponding graph image
+# Step 4: Function to adjust the row height based on image size
+def adjust_row_height(sheet, row, img_path):
+    img = PILImage.open(img_path)
+    width, height = img.size
+    img.close()
+
+    # Excel row height is measured in points, where 1 point = 1/72 inch
+    # Assuming 96 DPI (dots per inch), we calculate the height in points
+    row_height = height * (72 / 96)  # Convert image height (px) to points
+    sheet.row_dimensions[row].height = row_height
+
+# Step 5: Loop through the rows of the 'Column' column, and insert the corresponding graph image
 for row in range(2, sheet.max_row + 1):  # Start from row 2 to skip the header
     column_value = sheet.cell(row=row, column=column_index).value
     graph_image_path = os.path.join(graphs_folder, f'image_name_{column_value}.png')
@@ -31,14 +43,16 @@ for row in range(2, sheet.max_row + 1):  # Start from row 2 to skip the header
     if os.path.exists(graph_image_path):
         # Load the image
         img = Image(graph_image_path)
-        
+
+        # Adjust the row height to fit the image
+        adjust_row_height(sheet, row, graph_image_path)
+
         # Insert the image into the corresponding row of the new 'Graph' column
-        cell_location = sheet.cell(row=row, column=graph_column_index).coordinate
-        img.anchor = cell_location  # Anchor the image to a specific cell
+        img.anchor = sheet.cell(row=row, column=graph_column_index).coordinate
         sheet.add_image(img)
     else:
         print(f"Graph image not found for column value {column_value}")
 
-# Step 5: Save the modified Excel file
+# Step 6: Save the modified Excel file
 workbook.save(excel_file_path)
-print("Graphs successfully inserted into the 'Outlier Details' sheet.")
+print("Graphs successfully inserted into the 'Outlier Details' sheet with adjusted row heights.")
