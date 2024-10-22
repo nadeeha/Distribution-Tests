@@ -33,7 +33,8 @@ for row in range(2, sheet.max_row + 1):  # Start from row 2 to skip the header
         img = Image(graph_image_path)
         
         # Insert the image into the corresponding row of the new 'Graph' column
-        img.anchor = sheet.cell(row=row, column=graph_column_index).coordinate
+        cell_location = sheet.cell(row=row, column=graph_column_index).coordinate
+        img.anchor = cell_location  # Anchor the image to a specific cell
         sheet.add_image(img)
     else:
         print(f"Graph image not found for column value {column_value}")
