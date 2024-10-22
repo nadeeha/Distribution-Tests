@@ -1,31 +1,39 @@
 import matplotlib.pyplot as plt
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
+import pandas as pd
 
-# Step 1: Generate a graph using Matplotlib and save it as an image
-def create_graph_image():
+# Step 1: Load the Excel file and read the attribute column
+excel_file_path = 'example.xlsx'  # Replace with your file path
+df = pd.read_excel(excel_file_path)  # Load the Excel sheet into a DataFrame
+
+# Step 2: Define a function to create and save a unique graph for each attribute value
+def create_graph_image(attribute_value, row_number):
+    # Example: Generate a simple graph based on the attribute value
     x_values = [1, 2, 3, 4, 5]
-    y_values = [10, 20, 30, 40, 50]
-
+    y_values = [i * attribute_value for i in x_values]  # Adjust based on your logic
+    
+    # Create the plot
     plt.plot(x_values, y_values)
-    plt.title("Sample Graph")
+    plt.title(f"Graph for Attribute {attribute_value}")
     plt.xlabel("X Axis")
     plt.ylabel("Y Axis")
 
     # Save the plot as an image
-    graph_image_path = "graph_image.png"
+    graph_image_path = f"graph_image_{row_number}.png"
     plt.savefig(graph_image_path)
     plt.close()  # Close the plot
     return graph_image_path
 
-# Step 2: Insert the graph image into the Excel sheet
+# Step 3: Insert the graph into the Excel sheet at the corresponding row
 def insert_graph_to_excel(excel_path, graph_image_path, column_name="Graph", row=2):
     # Load the existing Excel workbook
     workbook = load_workbook(excel_path)
     sheet = workbook.active
 
-    # Add a new column header for the graph column
-    sheet.cell(row=1, column=sheet.max_column + 1, value=column_name)
+    # Add a new column header for the graph column if it doesn't already exist
+    if "Graph" not in [cell.value for cell in sheet[1]]:
+        sheet.cell(row=1, column=sheet.max_column + 1, value=column_name)
 
     # Load the graph image
     img = Image(graph_image_path)
@@ -36,9 +44,11 @@ def insert_graph_to_excel(excel_path, graph_image_path, column_name="Graph", row
 
     # Save the modified Excel workbook
     workbook.save(excel_path)
-    print(f"Graph successfully inserted into {excel_path}")
 
-# Example usage:
-excel_file_path = "example.xlsx"  # Path to your existing Excel file
-graph_image_path = create_graph_image()  # Generate the graph and get the image path
-insert_graph_to_excel(excel_file_path, graph_image_path)
+# Step 4: Loop through each row in the 'attribute' column, generate graphs, and insert them into Excel
+for index, row in df.iterrows():
+    attribute_value = row['attribute']  # Get the attribute value for this row
+    graph_image_path = create_graph_image(attribute_value, index + 2)  # Generate graph for this attribute
+    insert_graph_to_excel(excel_file_path, graph_image_path, row=index + 2)  # Insert graph into Excel row
+
+print("All graphs successfully inserted into the Excel file.")
