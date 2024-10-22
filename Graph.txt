@@ -1,0 +1,44 @@
+import matplotlib.pyplot as plt
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+
+# Step 1: Generate a graph using Matplotlib and save it as an image
+def create_graph_image():
+    x_values = [1, 2, 3, 4, 5]
+    y_values = [10, 20, 30, 40, 50]
+
+    plt.plot(x_values, y_values)
+    plt.title("Sample Graph")
+    plt.xlabel("X Axis")
+    plt.ylabel("Y Axis")
+
+    # Save the plot as an image
+    graph_image_path = "graph_image.png"
+    plt.savefig(graph_image_path)
+    plt.close()  # Close the plot
+    return graph_image_path
+
+# Step 2: Insert the graph image into the Excel sheet
+def insert_graph_to_excel(excel_path, graph_image_path, column_name="Graph", row=2):
+    # Load the existing Excel workbook
+    workbook = load_workbook(excel_path)
+    sheet = workbook.active
+
+    # Add a new column header for the graph column
+    sheet.cell(row=1, column=sheet.max_column + 1, value=column_name)
+
+    # Load the graph image
+    img = Image(graph_image_path)
+
+    # Insert the graph image into the specified cell in the new column
+    img.anchor = sheet.cell(row=row, column=sheet.max_column).coordinate
+    sheet.add_image(img)
+
+    # Save the modified Excel workbook
+    workbook.save(excel_path)
+    print(f"Graph successfully inserted into {excel_path}")
+
+# Example usage:
+excel_file_path = "example.xlsx"  # Path to your existing Excel file
+graph_image_path = create_graph_image()  # Generate the graph and get the image path
+insert_graph_to_excel(excel_file_path, graph_image_path)
