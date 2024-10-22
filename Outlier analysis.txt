@@ -1,0 +1,127 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import skew
+
+# Function to calculate IQR and identify outliers
+def identify_outliers_iqr(data, k=1.5):
+    Q1 = data.quantile(0.25)
+    Q3 = data.quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - k * IQR
+    upper_bound = Q3 + k * IQR
+    outliers = (data < lower_bound) | (data > upper_bound)
+    return outliers, lower_bound, upper_bound
+
+# Visualization function
+def plot_box_hist(data, column_name):
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+    # Boxplot
+    sns.boxplot(data=data, x=column_name, ax=axs[0])
+    axs[0].set_title(f'Boxplot of {column_name}')
+
+    # Histogram
+    sns.histplot(data[column_name], kde=True, ax=axs[1])
+    axs[1].set_title(f'Histogram of {column_name}')
+
+    plt.tight_layout()
+    plt.show()
+
+# Function to assess skewness
+def assess_skewness(data, column_name):
+    column_skew = skew(data[column_name])
+    return column_skew
+
+# Automatic treatment choice based on insights, with logging of the treatment and justification
+def auto_treat_outliers(data, column_name, treatment_log):
+    outliers_1_5, lower_1_5, upper_1_5 = identify_outliers_iqr(data[column_name], k=1.5)
+    outliers_3, lower_3, upper_3 = identify_outliers_iqr(data[column_name], k=3)
+    column_skew = assess_skewness(data, column_name)
+
+    print(f"Outlier analysis for '{column_name}':")
+    print(f" - {outliers_1_5.sum()} moderate outliers detected (k=1.5 IQR)")
+    print(f" - {outliers_3.sum()} extreme outliers detected (k=3 IQR)")
+    print(f" - Skewness: {column_skew}")
+
+    # Plot the box plot and histogram for visualization
+    plot_box_hist(data, column_name)
+
+    # Initialize treatment and justification as defaults
+    treatment_applied = "No treatment"
+    justification = "No significant outliers or skewness detected."
+
+    # Apply treatment based on insights
+    if outliers_3.sum() == 0 and outliers_1_5.sum() <= 5:
+        print(f" - No significant outliers detected for {column_name}. No treatment applied.")
+        treatment_applied = "No treatment"
+        justification = "No significant outliers detected; no treatment needed."
+        
+    elif column_skew > 1 or column_skew < -1:
+        if np.all(data[column_name] > 0):  # Log transform works only for positive data
+            print(f" - High skewness detected for {column_name}. Applying log transformation.")
+            data[column_name] = np.log1p(data[column_name])  # Log transformation
+            treatment_applied = "Log transformation"
+            justification = "High skewness detected and all values are positive, so log transformation was applied."
+        else:
+            print(f" - High skewness detected for {column_name}. Applying square root transformation.")
+            data[column_name] = np.sqrt(data[column_name])  # Square root transformation
+            treatment_applied = "Square root transformation"
+            justification = "High skewness detected but data contains non-positive values; square root transformation was applied."
+
+    elif outliers_1_5.sum() > 5 and outliers_1_5.sum() < len(data[column_name]) * 0.05:
+        print(f" - Moderate number of outliers detected for {column_name}. Applying winsorization.")
+        data[column_name] = np.where(data[column_name] < lower_1_5, lower_1_5, data[column_name])
+        data[column_name] = np.where(data[column_name] > upper_1_5, upper_1_5, data[column_name])  # Winsorize
+        treatment_applied = "Winsorization (Capping)"
+        justification = "Moderate number of outliers detected; values were capped using winsorization."
+
+    elif outliers_3.sum() > len(data[column_name]) * 0.05:
+        print(f" - Significant number of outliers detected for {column_name}. Removing extreme outliers.")
+        data = data[(data[column_name] >= lower_1_5) & (data[column_name] <= upper_1_5)]  # Remove outliers
+        treatment_applied = "Remove extreme outliers"
+        justification = "Significant number of extreme outliers detected, so extreme values were removed."
+
+    elif outliers_1_5.sum() > len(data[column_name]) * 0.1:
+        print(f" - Too many outliers detected for {column_name}. Imputing outliers with median.")
+        median = data[column_name].median()
+        data[column_name] = np.where((data[column_name] < lower_1_5) | (data[column_name] > upper_1_5), median, data[column_name])
+        treatment_applied = "Imputation with median"
+        justification = "Too many outliers detected; outliers were replaced with the median."
+
+    # Log the treatment applied and the justification for this column
+    treatment_log.append({
+        "Column": column_name,
+        "Treatment Applied": treatment_applied,
+        "Justification": justification
+    })
+
+    return data
+
+# Function to skip categorical columns and apply outlier analysis only to numeric columns
+def run_auto_outlier_analysis(data):
+    treatment_log = []  # List to keep track of treatments applied and justifications
+    for column in data.select_dtypes(include=[np.number]).columns:
+        print(f"Analyzing column: {column}")
+        data = auto_treat_outliers(data, column, treatment_log)
+        print("\n")
+    
+    # Convert treatment log to a DataFrame and save it as a CSV with justification
+    treatment_log_df = pd.DataFrame(treatment_log)
+    treatment_log_df.to_csv("outlier_treatment_log.csv", index=False)
+    print("Outlier treatment details and justifications have been saved to 'outlier_treatment_log.csv'")
+    
+    return data
+
+# Example usage:
+# Load your data
+file_path = "/mnt/data/file-7OZHORJn08RDovsAMwci0F9C"
+data = pd.read_excel(file_path)
+
+# Run outlier analysis with automatic treatment choice on numerical columns only
+cleaned_data = run_auto_outlier_analysis(data)
+
+# Save the cleaned data
+cleaned_data.to_excel("cleaned_data_auto_treatment.xlsx", index=False)
+print("Cleaned data has been saved to 'cleaned_data_auto_treatment.xlsx'")
