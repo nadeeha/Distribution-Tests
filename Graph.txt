@@ -1,45 +1,43 @@
 import os
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-import pandas as pd
 
-# Step 1: Load the Excel file and read the attribute column
+# Step 1: Load the Excel file and access the "Outlier Details" sheet
 excel_file_path = 'example.xlsx'  # Path to your Excel file
-graphs_folder = 'graphs_folder_path'  # Folder where graph images are stored (replace with your path)
-df = pd.read_excel(excel_file_path)  # Load the Excel sheet into a DataFrame
+graphs_folder = 'Graphs'  # Path to the folder where graph images are stored
+workbook = load_workbook(excel_file_path)
+sheet = workbook['Outlier Details']  # Access the 'Outlier Details' sheet
 
-# Step 2: Insert the graph into the Excel sheet for each row based on the attribute value
-def insert_graph_to_excel(excel_path, graph_image_path, row, column_name="Graph"):
-    # Load the existing Excel workbook
-    workbook = load_workbook(excel_path)
-    sheet = workbook.active
+# Step 2: Find the 'Column' column in the "Outlier Details" sheet
+column_index = None
+for col in sheet.iter_cols(1, sheet.max_column):
+    if col[0].value == "Column":  # Locate the column named 'Column'
+        column_index = col[0].column
+        break
 
-    # Add a new column header for the graph column if it doesn't already exist
-    if "Graph" not in [cell.value for cell in sheet[1]]:
-        sheet.cell(row=1, column=sheet.max_column + 1, value=column_name)
+if column_index is None:
+    raise ValueError("Column 'Column' not found in the 'Outlier Details' sheet.")
 
-    # Load the graph image
-    img = Image(graph_image_path)
+# Step 3: Add a new header for the 'Graph' column if it doesn't already exist
+graph_column_index = sheet.max_column + 1
+sheet.cell(row=1, column=graph_column_index, value='Graph')  # Add 'Graph' header
 
-    # Insert the graph image into the specified cell in the new column
-    img.anchor = sheet.cell(row=row, column=sheet.max_column).coordinate
-    sheet.add_image(img)
+# Step 4: Loop through the rows of the 'Column' column, and insert the corresponding graph image
+for row in range(2, sheet.max_row + 1):  # Start from row 2 to skip the header
+    column_value = sheet.cell(row=row, column=column_index).value
+    graph_image_path = os.path.join(graphs_folder, f'image_name_{column_value}.png')
 
-    # Save the modified Excel workbook
-    workbook.save(excel_path)
-
-# Step 3: Loop through each row in the 'attribute' column, find the corresponding graph image, and insert it into Excel
-for index, row in df.iterrows():
-    attribute_value = row['attribute']  # Get the attribute value for this row
-
-    # Generate the expected file name for the corresponding graph
-    graph_image_path = os.path.join(graphs_folder, f'graph_{attribute_value}.png')
-
-    # Check if the graph image exists for this attribute value
+    # Check if the corresponding graph image exists
     if os.path.exists(graph_image_path):
-        # Insert the graph image into the Excel file
-        insert_graph_to_excel(excel_file_path, graph_image_path, row=index + 2)
+        # Load the image
+        img = Image(graph_image_path)
+        
+        # Insert the image into the corresponding row of the new 'Graph' column
+        img.anchor = sheet.cell(row=row, column=graph_column_index).coordinate
+        sheet.add_image(img)
     else:
-        print(f"Graph image not found for attribute value {attribute_value}")
+        print(f"Graph image not found for column value {column_value}")
 
-print("Graphs successfully inserted into the Excel file.")
+# Step 5: Save the modified Excel file
+workbook.save(excel_file_path)
+print("Graphs successfully inserted into the 'Outlier Details' sheet.")
