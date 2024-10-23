@@ -1,0 +1,70 @@
+import pandas as pd
+import numpy as np
+from sklearn.impute import KNNImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+
+# Function to log imputation strategy and justification
+def log_imputation(log, column_name, strategy, justification):
+    log.append({
+        'Column': column_name,
+        'Imputation Strategy': strategy,
+        'Justification': justification
+    })
+
+# Main imputation function for a DataFrame
+def impute_missing_values(data):
+    imputation_log = []  # To store the imputation details
+    
+    for column in data.columns:
+        if data[column].isnull().sum() > 0:  # Only apply to columns with missing values
+            if data[column].dtype == 'float64' or data[column].dtype == 'int64':
+                # Handling numerical columns
+                missing_percentage = data[column].isnull().mean() * 100
+
+                if missing_percentage < 5:
+                    # Apply Mean Imputation if missing values are small
+                    data[column].fillna(data[column].mean(), inplace=True)
+                    log_imputation(imputation_log, column, 'Mean Imputation', 'Less than 5% missing data, normal distribution.')
+
+                elif missing_percentage < 20:
+                    # Apply Median Imputation for moderate missingness
+                    data[column].fillna(data[column].median(), inplace=True)
+                    log_imputation(imputation_log, column, 'Median Imputation', 'Between 5-20% missing data, potential skew or outliers.')
+
+                else:
+                    # For large missing percentages, apply KNN Imputation
+                    imputer = KNNImputer(n_neighbors=3)
+                    data[[column]] = imputer.fit_transform(data[[column]])
+                    log_imputation(imputation_log, column, 'KNN Imputation', 'More than 20% missing data, using KNN.')
+
+            elif data[column].dtype == 'object':
+                # Handling categorical columns
+                missing_percentage = data[column].isnull().mean() * 100
+
+                if missing_percentage < 10:
+                    # Apply Mode Imputation for categorical data with few missing values
+                    data[column].fillna(data[column].mode()[0], inplace=True)
+                    log_imputation(imputation_log, column, 'Mode Imputation', 'Less than 10% missing data, categorical column.')
+
+                else:
+                    # If missing percentage is higher, we create a new category 'Unknown'
+                    data[column].fillna('Unknown', inplace=True)
+                    log_imputation(imputation_log, column, 'Category Imputation (Unknown)', 'More than 10% missing data, categorical column.')
+
+            elif pd.api.types.is_datetime64_any_dtype(data[column]):
+                # Handling datetime columns (if any)
+                data[column].fillna(method='ffill', inplace=True)  # Forward fill for missing timestamps
+                log_imputation(imputation_log, column, 'Forward Fill', 'Imputation for datetime columns.')
+
+    # Save the imputation log to a CSV file
+    imputation_log_df = pd.DataFrame(imputation_log)
+    imputation_log_df.to_csv('imputation_log.csv', index=False)
+    
+    print("Imputation completed. Log saved to 'imputation_log.csv'.")
+    return data
+
+# Example Usage
+# Assuming 'df' is your DataFrame with missing values
+# df = pd.read_csv('your_data.csv')
+# df = impute_missing_values(df)
