@@ -58,3 +58,39 @@ columns_to_plot = df_original.columns  # List of columns to plot
 
 # Generate and save the plots
 generate_plots_before_after(df_original, df_imputed, columns_to_plot)
+
+
+
+
+
+
+
+#######
+import pandas as pd
+from openpyxl import load_workbook
+import os
+
+def add_new_sheet_to_excel(dataframe, excel_file, sheet_name):
+    if os.path.exists(excel_file):
+        # Load the existing workbook
+        with pd.ExcelWriter(excel_file, engine='openpyxl', mode='a') as writer:
+            # Add the new sheet (it will add the sheet, leaving other sheets unchanged)
+            dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
+    else:
+        # If the file doesn't exist, create a new one
+        with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
+            # Write the dataframe to the sheet
+            dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
+
+# Example usage
+# Creating some example dataframes
+df_new = pd.DataFrame({
+    'City': ['New York', 'Los Angeles', 'Chicago'],
+    'Population': [8419600, 3980400, 2716000]
+})
+
+# File and sheet names
+excel_file_path = 'example_file.xlsx'
+
+# Adding df_new to a new sheet 'Cities'
+add_new_sheet_to_excel(df_new, excel_file_path, 'Cities')
