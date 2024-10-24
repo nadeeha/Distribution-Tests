@@ -1,1 +1,60 @@
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Function to generate and save plots for each column
+def generate_plots_before_after(original_data, imputed_data, columns):
+    for col in columns:
+        # Create a new figure for each column
+        plt.figure(figsize=(18, 12))
+        
+        # Histogram Before Imputation
+        plt.subplot(3, 2, 1)
+        sns.histplot(original_data[col], kde=False, color='blue', bins=20)
+        plt.title(f'Histogram (Before Imputation): {col}')
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+
+        # Histogram After Imputation
+        plt.subplot(3, 2, 2)
+        sns.histplot(imputed_data[col], kde=False, color='green', bins=20)
+        plt.title(f'Histogram (After Imputation): {col}')
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+
+        # Box Plot Before Imputation
+        plt.subplot(3, 2, 3)
+        sns.boxplot(x=original_data[col], color='blue')
+        plt.title(f'Box Plot (Before Imputation): {col}')
+
+        # Box Plot After Imputation
+        plt.subplot(3, 2, 4)
+        sns.boxplot(x=imputed_data[col], color='green')
+        plt.title(f'Box Plot (After Imputation): {col}')
+
+        # KDE Plot Before Imputation
+        plt.subplot(3, 2, 5)
+        sns.kdeplot(original_data[col], color='blue')
+        plt.title(f'KDE Plot (Before Imputation): {col}')
+        plt.xlabel(col)
+        plt.ylabel('Density')
+
+        # KDE Plot After Imputation
+        plt.subplot(3, 2, 6)
+        sns.kdeplot(imputed_data[col], color='green')
+        plt.title(f'KDE Plot (After Imputation): {col}')
+        plt.xlabel(col)
+        plt.ylabel('Density')
+
+        # Adjust the layout and save the figure
+        plt.tight_layout()
+        plt.savefig(f'{col}.png')
+        plt.close()  # Close the figure to prevent display
+
+# Example usage
+# Assuming df_original is the DataFrame with original data and df_imputed is the DataFrame with imputed data
+columns_to_plot = df_original.columns  # List of columns to plot
+
+# Generate and save the plots
+generate_plots_before_after(df_original, df_imputed, columns_to_plot)
