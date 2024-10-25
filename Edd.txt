@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-from custom_functions import extract_context  # Assuming extract_context is imported from custom_functions.py
+from custom_functions import extract_context, summarize_context  # Assuming both functions are imported
 
 # Initialize or load CSV to store results
 csv_file = 'extracted_contexts.csv'
 
 # Check if the CSV exists, otherwise create it
 if not os.path.exists(csv_file):
-    df = pd.DataFrame(columns=['pdf_name', 'keyword', 'context'])
+    df = pd.DataFrame(columns=['pdf_name', 'keyword', 'context', 'question', 'answer'])
     df.to_csv(csv_file, index=False)
 else:
     df = pd.read_csv(csv_file)
@@ -31,15 +31,13 @@ if uploaded_pdf is not None:
         if not existing_entry.empty:
             # If found, return the context from the CSV
             context = existing_entry['context'].values[0]
-            st.markdown("### Context from CSV (Previously Extracted):")  # Smaller header
-            st.markdown(f"<div style='font-size:14px'>{context}</div>", unsafe_allow_html=True)
+            st.text_area("Context from CSV (Previously Extracted):", value=context, height=300)
         else:
             # If not found, process the uploaded PDF in-memory
             context = extract_context(uploaded_pdf, keyword)
 
             # Display extracted context in standardized font size
-            st.markdown("### Extracted Context:")  # Smaller header
-            st.markdown(f"<div style='font-size:14px'>{context}</div>", unsafe_allow_html=True)
+            st.text_area("Extracted Context:", value=context, height=300)
 
             # Create a new DataFrame with the new row
             new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context]})
@@ -51,3 +49,34 @@ if uploaded_pdf is not None:
             df.to_csv(csv_file, index=False)
 
             st.success("Result saved to CSV.")
+
+        # Step 4: Input question for summarizing context
+        question = st.text_input("Ask a question about the extracted context")
+
+        if question:
+            # Check if the same question has already been asked
+            question_entry = df[(df['pdf_name'] == pdf_name) & (df['keyword'].str.lower() == keyword.lower()) & (df['question'].str.lower() == question.lower())]
+
+            if not question_entry.empty:
+                # If found, return the answer from the CSV
+                answer = question_entry['answer'].values[0]
+                st.write("Answer from CSV (Previously Generated):")
+                st.write(answer)
+            else:
+                # If not found, run the summarize_context function
+                answer = summarize_context(context, keyword, question)
+
+                # Display the generated answer
+                st.write("Generated Answer:")
+                st.write(answer)
+
+                # Add the question and answer to the DataFrame
+                new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context], 'question': [question], 'answer': [answer]})
+
+                # Concatenate the new row with the existing DataFrame
+                df = pd.concat([df, new_row], ignore_index=True)
+
+                # Save the updated DataFrame to the CSV
+                df.to_csv(csv_file, index=False)
+
+                st.success("Question and answer saved to CSV.")
