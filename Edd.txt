@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import os
 from custom_functions import extract_context  # Assuming extract_context is imported from custom_functions.py
 
 # Initialize or load CSV to store results
@@ -35,12 +34,12 @@ if uploaded_pdf is not None:
             st.write("Context from CSV (Previously Extracted):")
             st.write(context)
         else:
-            # If not found, run the `extract_context` function
-            file_path = f"/tmp/{pdf_name}"  # Temporary storage for the uploaded PDF
-            with open(file_path, "wb") as f:
-                f.write(uploaded_pdf.getbuffer())
-            
-            context = extract_context(file_path, keyword)
+            # If not found, process the uploaded PDF in-memory using `extract_context`
+            with open(f"/tmp/{pdf_name}", "wb") as f:
+                f.write(uploaded_pdf.read())  # Save the uploaded PDF to a temp file
+
+            # Run the `extract_context` function
+            context = extract_context(f"/tmp/{pdf_name}", keyword)
 
             # Display extracted context
             st.write("Extracted Context:")
