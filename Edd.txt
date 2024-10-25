@@ -31,19 +31,23 @@ if uploaded_pdf is not None:
         if not existing_entry.empty:
             # If found, return the context from the CSV
             context = existing_entry['context'].values[0]
-            st.write("Context from CSV (Previously Extracted):")
-            st.write(context)
+            st.markdown("### Context from CSV (Previously Extracted):")  # Smaller header
+            st.markdown(f"<div style='font-size:14px'>{context}</div>", unsafe_allow_html=True)
         else:
             # If not found, process the uploaded PDF in-memory
             context = extract_context(uploaded_pdf, keyword)
 
-            # Display extracted context
-            st.write("Extracted Context:")
-            st.write(context)
+            # Display extracted context in standardized font size
+            st.markdown("### Extracted Context:")  # Smaller header
+            st.markdown(f"<div style='font-size:14px'>{context}</div>", unsafe_allow_html=True)
 
-            # Save the result in the CSV
-            new_row = {'pdf_name': pdf_name, 'keyword': keyword, 'context': context}
-            df = df.append(new_row, ignore_index=True)
+            # Create a new DataFrame with the new row
+            new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context]})
+
+            # Concatenate the new row with the existing DataFrame
+            df = pd.concat([df, new_row], ignore_index=True)
+
+            # Save the updated DataFrame to the CSV
             df.to_csv(csv_file, index=False)
 
             st.success("Result saved to CSV.")
