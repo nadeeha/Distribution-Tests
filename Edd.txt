@@ -1,0 +1,54 @@
+import streamlit as st
+import pandas as pd
+import os
+from custom_functions import extract_context  # Assuming extract_context is imported from custom_functions.py
+
+# Initialize or load CSV to store results
+csv_file = 'extracted_contexts.csv'
+
+# Check if the CSV exists, otherwise create it
+if not os.path.exists(csv_file):
+    df = pd.DataFrame(columns=['pdf_name', 'keyword', 'context'])
+    df.to_csv(csv_file, index=False)
+else:
+    df = pd.read_csv(csv_file)
+
+st.title("ESG Document Analyzer for EDD Scoring")
+
+# Step 1: Upload PDF file
+uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
+
+if uploaded_pdf is not None:
+    pdf_name = uploaded_pdf.name
+    st.write(f"Uploaded file: {pdf_name}")
+
+    # Step 2: Input keyword
+    keyword = st.text_input("Enter the keyword to extract context")
+
+    if keyword:
+        # Step 3: Check if keyword already exists in the CSV for this PDF
+        existing_entry = df[(df['pdf_name'] == pdf_name) & (df['keyword'].str.lower() == keyword.lower())]
+
+        if not existing_entry.empty:
+            # If found, return the context from the CSV
+            context = existing_entry['context'].values[0]
+            st.write("Context from CSV (Previously Extracted):")
+            st.write(context)
+        else:
+            # If not found, run the `extract_context` function
+            file_path = f"/tmp/{pdf_name}"  # Temporary storage for the uploaded PDF
+            with open(file_path, "wb") as f:
+                f.write(uploaded_pdf.getbuffer())
+            
+            context = extract_context(file_path, keyword)
+
+            # Display extracted context
+            st.write("Extracted Context:")
+            st.write(context)
+
+            # Save the result in the CSV
+            new_row = {'pdf_name': pdf_name, 'keyword': keyword, 'context': context}
+            df = df.append(new_row, ignore_index=True)
+            df.to_csv(csv_file, index=False)
+
+            st.success("Result saved to CSV.")
