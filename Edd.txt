@@ -34,12 +34,8 @@ if uploaded_pdf is not None:
             st.write("Context from CSV (Previously Extracted):")
             st.write(context)
         else:
-            # If not found, process the uploaded PDF in-memory using `extract_context`
-            with open(f"/tmp/{pdf_name}", "wb") as f:
-                f.write(uploaded_pdf.read())  # Save the uploaded PDF to a temp file
-
-            # Run the `extract_context` function
-            context = extract_context(f"/tmp/{pdf_name}", keyword)
+            # If not found, process the uploaded PDF in-memory
+            context = extract_context(uploaded_pdf, keyword)
 
             # Display extracted context
             st.write("Extracted Context:")
