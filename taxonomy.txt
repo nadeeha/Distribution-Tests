@@ -1,0 +1,20 @@
+import pandas as pd
+
+# Load the Excel file
+file_path = 'your_file_path_here.xlsx'
+xls = pd.ExcelFile(file_path)
+
+# Create a dictionary to store DataFrames with sheet names in lowercase
+dataframes = {}
+
+# Loop through each sheet and read it into a DataFrame
+for sheet_name in xls.sheet_names:
+    # Convert sheet name to lowercase
+    sheet_name_lower = sheet_name.lower()
+    # Read the sheet and store it in the dictionary
+    dataframes[sheet_name_lower] = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# Print the keys of the dictionary to confirm the DataFrames
+print(dataframes.keys())
+
+# Each DataFrame can be accessed using dataframes['sheet_name_in_lowercase']
