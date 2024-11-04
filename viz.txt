@@ -1,0 +1,49 @@
+import pandas as pd
+import plotly.express as px
+import ipywidgets as widgets
+from IPython.display import display
+
+# Load your dataset
+df = pd.read_csv('path_to_your_data.csv')  # Replace with your file path
+
+# Ensure the date column is in datetime format and extract the year
+df['year'] = pd.to_datetime(df['period_end_date']).dt.year
+
+# Create widgets for selecting company ID and year
+company_id_widget = widgets.Dropdown(
+    options=df['factset_entity_id'].unique(),
+    description='Company ID:',
+    value=df['factset_entity_id'].unique()[0]
+)
+
+year_widget = widgets.Dropdown(
+    description='Year:'
+)
+
+# Update the year dropdown based on selected company ID
+def update_year_options(*args):
+    selected_company_id = company_id_widget.value
+    years = df[df['factset_entity_id'] == selected_company_id]['year'].unique()
+    year_widget.options = years
+    year_widget.value = years[0] if len(years) > 0 else None
+
+# Link the update function to the company ID widget
+company_id_widget.observe(update_year_options, names='value')
+
+# Initial call to set the year options based on the first company ID
+update_year_options()
+
+# Function to update and display the plot
+def update_plot(company_id, year):
+    filtered_df = df[(df['factset_entity_id'] == company_id) & (df['year'] == year)]
+    fig = px.treemap(
+        filtered_df,
+        path=['l1_name', 'l2_name', 'l3_name', 'l4_name', 'l5_name', 'l6_name'],
+        values='l6_revenue',
+        title=f'Hierarchical Revenue Distribution for Company ID {company_id} in {year}'
+    )
+    fig.show()
+
+# Display the widgets and update plot function
+widgets.interactive(update_plot, company_id=company_id_widget, year=year_widget)
+          display(company_id_widget, year_widget)
