@@ -18,3 +18,64 @@ for sheet_name in xls.sheet_names:
 print(dataframes.keys())
 
 # Each DataFrame can be accessed using dataframes['sheet_name_in_lowercase']
+
+
+
+
+import pandas as pd
+import numpy as np
+
+# Create 4 DataFrames with a column that is not in df5
+df1 = pd.DataFrame({
+    'A': [1, 2],
+    'B': [3, 4],
+    'C': [5, 6],
+    'unique_col_4dfs': [10, 20]
+})
+
+df2 = pd.DataFrame({
+    'A': [7, 8],
+    'B': [9, 10],
+    'C': [11, 12],
+    'unique_col_4dfs': [30, 40]
+})
+
+df3 = pd.DataFrame({
+    'A': [13, 14],
+    'B': [15, 16],
+    'C': [17, 18],
+    'unique_col_4dfs': [50, 60]
+})
+
+df4 = pd.DataFrame({
+    'A': [19, 20],
+    'B': [21, 22],
+    'C': [23, 24],
+    'unique_col_4dfs': [70, 80]
+})
+
+# Create the fifth DataFrame without the 'unique_col_4dfs' and with extra columns
+df5 = pd.DataFrame({
+    'A': [25, 26],
+    'B': [27, 28],
+    'C': [29, 30],
+    'D': [31, 32],
+    'E': [33, 34],
+    'F': [35, 36],
+    'G': [37, 38]
+})
+
+# Concatenate all 5 DataFrames
+combined_df = pd.concat([df1, df2, df3, df4, df5], ignore_index=True)
+
+# Find extra columns in df5 that need a suffix
+extra_columns = df5.columns.difference(df1.columns)
+
+# Add suffix to extra columns from df5
+combined_df.rename(
+    columns={col: f"{col}_nuclear_gas" for col in extra_columns},
+    inplace=True
+)
+
+# Display the resulting DataFrame
+print(combined_df)
