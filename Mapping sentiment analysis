@@ -1,0 +1,54 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer, util
+
+# Assuming 'df' is your DataFrame with 'activity_description' and 'rbics_description' columns
+# Example:
+# df = pd.DataFrame({
+#     'activity_description': [...],
+#     'rbics_description': [...]
+# })
+
+# Prepare lists of descriptions
+activity_descriptions = df['activity_description'].fillna('').tolist()
+rbics_descriptions = df['rbics_description'].fillna('').tolist()
+
+# Method 1: TF-IDF with Cosine Similarity
+vectorizer = TfidfVectorizer()
+activity_vectors = vectorizer.fit_transform(activity_descriptions)
+rbics_vectors = vectorizer.transform(rbics_descriptions)
+
+# Compute TF-IDF Cosine Similarity scores
+tfidf_similarity_scores = cosine_similarity(activity_vectors, rbics_vectors).diagonal()
+
+# Method 2: Sentence-BERT for Semantic Similarity
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Encode descriptions using Sentence-BERT
+activity_embeddings = model.encode(activity_descriptions, convert_to_tensor=True)
+rbics_embeddings = model.encode(rbics_descriptions, convert_to_tensor=True)
+
+# Compute cosine similarity with Sentence-BERT embeddings
+semantic_similarity_scores = util.pytorch_cos_sim(activity_embeddings, rbics_embeddings).diagonal()
+
+# Combine scores into the DataFrame
+df['tfidf_similarity_score'] = tfidf_similarity_scores
+df['semantic_similarity_score'] = semantic_similarity_scores.numpy()  # Convert to numpy array if needed
+
+# Define function to categorize similarity
+def categorize_score(score):
+    if score > 0.8:
+        return 'High'
+    elif score > 0.5:
+        return 'Moderate'
+    else:
+        return 'Low'
+
+# Apply categorization
+df['tfidf_match_level'] = df['tfidf_similarity_score'].apply(categorize_score)
+df['semantic_match_level'] = df['semantic_similarity_score'].apply(categorize_score)
+
+# Display the DataFrame with scores and match levels
+print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'semantic_similarity_score', 
+          'tfidf_match_level', 'semantic_match_level']])
