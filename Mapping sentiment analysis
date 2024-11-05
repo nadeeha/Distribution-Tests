@@ -122,3 +122,16 @@ df['esg_bert_match_level'] = df['esg_bert_similarity_score'].apply(categorize_sc
 # Display the DataFrame with scores and match levels
 print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'esg_bert_similarity_score', 
           'tfidf_match_level', 'esg_bert_match_level']])
+
+
+
+
+def compute_embeddings(descriptions, batch_size=8):
+    all_embeddings = []
+    for i in range(0, len(descriptions), batch_size):
+        batch = descriptions[i:i + batch_size]
+        inputs = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
+        with torch.no_grad():
+            embeddings = model(**inputs).last_hidden_state.mean(dim=1)  # Mean pooling
+        all_embeddings.append(embeddings)
+    return torch.cat(all_embeddings, dim=0)
