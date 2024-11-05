@@ -52,3 +52,73 @@ df['semantic_match_level'] = df['semantic_similarity_score'].apply(categorize_sc
 # Display the DataFrame with scores and match levels
 print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'semantic_similarity_score', 
           'tfidf_match_level', 'semantic_match_level']])
+
+
+
+
+
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import AutoTokenizer, AutoModel
+import torch
+
+# Assuming 'df' is your DataFrame with 'activity_description' and 'rbics_description' columns
+# Example:
+# df = pd.DataFrame({
+#     'activity_description': [...],
+#     'rbics_description': [...]
+# })
+
+# Prepare lists of descriptions
+activity_descriptions = df['activity_description'].fillna('').tolist()
+rbics_descriptions = df['rbics_description'].fillna('').tolist()
+
+# Method 1: TF-IDF with Cosine Similarity
+vectorizer = TfidfVectorizer()
+activity_vectors = vectorizer.fit_transform(activity_descriptions)
+rbics_vectors = vectorizer.transform(rbics_descriptions)
+
+# Compute TF-IDF Cosine Similarity scores
+tfidf_similarity_scores = cosine_similarity(activity_vectors, rbics_vectors).diagonal()
+
+# Method 2: ESG BERT for Semantic Similarity
+# Load an ESG-specific BERT model and tokenizer (replace 'esg-bert' with the actual model name)
+model_name = "username/esg-bert"  # Replace with the actual ESG BERT model name
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name)
+
+# Define a function to compute embeddings for a list of descriptions
+def compute_embeddings(descriptions):
+    inputs = tokenizer(descriptions, padding=True, truncation=True, return_tensors="pt")
+    with torch.no_grad():
+        embeddings = model(**inputs).last_hidden_state.mean(dim=1)  # Mean pooling
+    return embeddings
+
+# Compute ESG BERT embeddings for both activity and RBICS descriptions
+activity_embeddings = compute_embeddings(activity_descriptions)
+rbics_embeddings = compute_embeddings(rbics_descriptions)
+
+# Compute cosine similarity with ESG BERT embeddings
+cosine_similarities = torch.nn.functional.cosine_similarity(activity_embeddings, rbics_embeddings)
+
+# Combine scores into the DataFrame
+df['tfidf_similarity_score'] = tfidf_similarity_scores
+df['esg_bert_similarity_score'] = cosine_similarities.numpy()  # Convert to numpy array if needed
+
+# Define function to categorize similarity
+def categorize_score(score):
+    if score > 0.8:
+        return 'High'
+    elif score > 0.5:
+        return 'Moderate'
+    else:
+        return 'Low'
+
+# Apply categorization
+df['tfidf_match_level'] = df['tfidf_similarity_score'].apply(categorize_score)
+df['esg_bert_match_level'] = df['esg_bert_similarity_score'].apply(categorize_score)
+
+# Display the DataFrame with scores and match levels
+print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'esg_bert_similarity_score', 
+          'tfidf_match_level', 'esg_bert_match_level']])
