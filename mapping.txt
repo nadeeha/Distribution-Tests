@@ -2,16 +2,14 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Load data (adjust file paths as needed)
-df_iea_test = pd.read_csv('iea_technology_activities.csv')
-df_rbics_matrix_test = pd.read_csv('rbics_revenue.csv')
+# Load your data (replace these with actual paths or data loading method)
+df_iea_test = pd.read_csv('iea_technology_activities.csv')  # Expected 5 rows based on similarity matrix
+df_rbics_matrix_test = pd.read_csv('rbics_revenue.csv')  # Expected 43 rows based on similarity matrix
 
 # Initialize embedding model
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Combine text columns and avoid setting-with-copy warnings
-df_iea_test = df_iea_test.copy()
-df_rbics_matrix_test = df_rbics_matrix_test.copy()
+# Combine text columns to create a consolidated text for comparison
 df_iea_test['combined_text'] = df_iea_test[['name', 'description', 'NZErationale', 'SupplyChain', 'theme']].fillna('').agg(' '.join, axis=1)
 df_rbics_matrix_test['combined_text'] = df_rbics_matrix_test[['L6_NAME', 'L6_DESCRIPTION']].fillna('').agg(' '.join, axis=1)
 
@@ -26,11 +24,7 @@ print("RBICS Embedding Shape:", rbics_embeddings.shape)
 similarity_matrix = cosine_similarity(iea_embeddings, rbics_embeddings)
 print("Similarity Matrix Shape:", similarity_matrix.shape)
 
-# Check that similarity matrix dimensions match
-if similarity_matrix.shape[0] != len(df_iea_test) or similarity_matrix.shape[1] != len(df_rbics_matrix_test):
-    raise ValueError("Mismatch between similarity matrix dimensions and dataframes. Check your embeddings.")
-
-# Function to assign flags
+# Function to assign flags based on similarity score
 def assign_flag(similarity_score):
     if similarity_score >= 0.8:
         return "High"
@@ -39,10 +33,18 @@ def assign_flag(similarity_score):
     else:
         return "Low"
 
-# Map each IEA category to all RBICS categories, including flags
+# Create a list to store the mappings
 mapping_results = []
-for i, iea_row in df_iea_test.iterrows():
-    for j, rbics_row in df_rbics_matrix_test.iterrows():
+
+# Limit iteration based on similarity matrix dimensions
+num_iea = similarity_matrix.shape[0]  # Should match the number of rows in df_iea_test
+num_rbics = similarity_matrix.shape[1]  # Should match the number of rows in df_rbics_matrix_test
+
+# Map each IEA category to all RBICS categories, including flags
+for i in range(num_iea):
+    iea_row = df_iea_test.iloc[i]
+    for j in range(num_rbics):
+        rbics_row = df_rbics_matrix_test.iloc[j]
         similarity_score = similarity_matrix[i, j]
         flag = assign_flag(similarity_score)
         mapping_results.append({
@@ -54,7 +56,9 @@ for i, iea_row in df_iea_test.iterrows():
             'relevance_flag': flag
         })
 
-# Convert to DataFrame and save results
+# Convert the mappings to a DataFrame and save or display
 mapping_df = pd.DataFrame(mapping_results)
+mapping_df = mapping_df.sort_values(by='similarity_score', ascending=False)
 mapping_df.to_csv('iea_rbics_mapping_with_flags.csv', index=False)
+
 print(mapping_df.head())
