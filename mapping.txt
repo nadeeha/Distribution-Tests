@@ -1,0 +1,53 @@
+import pandas as pd
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load your data (replace these with actual paths or data loading method)
+df_iea_test = pd.read_csv('iea_technology_activities.csv')
+rbics_revenue = pd.read_csv('rbics_revenue.csv')
+
+# Initialize embedding model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Combine text columns in df_iea_test to create a consolidated text for comparison
+df_iea_test['combined_text'] = df_iea_test[['name', 'description', 'NZErationale', 'SupplyChain', 'theme']].fillna('').agg(' '.join, axis=1)
+
+# Create embeddings for IEA and RBICS combined text columns
+iea_embeddings = model.encode(df_iea_test['combined_text'].tolist(), convert_to_tensor=True)
+rbics_embeddings = model.encode(rbics_revenue['description'].fillna('').tolist(), convert_to_tensor=True)
+
+# Calculate cosine similarity between each IEA and RBICS entry
+similarity_matrix = cosine_similarity(iea_embeddings, rbics_embeddings)
+
+# Define a function to assign flags based on similarity score
+def assign_flag(similarity_score):
+    if similarity_score >= 0.8:
+        return "High"
+    elif similarity_score >= 0.6:
+        return "Moderate"
+    else:
+        return "Low"
+
+# Create a list to store the mappings
+mapping_results = []
+
+# Map each IEA category to all RBICS categories, including flags
+for i, iea_row in df_iea_test.iterrows():
+    for j, rbics_row in rbics_revenue.iterrows():
+        similarity_score = similarity_matrix[i, j]
+        flag = assign_flag(similarity_score)
+        mapping_results.append({
+            'iea_id': iea_row['name'],  # Adjust if 'name' is not unique ID
+            'rbics_id': rbics_row['name'],
+            'iea_description': iea_row['combined_text'],
+            'rbics_description': rbics_row['description'],
+            'similarity_score': similarity_score,
+            'relevance_flag': flag
+        })
+
+# Convert the mappings to a DataFrame and save or display
+mapping_df = pd.DataFrame(mapping_results)
+mapping_df = mapping_df.sort_values(by='similarity_score', ascending=False)
+mapping_df.to_csv('iea_rbics_mapping_with_flags.csv', index=False)
+
+print(mapping_df.head())
