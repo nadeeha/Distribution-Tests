@@ -68,3 +68,28 @@ rbics_keywords = vectorizer.fit_transform(rbics_data['description'].fillna(""))
 
 print("Top keywords in IEA Descriptions:", vectorizer.get_feature_names_out())
 print("Top keywords in RBICS Descriptions:", vectorizer.get_feature_names_out())
+
+
+
+import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_trace(go.Histogram(x=iea_data['description_length'], name="IEA Descriptions"))
+fig.add_trace(go.Histogram(x=rbics_data['description_length'], name="RBICS Descriptions"))
+fig.update_layout(barmode='overlay', title="Description Length Distribution", xaxis_title="Description Length", yaxis_title="Count")
+fig.update_traces(opacity=0.6)
+fig.show()
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Generate word cloud for IEA descriptions
+text = " ".join(iea_data['description'].dropna().tolist())
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+
+# Plot Word Cloud
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.title("IEA Descriptions - Word Cloud")
+plt.show()
