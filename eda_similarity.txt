@@ -155,3 +155,52 @@ def convert_trl(value):
 # Apply conversion to each TRL column
 for col in ['trl2020', 'trl2021', 'trl2022', 'trl2023']:
     df_iea[col] = df_iea[col].apply(convert_trl)
+
+
+
+import pandas as pd
+import re
+import spacy
+from nltk.corpus import stopwords
+
+# Load spaCy English model
+nlp = spacy.load('en_core_web_sm')
+stop_words = set(stopwords.words('english'))
+
+# Sample DataFrames (replace with your actual data)
+# df_iea = pd.read_csv("path/to/df_iea.csv")
+# df_rbics = pd.read_csv("path/to/df_rbics.csv")
+
+# Columns to combine for each DataFrame
+iea_text_columns = ['name', 'description', 'NZErationale', 'theme']
+rbics_text_columns = ['name', 'description']
+
+# Define a function to apply all preprocessing steps including lemmatization
+def preprocess_text(text):
+    text = text.lower()  # Lowercase
+    text = re.sub(r'[^\w\s|]', '', text)  # Remove punctuation except "|"
+    text = ' '.join(word for word in text.split() if word not in stop_words)  # Remove stop words
+
+    # Lemmatization with spaCy
+    doc = nlp(text)
+    text = ' '.join(token.lemma_ for token in doc if token.lemma_ != "-PRON-")  # Skip pronouns
+    text = text.strip()  # Remove extra whitespaces
+    return text
+
+# Combine columns and apply preprocessing for df_iea
+df_iea['combined_text'] = (
+    "Name: " + df_iea['name'].fillna('') + " | " +
+    "Description: " + df_iea['description'].fillna('') + " | " +
+    "NZErationale: " + df_iea['NZErationale'].fillna('') + " | " +
+    "Theme: " + df_iea['theme'].fillna('')
+).apply(preprocess_text)
+
+# Combine columns and apply preprocessing for df_rbics
+df_rbics['combined_text'] = (
+    "Name: " + df_rbics['name'].fillna('') + " | " +
+    "Description: " + df_rbics['description'].fillna('')
+).apply(preprocess_text)
+
+# Check the resulting combined and preprocessed columns
+print(df_iea[['combined_text']].head())
+print(df_rbics[['combined_text']].head())
