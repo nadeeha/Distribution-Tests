@@ -21,3 +21,50 @@ def fix_date_format(value):
 df['column_name'] = df['column_name'].apply(fix_date_format)
 
 print(df['column_name'])  # Verify the column content
+
+
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+import seaborn as sns
+
+# Load the data
+iea_data = pd.read_csv("iea_clean_technology_guide.csv")
+rbics_data = pd.read_csv("rbics_l6_categories.csv")
+
+# Basic checks
+print(iea_data.info())
+print(rbics_data.info())
+
+# Missing values
+print("IEA missing values:\n", iea_data.isna().sum())
+print("RBICS missing values:\n", rbics_data.isna().sum())
+
+# Description length analysis
+iea_data['description_length'] = iea_data['description'].apply(lambda x: len(str(x)))
+rbics_data['description_length'] = rbics_data['description'].apply(lambda x: len(str(x)))
+
+plt.figure(figsize=(10, 6))
+sns.histplot(iea_data['description_length'], kde=True, label="IEA Description Length")
+sns.histplot(rbics_data['description_length'], kde=True, color="orange", label="RBICS Description Length")
+plt.legend()
+plt.title("Description Length Distribution")
+plt.show()
+
+# Sector distribution in IEA data
+plt.figure(figsize=(12, 6))
+iea_data['sector'].value_counts().plot(kind='bar')
+plt.title("Sector Distribution in IEA Data")
+plt.show()
+
+# Top keywords in descriptions using CountVectorizer
+vectorizer = CountVectorizer(stop_words='english', max_features=10)
+iea_keywords = vectorizer.fit_transform(iea_data['description'].fillna(""))
+rbics_keywords = vectorizer.fit_transform(rbics_data['description'].fillna(""))
+
+print("Top keywords in IEA Descriptions:", vectorizer.get_feature_names_out())
+print("Top keywords in RBICS Descriptions:", vectorizer.get_feature_names_out())
