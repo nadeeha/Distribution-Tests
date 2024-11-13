@@ -110,3 +110,48 @@ fig = px.bar(df_iea['theme'].value_counts().reset_index(),
 fig.update_traces(marker_color=custom_color)
 fig.update_layout(xaxis={'categoryorder':'total descending'}, xaxis_tickangle=-45)
 fig.show()
+
+
+import streamlit as st
+import plotly.express as px
+
+# Load your preprocessed DataFrame
+# df_iea = pd.read_csv("path/to/your/data.csv")  # Uncomment if loading from a CSV
+
+# Dropdown for selecting a technology
+selected_tech = st.selectbox("Select a Technology", df_iea['name'].unique())
+
+# Filter data for the selected technology
+filtered_data = df_iea[df_iea['name'] == selected_tech]
+
+# Prepare data for plotting
+trl_values = [filtered_data['trl2020'].values[0], filtered_data['trl2021'].values[0],
+              filtered_data['trl2022'].values[0], filtered_data['trl2023'].values[0]]
+years = ['2020', '2021', '2022', '2023']
+
+# Plotting
+fig = px.line(x=years, y=trl_values, title=f"TRL Over Time for {selected_tech}",
+              labels={'x': 'Year', 'y': 'Technology Readiness Level'})
+
+# Display the plot
+st.plotly_chart(fig)
+
+
+
+
+
+import pandas as pd
+
+# Example data setup (replace with actual DataFrame)
+# Assume df_iea has columns: 'name', 'trl2020', 'trl2021', 'trl2022', 'trl2023'
+
+def convert_trl(value):
+    if isinstance(value, str) and '-' in value:  # Check if it's a range
+        start, end = map(float, value.split('-'))
+        return (start + end) / 2
+    else:
+        return float(value)  # Convert single values to float directly
+
+# Apply conversion to each TRL column
+for col in ['trl2020', 'trl2021', 'trl2022', 'trl2023']:
+    df_iea[col] = df_iea[col].apply(convert_trl)
