@@ -93,3 +93,20 @@ plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 plt.title("IEA Descriptions - Word Cloud")
 plt.show()
+
+
+import plotly.express as px
+
+# Assuming df_iea is your DataFrame and theme is the column with 35 unique themes
+# Replace `your_custom_color` with the color you want to use for the bars
+custom_color = 'your_custom_color'  # Define your custom color here
+
+fig = px.bar(df_iea['theme'].value_counts().reset_index(),
+             x='index', y='theme',
+             title="Theme Distribution in IEA Data",
+             labels={'index': 'Theme', 'theme': 'Count'})
+
+# Use custom color and improve readability
+fig.update_traces(marker_color=custom_color)
+fig.update_layout(xaxis={'categoryorder':'total descending'}, xaxis_tickangle=-45)
+fig.show()
