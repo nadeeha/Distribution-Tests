@@ -1,0 +1,23 @@
+import pandas as pd
+import re
+
+# Step 1: Load the CSV with all columns as strings
+df = pd.read_csv("your_file.csv", dtype=str)
+
+# Step 2: Define a function to detect and convert dates back to ranges
+def fix_date_format(value):
+    if isinstance(value, str):
+        # Check if it looks like a date
+        if re.match(r"^\d{1,2}-[A-Za-z]+$", value):
+            # Example: convert '4-Mar' back to '3-4' or similar
+            # Split the date-formatted string and retain only the day part
+            day = re.match(r"^\d{1,2}", value).group(0)
+            # Assuming that the month part represents the original range end, retrieve it
+            end_range = str(int(day) + 1)  # Adjust end of range as needed
+            return f"{day}-{end_range}"
+    return value
+
+# Step 3: Apply this function to the relevant column(s)
+df['column_name'] = df['column_name'].apply(fix_date_format)
+
+print(df['column_name'])  # Verify the column content
