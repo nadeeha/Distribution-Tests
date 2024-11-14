@@ -393,3 +393,57 @@ fig.update_layout(
 
 # Display plot in Streamlit app
 st.plotly_chart(fig)
+
+
+
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load data from the provided file path
+df = pd.read_csv('/mnt/data/file-HU7XOXsitH6xW7fVfJeWFFnq')
+
+# Sidebar filter for IEA ID
+iea_id = st.sidebar.selectbox("Select IEA ID", df['iea_id'].unique())
+
+# Filter data based on selected IEA ID
+filtered_df = df[df['iea_id'] == iea_id]
+
+# Format hover text with line breaks and limited length
+def format_hover_text(row):
+    iea_desc = row['iea_description'][:100] + "..." if len(row['iea_description']) > 100 else row['iea_description']
+    rbics_desc = row['rbics_description'][:100] + "..." if len(row['rbics_description']) > 100 else row['rbics_description']
+    return f"IEA Description: {iea_desc}<br>RBICS Description: {rbics_desc}"
+
+filtered_df['hover_text'] = filtered_df.apply(format_hover_text, axis=1)
+
+# Create scatter plot with customized hover text
+fig = px.scatter(
+    filtered_df,
+    x="rbics_id",
+    y="similarity_score",
+    color="relevance_flag",
+    title=f"Mappings for IEA ID: {iea_id}",
+    labels={"rbics_id": "RBICS ID", "similarity_score": "Similarity Score"}
+)
+
+# Use hovertemplate to control how hover text displays
+fig.update_traces(
+    hovertemplate="<b>%{text}</b><extra></extra>",  # Custom hovertemplate to display full text
+    text=filtered_df['hover_text']  # Display combined, formatted hover text
+)
+
+# Adjust hover label font size and color
+fig.update_layout(
+    width=1200,  # Increase plot width to prevent truncation
+    height=700,
+    hoverlabel=dict(
+        font_size=12,   # Set font size for hover text
+        font_family="Arial"  # Optionally set a font family
+    )
+)
+
+# Display plot in Streamlit app
+st.plotly_chart(fig)
