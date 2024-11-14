@@ -346,3 +346,50 @@ fig.update_layout(
 
 # Display plot in Streamlit app
 st.plotly_chart(fig)
+
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load data
+df = pd.read_csv('your_file.csv')
+
+# Sidebar filter for IEA ID
+iea_id = st.sidebar.selectbox("Select IEA ID", df['iea_id'].unique())
+
+# Filter data based on selected IEA ID
+filtered_df = df[df['iea_id'] == iea_id]
+
+# Customize hover text to include full descriptions
+filtered_df['hover_text'] = (
+    "IEA Description: " + filtered_df['iea_description'] + "<br>" +
+    "RBICS Description: " + filtered_df['rbics_description']
+)
+
+# Plot with hovertemplate to control full hover text visibility
+fig = px.scatter(
+    filtered_df,
+    x="rbics_id",
+    y="similarity_score",
+    color="relevance_flag",
+    title=f"Mappings for IEA ID: {iea_id}",
+    labels={"rbics_id": "RBICS ID", "similarity_score": "Similarity Score"}
+)
+
+# Apply hovertemplate for full hover text display
+fig.update_traces(
+    hovertemplate="<b>%{text}</b><extra></extra>",
+    text=filtered_df['hover_text']  # Use hover_text for full description
+)
+
+# Increase the layout size for better visibility
+fig.update_layout(
+    width=1000,
+    height=600,
+    hoverlabel=dict(font_size=14)
+)
+
+# Display plot in Streamlit app
+st.plotly_chart(fig)
