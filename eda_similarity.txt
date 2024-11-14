@@ -204,3 +204,54 @@ df_rbics['combined_text'] = (
 # Check the resulting combined and preprocessed columns
 print(df_iea[['combined_text']].head())
 print(df_rbics[['combined_text']].head())
+
+
+
+
+
+import pandas as pd
+
+# Sample Data
+data = {
+    'iea_name': ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B'],
+    'relevance_flag': ['Low', 'Low', 'Low', 'Low', 'Low', 'Very Low', 'Very Low', 'Very Low', 'Very Low', 'Very Low', 'High', 'Moderate', 'Low', 'Very Low'],
+    'similarity_score': [0.80, 0.78, 0.76, 0.75, 0.74, 0.70, 0.68, 0.67, 0.66, 0.65, 0.90, 0.85, 0.83, 0.60]
+}
+
+df = pd.DataFrame(data)
+
+# Function to apply the filtering logic
+def filter_relevance(df):
+    # Check for High and Moderate values
+    high_moderate = df[df['relevance_flag'].isin(['High', 'Moderate'])]
+    
+    # Check if we have any High or Moderate values
+    if not high_moderate.empty:
+        # Get top 5 Low values based on similarity_score
+        low = df[df['relevance_flag'] == 'Low'].nlargest(5, 'similarity_score')
+        
+        # Get top 5 Very Low values based on similarity_score
+        very_low = df[df['relevance_flag'] == 'Very Low'].nlargest(5, 'similarity_score')
+        
+        # Combine all results
+        result = pd.concat([high_moderate, low, very_low])
+    
+    else:
+        # No High or Moderate, so only get Low and Very Low
+        low = df[df['relevance_flag'] == 'Low'].nlargest(5, 'similarity_score')
+        very_low = df[df['relevance_flag'] == 'Very Low'].nlargest(5, 'similarity_score')
+        
+        # If no Low values are present, just get Very Low
+        if low.empty and not very_low.empty:
+            result = very_low
+        else:
+            result = pd.concat([low, very_low])
+    
+    # Sort final result by similarity_score in descending order
+    return result.sort_values(by='similarity_score', ascending=False)
+
+# Apply the function to each iea_name group
+result = df.groupby('iea_name', group_keys=False).apply(filter_relevance)
+
+# Display the result
+print(result)
