@@ -447,3 +447,60 @@ fig.update_layout(
 
 # Display plot in Streamlit app
 st.plotly_chart(fig)
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load data from the provided file path
+df = pd.read_csv('/mnt/data/file-HU7XOXsitH6xW7fVfJeWFFnq')
+
+# Sidebar filter for IEA ID
+iea_id = st.sidebar.selectbox("Select IEA ID", df['iea_id'].unique())
+
+# Function to add line breaks to the text at regular intervals
+def add_line_breaks(text, interval=50):
+    return '<br>'.join([text[i:i+interval] for i in range(0, len(text), interval)])
+
+# Apply the line break function to the description columns
+df['formatted_iea_description'] = df['iea_description'].apply(lambda x: add_line_breaks(x, 50))
+df['formatted_rbics_description'] = df['rbics_description'].apply(lambda x: add_line_breaks(x, 50))
+
+# Combine formatted descriptions into hover text
+df['hover_text'] = (
+    "IEA Description: " + df['formatted_iea_description'] + 
+    "<br>RBICS Description: " + df['formatted_rbics_description']
+)
+
+# Filter data based on selected IEA ID
+filtered_df = df[df['iea_id'] == iea_id]
+
+# Create scatter plot with customized hover text
+fig = px.scatter(
+    filtered_df,
+    x="rbics_id",
+    y="similarity_score",
+    color="relevance_flag",
+    title=f"Mappings for IEA ID: {iea_id}",
+    labels={"rbics_id": "RBICS ID", "similarity_score": "Similarity Score"}
+)
+
+# Use hovertemplate to display the formatted hover text
+fig.update_traces(
+    hovertemplate="<b>%{text}</b><extra></extra>",  # Custom hovertemplate to display full text
+    text=filtered_df['hover_text']  # Use hover_text with line breaks
+)
+
+# Adjust layout size and hover text appearance
+fig.update_layout(
+    width=1200,  # Increase plot width if necessary
+    height=700,
+    hoverlabel=dict(
+        font_size=12,   # Set font size for readability
+        font_family="Arial"  # Optionally set a font family
+    )
+)
+
+# Display plot in Streamlit app
+st.plotly_chart(fig)
