@@ -302,3 +302,47 @@ fig.update_layout(xaxis_title="RBICS ID", yaxis_title="Similarity Score")
 
 # Display plot in Streamlit app
 st.plotly_chart(fig)
+
+
+
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load data
+df = pd.read_csv('your_file.csv')
+
+# Sidebar filter for IEA ID
+iea_id = st.sidebar.selectbox("Select IEA ID", df['iea_id'].unique())
+
+# Filter data based on selected IEA ID
+filtered_df = df[df['iea_id'] == iea_id]
+
+# Customize hover text by combining descriptions into one field
+filtered_df['hover_text'] = (
+    "IEA Description: " + filtered_df['iea_description'] + "<br>" +
+    "RBICS Description: " + filtered_df['rbics_description']
+)
+
+# Plot with larger size and customized hover text
+fig = px.scatter(
+    filtered_df,
+    x="rbics_id",
+    y="similarity_score",
+    color="relevance_flag",
+    hover_name="hover_text",  # Display combined hover text
+    title=f"Mappings for IEA ID: {iea_id}",
+    labels={"rbics_id": "RBICS ID", "similarity_score": "Similarity Score"}
+)
+
+# Increase the layout size for better visibility
+fig.update_layout(
+    width=1000,  # Adjust width as needed
+    height=600,  # Adjust height as needed
+    hoverlabel=dict(font_size=14)  # Increase hover text font size
+)
+
+# Display plot in Streamlit app
+st.plotly_chart(fig)
