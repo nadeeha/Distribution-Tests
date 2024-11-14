@@ -255,3 +255,18 @@ result = df.groupby('iea_name', group_keys=False).apply(filter_relevance)
 
 # Display the result
 print(result)
+
+
+import plotly.express as px
+
+# Plotly interactive scatter plot
+fig = px.scatter(
+    df,
+    x="iea_id",
+    y="similarity_score",
+    color="relevance_flag",
+    hover_data=["rbics_id", "iea_description", "rbics_description"],
+    title="IEA to RBICS Mappings by Similarity Score and Relevance Flag"
+)
+fig.update_layout(xaxis_title="IEA ID", yaxis_title="Similarity Score")
+fig.show()
