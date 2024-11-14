@@ -555,3 +555,56 @@ fig.update_layout(
 
 # Display plot in Streamlit app
 st.plotly_chart(fig)
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load data from the provided file path
+df = pd.read_csv('/mnt/data/file-HU7XOXsitH6xW7fVfJeWFFnq')
+
+# Sidebar filter for IEA ID
+iea_id = st.sidebar.selectbox("Select IEA ID", df['iea_id'].unique())
+
+# Filter data based on selected IEA ID
+filtered_df = df[df['iea_id'] == iea_id]
+
+# Display the IEA description in the sidebar for the selected IEA ID
+iea_description = filtered_df['iea_description'].iloc[0]  # IEA description is unique for each IEA ID
+st.sidebar.write(f"**IEA Description for IEA ID {iea_id}:**")
+st.sidebar.write(iea_description)  # Display the description without scrollbars
+
+# Customize hover text to show only the RBICS description
+filtered_df['hover_text'] = filtered_df['rbics_description']
+
+# Create scatter plot with customized hover text
+fig = px.scatter(
+    filtered_df,
+    x="rbics_id",
+    y="similarity_score",
+    color="relevance_flag",
+    hover_name="hover_text",  # Only RBICS description in hover text
+    title=f"Mappings for IEA ID: {iea_id}",
+    labels={"rbics_id": "RBICS ID", "similarity_score": "Similarity Score"}
+)
+
+# Adjust layout for width, height, and hover text font
+fig.update_layout(
+    width=1200,        # Set the width of the plot (adjust as needed)
+    height=700,        # Set the height of the plot (adjust as needed)
+    title=dict(
+        x=0.5,         # Center the title
+        xanchor='center'
+    ),
+    hoverlabel=dict(
+        font_size=14,  # Set the font size of hover text
+        font_family="Arial"  # Set font family for hover text (optional)
+    ),
+    margin=dict(l=50, r=50, t=80, b=50)  # Adjust plot margins
+)
+
+# Display plot in Streamlit app
+st.plotly_chart(fig)
+
+
