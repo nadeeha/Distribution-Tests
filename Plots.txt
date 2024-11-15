@@ -21,23 +21,34 @@ st.write(f"Total number of unique IEA names: {unique_iea_names}")
 
 # Interactive bar plot for relevance_flag counts with Plotly
 def plot_relevance_flag_counts(df):
-    fig = px.histogram(df, x="relevance_flag", color="relevance_flag",
-                       color_discrete_map={"high": "lightgreen", "moderate": "yellow", "low": "lightcoral"},
-                       title="Relevance Flag Distribution", labels={"relevance_flag": "Relevance Flag", "count": "Count"})
+    fig = px.histogram(
+        df,
+        x="relevance_flag",
+        color="relevance_flag",
+        color_discrete_map={
+            "high": "lightgreen",
+            "moderate": "yellow",
+            "low": "lightcoral"
+        },
+        title="Relevance Flag Distribution",
+        labels={"relevance_flag": "Relevance Flag", "count": "Count"}
+    )
 
     # Add thresholds as an annotation in the plot
     thresholds_text = "Thresholds:\nHigh: >= 0.75\nModerate: 0.6 - 0.75\nLow: < 0.6"
     fig.add_annotation(
         text=thresholds_text,
-        xref="paper", yref="paper",
-        x=1.15, y=0.5,
+        xref="paper",
+        yref="paper",
+        x=1.15,
+        y=0.5,
         showarrow=False,
         font=dict(size=12),
         bgcolor="white",
         bordercolor="black"
     )
-    
-    fig.update_layout(width=800, height=500)  # Increase plot size for better display
+
+    fig.update_layout(width=800, height=500)  # Adjust plot size for better display
     st.plotly_chart(fig)
 
 # Streamlit app layout
@@ -54,8 +65,15 @@ else:
 
 # Conditional formatting for relevance_flag column
 def highlight_relevance_flag(row):
-    color = 'lightgreen' if row['relevance_flag'] == 'high' else 'yellow' if row['relevance_flag'] == 'moderate' else 'lightcoral'
-    return ['background-color: {}'.format(color) if col == 'relevance_flag' else '' for col in row.index]
+    if row['relevance_flag'] == 'high':
+        color = 'background-color: lightgreen'
+    elif row['relevance_flag'] == 'moderate':
+        color = 'background-color: yellow'
+    elif row['relevance_flag'] == 'low':
+        color = 'background-color: lightcoral'
+    else:
+        color = ''
+    return [color if col == 'relevance_flag' else '' for col in row.index]
 
 # Display the filtered DataFrame with conditional formatting
 st.write("Filtered Data:")
