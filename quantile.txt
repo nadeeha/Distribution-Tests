@@ -24,3 +24,71 @@ with open(output_html, "w") as f:
     f.write(html_content)
 
 print(f"All plots combined into: {output_html}")
+
+
+
+
+from sklearn.preprocessing import QuantileTransformer, PowerTransformer
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import skew, boxcox
+
+# Assuming 'col_data' is the column data to be transformed
+skewness = skew(col_data.dropna())  # Calculate skewness
+
+# Plot the original distribution
+plt.subplot(1, 2, 1)
+sns.histplot(col_data.dropna(), kde=True, bins=30)  # Drop NaNs for visualization
+plt.title(f"Original Distribution (Skewness: {skewness:.2f})")
+
+# Apply appropriate transformation based on skewness
+try:
+    if skewness > 0.5:  # Positively skewed
+        if all(col_data.dropna() > 0):  # Ensure positive values
+            if skewness > 1.5:  # Use log transformation for highly positive skew
+                transformed_col = np.log1p(col_data)  # log(1 + data) to avoid negatives
+                transformation = 'Log Transformation'
+                reason = f'Applied due to very high positive skewness (skewness = {skewness:.2f}) with positive data.'
+
+            else:
+                # Apply Box-Cox transformation which works only on positive values
+                transformed_col, fitted_lambda = boxcox(col_data.dropna())  
+                transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
+                transformation = 'Box-Cox Transformation'
+                reason = f'Applied due to moderate positive skewness (skewness = {skewness:.2f}) with positive data.'
+
+        else:
+            # Apply Yeo-Johnson transformation for datasets with both negative and positive values
+            pt = PowerTransformer(method='yeo-johnson')
+            transformed_col = pt.fit_transform(col_data.dropna().values.reshape(-1, 1)).flatten()
+            transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
+            transformation = 'Yeo-Johnson Transformation'
+            reason = f'Applied due to high positive skewness (skewness = {skewness:.2f}) with non-positive data.'
+
+    elif skewness < -0.5:  # Negatively skewed
+        if all(col_data.dropna() > 0):
+            # Apply Exponential transformation to retain positive values for left-skewed data
+            transformed_col = np.exp(col_data.max() - col_data + 1)
+            transformation = 'Exponential Transformation'
+            reason = f'Applied due to high negative skewness (skewness = {skewness:.2f}) with positive data.'
+        else:
+            # Apply Quantile Transformation (with uniform distribution) to retain non-negative values
+            qt = QuantileTransformer(output_distribution='uniform', random_state=0)
+            transformed_col = qt.fit_transform(col_data.dropna().values.reshape(-1, 1)).flatten()
+            transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
+            transformation = 'Quantile Transformation'
+            reason = f'Applied due to high negative skewness (skewness = {skewness:.2f}) with non-positive data.'
+
+    elif -0.5 <= skewness <= 0.5:  # Low or no skewness
+        # Apply Quantile Transformation with uniform distribution to retain positive values
+        qt = QuantileTransformer(output_distribution='uniform', random_state=0)
+        transformed_col = qt.fit_transform(col_data.dropna().values.reshape(-1, 1)).flatten()
+        transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
+        transformation = 'Quantile Transformation'
+        reason = f'Applied due to low or no skewness (skewness = {skewness:.2f}), ensuring positive-only values.'
+
+    else:
+        transformed_col = col_data  # No transformation needed
+        transformation = 'No Transformation Needed
