@@ -1,0 +1,72 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Sample data (replace this with your actual DataFrame)
+data = {
+    'iea_name': ['IEA1', 'IEA2', 'IEA1', 'IEA3', 'IEA2', 'IEA3'],
+    'rbics_L6_name': ['RBICS1', 'RBICS2', 'RBICS1', 'RBICS3', 'RBICS2', 'RBICS3'],
+    'relevance_flag': ['high', 'moderate', 'low', 'high', 'moderate', 'low'],
+    'combined_similarity_score': [0.85, 0.65, 0.92, 0.78, 0.58, 0.45]
+}
+
+df = pd.DataFrame(data)
+
+# Display total number of unique iea_names
+unique_iea_names = df['iea_name'].nunique()
+st.write(f"Total number of unique IEA names: {unique_iea_names}")
+
+# Bar plot for relevance_flag counts with annotation for thresholds
+def plot_relevance_flag_counts(df):
+    plt.figure(figsize=(6, 4))
+    sns.countplot(x='relevance_flag', data=df, palette=['lightgreen', 'yellow', 'lightcoral'])
+    plt.title("Relevance Flag Distribution")
+    plt.xlabel("Relevance Flag")
+    plt.ylabel("Count")
+    
+    # Add text for thresholds
+    thresholds_text = "Thresholds:\nHigh: >= 0.75\nModerate: 0.6 - 0.75\nLow: < 0.6"
+    plt.gca().text(1.05, 0.5, thresholds_text, transform=plt.gca().transAxes,
+                   fontsize=10, verticalalignment='center', bbox=dict(facecolor='white', alpha=0.5))
+    
+    st.pyplot(plt)
+
+# Streamlit app layout
+st.title("Dataframe with Filters and Conditional Formatting")
+
+# Filter widgets for categorical columns
+iea_name_options = st.multiselect("Select IEA Name", options=df['iea_name'].unique(), default=df['iea_name'].unique())
+rbics_L6_name_options = st.multiselect("Select RBICS L6 Name", options=df['rbics_L6_name'].unique(), default=df['rbics_L6_name'].unique())
+relevance_flag_options = st.multiselect("Select Relevance Flag", options=df['relevance_flag'].unique(), default=df['relevance_flag'].unique())
+
+# Filter widget for continuous numerical column
+combined_similarity_score_range = st.slider(
+    "Select Combined Similarity Score Range", 
+    min_value=float(df['combined_similarity_score'].min()), 
+    max_value=float(df['combined_similarity_score'].max()), 
+    value=(float(df['combined_similarity_score'].min()), float(df['combined_similarity_score'].max()))
+)
+
+# Apply filters
+filtered_df = df[
+    (df['iea_name'].isin(iea_name_options)) &
+    (df['rbics_L6_name'].isin(rbics_L6_name_options)) &
+    (df['relevance_flag'].isin(relevance_flag_options)) &
+    (df['combined_similarity_score'] >= combined_similarity_score_range[0]) &
+    (df['combined_similarity_score'] <= combined_similarity_score_range[1])
+]
+
+# Conditional formatting for relevance_flag column
+def highlight_relevance_flag(row):
+    color = 'lightgreen' if row['relevance_flag'] == 'high' else 'yellow' if row['relevance_flag'] == 'moderate' else 'lightcoral'
+    return ['background-color: {}'.format(color) if col == 'relevance_flag' else '' for col in row.index]
+
+# Display the filtered DataFrame with conditional formatting
+st.write("Filtered Data:")
+styled_df = filtered_df.style.apply(highlight_relevance_flag, axis=1)
+st.dataframe(styled_df)
+
+# Display the bar plot for relevance_flag
+st.write("Relevance Flag Distribution:")
+plot_relevance_flag_counts(filtered_df)
