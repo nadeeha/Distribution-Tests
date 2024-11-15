@@ -1,0 +1,26 @@
+import os
+
+# Path to the folder containing saved plots
+plots_folder = "path/to/your/plots_folder"
+output_html = "all_plots_combined.html"
+
+# Initialize an HTML string
+html_content = "<html><head><title>Combined Plots</title></head><body>\n"
+
+# Loop through all image files in the folder
+for filename in sorted(os.listdir(plots_folder)):
+    if filename.endswith((".png", ".jpg", ".jpeg")):  # Check for image files
+        file_path = os.path.join(plots_folder, filename)
+        # Embed each image into the HTML file
+        html_content += f'<div style="margin: 20px;"><h3>{filename}</h3>\n'
+        html_content += f'<img src="{file_path}" style="width: 100%; max-width: 800px;"><br>\n'
+        html_content += "</div>\n"
+
+# Close the HTML tags
+html_content += "</body></html>"
+
+# Save the combined HTML file
+with open(output_html, "w") as f:
+    f.write(html_content)
+
+print(f"All plots combined into: {output_html}")
