@@ -3,146 +3,164 @@ from plotly.subplots import make_subplots
 import os
 import numpy as np
 from scipy.stats import gaussian_kde, norm  # For KDE and normal distribution
+import plotly.io as pio
+import base64
 
-def generate_plots_before_after_accumulate(
-    original_data, imputed_data, columns, task, fig=None, row_offset=0
+def generate_plots_and_save_to_html(
+    original_data, imputed_data, columns, task, output_html="plots_with_images.html", section_heading=None
 ):
-    # If no figure is provided, create a new subplot grid
-    if fig is None:
-        # Create subplot titles as a flat list
-        subplot_titles = []
-        for col in columns:
-            subplot_titles.extend([
+    # Create output folder for temporary image storage
+    temp_folder = "temp_images"
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    # Write the initial HTML structure if the file doesn't exist
+    if not os.path.exists(output_html):
+        with open(output_html, "w") as html_file:
+            html_file.write("<html><head><title>Plots</title></head><body>\n")
+
+    # Add a section heading to the HTML file if provided
+    if section_heading:
+        with open(output_html, "a") as html_file:
+            html_file.write(f"<h1>{section_heading}</h1>\n")
+
+    for idx, col in enumerate(columns):
+        # Create a subplot grid for this column
+        fig = make_subplots(
+            rows=1, cols=5,
+            subplot_titles=[
                 f"{col} Histogram (Before {task})",
                 f"{col} Histogram (After {task})",
                 f"{col} Box Plot (Before {task})",
                 f"{col} Box Plot (After {task})",
                 f"{col} KDE and Normal Plot"
-            ])
-
-        fig = make_subplots(
-            rows=len(columns), cols=5,  # Added an extra column for KDE/Normal Plot
-            subplot_titles=subplot_titles,
-            horizontal_spacing=0.1,
-            vertical_spacing=0.15
+            ],
+            horizontal_spacing=0.1
         )
-    
-    # Add plots for each column
-    for idx, col in enumerate(columns):
-        row = idx + 1 + row_offset
-        
+
         # Histogram Before Imputation
         hist_before = go.Histogram(
             x=original_data[col], nbinsx=20, marker_color="#636EFA", name=f"{col} Before"
         )
-        fig.add_trace(hist_before, row=row, col=1)
-        
+        fig.add_trace(hist_before, row=1, col=1)
+
         # Histogram After Imputation
         hist_after = go.Histogram(
             x=imputed_data[col], nbinsx=20, marker_color="#00CC96", name=f"{col} After"
         )
-        fig.add_trace(hist_after, row=row, col=2)
-        
+        fig.add_trace(hist_after, row=1, col=2)
+
         # Box Plot Before Imputation
         box_before = go.Box(
             y=original_data[col], marker_color="#EF553B", name=f"{col} Before"
         )
-        fig.add_trace(box_before, row=row, col=3)
-        
+        fig.add_trace(box_before, row=1, col=3)
+
         # Box Plot After Imputation
         box_after = go.Box(
             y=imputed_data[col], marker_color="#AB63FA", name=f"{col} After"
         )
-        fig.add_trace(box_after, row=row, col=4)
-        
-        # KDE Plot and Normal Distribution
-        # Compute KDE for original and imputed data
-        kde_before = gaussian_kde(original_data[col].dropna())  # Handle NaN
+        fig.add_trace(box_after, row=1, col=4)
+
+        # KDE and Normal Distribution
+        kde_before = gaussian_kde(original_data[col].dropna())
         kde_after = gaussian_kde(imputed_data[col].dropna())
-        
-        # Create a range for KDE and normal distribution
         x_range = np.linspace(
             min(original_data[col].min(), imputed_data[col].min()),
             max(original_data[col].max(), imputed_data[col].max()),
             100
         )
-        
+
         # Add KDE Before
         fig.add_trace(
             go.Scatter(
-                x=x_range, y=kde_before(x_range), mode="lines", 
+                x=x_range, y=kde_before(x_range), mode="lines",
                 line=dict(color="#636EFA"), name=f"{col} KDE Before"
             ),
-            row=row, col=5
+            row=1, col=5
         )
-        
+
         # Add KDE After
         fig.add_trace(
             go.Scatter(
-                x=x_range, y=kde_after(x_range), mode="lines", 
+                x=x_range, y=kde_after(x_range), mode="lines",
                 line=dict(color="#00CC96"), name=f"{col} KDE After"
             ),
-            row=row, col=5
+            row=1, col=5
         )
-        
+
         # Normal Distribution for "Before"
         mean_before = original_data[col].mean()
         std_before = original_data[col].std()
         normal_before = norm.pdf(x_range, mean_before, std_before)
-        
+
         fig.add_trace(
             go.Scatter(
                 x=x_range, y=normal_before, mode="lines",
                 line=dict(color="black", dash="dot"), name=f"{col} Normal Before"
             ),
-            row=row, col=5
+            row=1, col=5
         )
-        
+
         # Normal Distribution for "After"
         mean_after = imputed_data[col].mean()
         std_after = imputed_data[col].std()
         normal_after = norm.pdf(x_range, mean_after, std_after)
-        
+
         fig.add_trace(
             go.Scatter(
                 x=x_range, y=normal_after, mode="lines",
                 line=dict(color="gray", dash="dot"), name=f"{col} Normal After"
             ),
-            row=row, col=5
+            row=1, col=5
         )
-    
-    return fig  # Return the updated figure
 
-def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
-    # Ensure the folder exists
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    
-    # Save the combined figure as an HTML file
-    fig.write_html(os.path.join(folder_name, output_html))
-def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
-    # Ensure the folder exists
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    
-    # Save the combined figure as an HTML file
-    fig.write_html(os.path.join(folder_name, output_html))
+        # Save each plot as an image
+        image_path = os.path.join(temp_folder, f"{col}_plots.png")
+        pio.write_image(fig, image_path, format="png")
+
+        # Embed the image into the HTML
+        with open(image_path, "rb") as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+        html_image = f'<img src="data:image/png;base64,{encoded_image}" alt="{col} plots"/>'
+
+        # Write the image HTML into the output file
+        with open(output_html, "a") as html_file:
+            html_file.write(f"<h3>{col} Plots</h3>\n")
+            html_file.write(html_image)
+            html_file.write("<hr>")  # Add a separator between plots
+
+    # Clean up temporary images
+    for file in os.listdir(temp_folder):
+        os.remove(os.path.join(temp_folder, file))
+    os.rmdir(temp_folder)
+
+    # Close the HTML structure if this is the final step
+    with open(output_html, "a") as html_file:
+        html_file.write("</body></html>\n")
 
 
 
 
-# Initialize a blank figure
-combined_fig = None
 
-# Call for multiple datasets
-combined_fig = generate_plots_before_after_accumulate(
+
+# First call
+generate_plots_and_save_to_html(
     original_data=original_df,
     imputed_data=imputed_df,
-    columns=['Column1', 'Column2'],
+    columns=["Column1", "Column2"],
     task="Imputation",
-    fig=combined_fig,
-    row_offset=0
+    output_html="plots_with_images.html",
+    section_heading="Imputation Task - Batch 1"
 )
 
-# Save to HTML
-save_combined_html(combined_fig, folder_name="plots_output")
+# Second call
+generate_plots_and_save_to_html(
+    original_data=another_original_df,
+    imputed_data=another_imputed_df,
+    columns=["Column3", "Column4"],
+    task="Imputation",
+    output_html="plots_with_images.html",
+    section_heading="Imputation Task - Batch 2"
+)
