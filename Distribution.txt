@@ -1,51 +1,53 @@
-import numpy as np
-from scipy.stats import norm
+import os
+import base64
 
-def generate_plots_before_after(original_data, imputed_data, columns, folder_name, task):
-    for col in columns:
-        # Create a new figure for each column
-        plt.figure(figsize=(18, 12))
+def generate_html_with_images(folder_paths, output_html):
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Image Gallery</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+            }
+            img {
+                margin: 10px;
+                max-width: 300px;
+                max-height: 300px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Image Gallery</h1>
+    """
 
-        # Histogram Before Imputation
-        plt.subplot(3, 2, 1)
-        sns.histplot(original_data[col], kde=False, color='blue', bins=20)
-        # Adding Normal Distribution as a Dotted Line
-        mean, std = original_data[col].mean(), original_data[col].std()
-        x = np.linspace(mean - 3*std, mean + 3*std, 100)
-        plt.plot(x, norm.pdf(x, mean, std) * len(original_data[col]), 
-                 color='red', linestyle='dotted', label='Normal Dist.')
-        plt.legend()
-        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (Before {task}): {col}", width=50))  # Adjust width here
-        plt.title(wrapped_title)
-        plt.xlabel(col)
-        plt.ylabel('Frequency')
+    for folder_path in folder_paths:
+        html_content += f"<h2>{os.path.basename(folder_path)}</h2>\n"
+        for filename in os.listdir(folder_path):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                file_path = os.path.join(folder_path, filename)
+                with open(file_path, "rb") as img_file:
+                    encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+                    img_format = filename.split('.')[-1].lower()
+                    html_content += f'<img src="data:image/{img_format};base64,{encoded_string}" alt="{filename}">\n'
 
-        # Histogram After Imputation
-        plt.subplot(3, 2, 2)
-        sns.histplot(imputed_data[col], kde=False, color='green', bins=20)
-        # Adding Normal Distribution as a Dotted Line
-        mean_imp, std_imp = imputed_data[col].mean(), imputed_data[col].std()
-        x_imp = np.linspace(mean_imp - 3*std_imp, mean_imp + 3*std_imp, 100)
-        plt.plot(x_imp, norm.pdf(x_imp, mean_imp, std_imp) * len(imputed_data[col]), 
-                 color='red', linestyle='dotted', label='Normal Dist.')
-        plt.legend()
-        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (After {task}): {col}", width=50))  # Adjust width here
-        plt.title(wrapped_title)
-        plt.xlabel(col)
-        plt.ylabel('Frequency')
+    html_content += """
+    </body>
+    </html>
+    """
 
-        # Box Plot Before Imputation
-        plt.subplot(3, 2, 3)
-        sns.boxplot(x=original_data[col], color='blue')
-        plt.title(f"Box Plot (Before {task}): {col}")
-        plt.xlabel(col)
+    # Write the HTML content to the output file
+    with open(output_html, "w", encoding="utf-8") as html_file:
+        html_file.write(html_content)
+    print(f"HTML file created: {output_html}")
 
-        # Box Plot After Imputation
-        plt.subplot(3, 2, 4)
-        sns.boxplot(x=imputed_data[col], color='green')
-        plt.title(f"Box Plot (After {task}): {col}")
-        plt.xlabel(col)
+# Specify the folders containing images and the output HTML file
+folders = ["path_to_folder1", "path_to_folder2"]  # Add paths to your image folders
+output_file = "image_gallery.html"
 
-        # Show plots
-        plt.tight_layout()
-        plt.show()
+# Generate the HTML
+generate_html_with_images(folders, output_file)
