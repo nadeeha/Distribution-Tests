@@ -1,6 +1,8 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os
+import numpy as np
+from scipy.stats import gaussian_kde, norm  # For KDE and normal distribution
 
 def generate_plots_before_after_accumulate(
     original_data, imputed_data, columns, task, fig=None, row_offset=0
@@ -8,12 +10,13 @@ def generate_plots_before_after_accumulate(
     # If no figure is provided, create a new subplot grid
     if fig is None:
         fig = make_subplots(
-            rows=len(columns), cols=4,
+            rows=len(columns), cols=5,  # Added an extra column for KDE/Normal Plot
             subplot_titles=[
                 f"{col} Histogram (Before {task})",
                 f"{col} Histogram (After {task})",
                 f"{col} Box Plot (Before {task})",
-                f"{col} Box Plot (After {task})"
+                f"{col} Box Plot (After {task})",
+                f"{col} KDE and Normal Plot"
                 for col in columns
             ],
             horizontal_spacing=0.1,
@@ -47,6 +50,62 @@ def generate_plots_before_after_accumulate(
             y=imputed_data[col], marker_color="#AB63FA", name=f"{col} After"
         )
         fig.add_trace(box_after, row=row, col=4)
+        
+        # KDE Plot and Normal Distribution
+        # Compute KDE for original and imputed data
+        kde_before = gaussian_kde(original_data[col].dropna())  # Handle NaN
+        kde_after = gaussian_kde(imputed_data[col].dropna())
+        
+        # Create a range for KDE and normal distribution
+        x_range = np.linspace(
+            min(original_data[col].min(), imputed_data[col].min()),
+            max(original_data[col].max(), imputed_data[col].max()),
+            100
+        )
+        
+        # Add KDE Before
+        fig.add_trace(
+            go.Scatter(
+                x=x_range, y=kde_before(x_range), mode="lines", 
+                line=dict(color="#636EFA"), name=f"{col} KDE Before"
+            ),
+            row=row, col=5
+        )
+        
+        # Add KDE After
+        fig.add_trace(
+            go.Scatter(
+                x=x_range, y=kde_after(x_range), mode="lines", 
+                line=dict(color="#00CC96"), name=f"{col} KDE After"
+            ),
+            row=row, col=5
+        )
+        
+        # Normal Distribution for "Before"
+        mean_before = original_data[col].mean()
+        std_before = original_data[col].std()
+        normal_before = norm.pdf(x_range, mean_before, std_before)
+        
+        fig.add_trace(
+            go.Scatter(
+                x=x_range, y=normal_before, mode="lines",
+                line=dict(color="black", dash="dot"), name=f"{col} Normal Before"
+            ),
+            row=row, col=5
+        )
+        
+        # Normal Distribution for "After"
+        mean_after = imputed_data[col].mean()
+        std_after = imputed_data[col].std()
+        normal_after = norm.pdf(x_range, mean_after, std_after)
+        
+        fig.add_trace(
+            go.Scatter(
+                x=x_range, y=normal_after, mode="lines",
+                line=dict(color="gray", dash="dot"), name=f"{col} Normal After"
+            ),
+            row=row, col=5
+        )
     
     return fig  # Return the updated figure
 
@@ -57,3 +116,22 @@ def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
     
     # Save the combined figure as an HTML file
     fig.write_html(os.path.join(folder_name, output_html))
+
+
+
+
+# Initialize a blank figure
+combined_fig = None
+
+# Call for multiple datasets
+combined_fig = generate_plots_before_after_accumulate(
+    original_data=original_df,
+    imputed_data=imputed_df,
+    columns=['Column1', 'Column2'],
+    task="Imputation",
+    fig=combined_fig,
+    row_offset=0
+)
+
+# Save to HTML
+save_combined_html(combined_fig, folder_name="plots_output")
