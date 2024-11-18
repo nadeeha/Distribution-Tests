@@ -1,0 +1,59 @@
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import os
+
+def generate_plots_before_after_accumulate(
+    original_data, imputed_data, columns, task, fig=None, row_offset=0
+):
+    # If no figure is provided, create a new subplot grid
+    if fig is None:
+        fig = make_subplots(
+            rows=len(columns), cols=4,
+            subplot_titles=[
+                f"{col} Histogram (Before {task})",
+                f"{col} Histogram (After {task})",
+                f"{col} Box Plot (Before {task})",
+                f"{col} Box Plot (After {task})"
+                for col in columns
+            ],
+            horizontal_spacing=0.1,
+            vertical_spacing=0.15
+        )
+    
+    # Add plots for each column
+    for idx, col in enumerate(columns):
+        row = idx + 1 + row_offset
+        
+        # Histogram Before Imputation
+        hist_before = go.Histogram(
+            x=original_data[col], nbinsx=20, marker_color="#636EFA", name=f"{col} Before"
+        )
+        fig.add_trace(hist_before, row=row, col=1)
+        
+        # Histogram After Imputation
+        hist_after = go.Histogram(
+            x=imputed_data[col], nbinsx=20, marker_color="#00CC96", name=f"{col} After"
+        )
+        fig.add_trace(hist_after, row=row, col=2)
+        
+        # Box Plot Before Imputation
+        box_before = go.Box(
+            y=original_data[col], marker_color="#EF553B", name=f"{col} Before"
+        )
+        fig.add_trace(box_before, row=row, col=3)
+        
+        # Box Plot After Imputation
+        box_after = go.Box(
+            y=imputed_data[col], marker_color="#AB63FA", name=f"{col} After"
+        )
+        fig.add_trace(box_after, row=row, col=4)
+    
+    return fig  # Return the updated figure
+
+def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
+    # Ensure the folder exists
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    
+    # Save the combined figure as an HTML file
+    fig.write_html(os.path.join(folder_name, output_html))
