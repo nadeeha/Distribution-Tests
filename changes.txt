@@ -9,16 +9,20 @@ def generate_plots_before_after_accumulate(
 ):
     # If no figure is provided, create a new subplot grid
     if fig is None:
-        fig = make_subplots(
-            rows=len(columns), cols=5,  # Added an extra column for KDE/Normal Plot
-            subplot_titles=[
+        # Create subplot titles as a flat list
+        subplot_titles = []
+        for col in columns:
+            subplot_titles.extend([
                 f"{col} Histogram (Before {task})",
                 f"{col} Histogram (After {task})",
                 f"{col} Box Plot (Before {task})",
                 f"{col} Box Plot (After {task})",
                 f"{col} KDE and Normal Plot"
-                for col in columns
-            ],
+            ])
+
+        fig = make_subplots(
+            rows=len(columns), cols=5,  # Added an extra column for KDE/Normal Plot
+            subplot_titles=subplot_titles,
             horizontal_spacing=0.1,
             vertical_spacing=0.15
         )
@@ -109,6 +113,13 @@ def generate_plots_before_after_accumulate(
     
     return fig  # Return the updated figure
 
+def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
+    # Ensure the folder exists
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    
+    # Save the combined figure as an HTML file
+    fig.write_html(os.path.join(folder_name, output_html))
 def save_combined_html(fig, folder_name, output_html="combined_plots.html"):
     # Ensure the folder exists
     if not os.path.exists(folder_name):
