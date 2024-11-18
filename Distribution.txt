@@ -1,120 +1,51 @@
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy import stats
-from sklearn.preprocessing import PowerTransformer
+from scipy.stats import norm
 
-# Function to apply appropriate transformation based on skewness, excluding categorical columns and columns with < 6 distinct values
-def treat_non_normal_distribution(df, columns):
-    transformed_columns = {}
-    transformation_types = {}
-    transformation_reasons = {}
-
+def generate_plots_before_after(original_data, imputed_data, columns, folder_name, task):
     for col in columns:
-        # Skip categorical columns (dtype == object)
-        if df[col].dtype == 'object':
-            transformed_columns[col] = df[col]
-            transformation_types[col] = 'No Transformation (Categorical Data)'
-            transformation_reasons[col] = 'Transformation not applicable for categorical data (dtype == object).'
-            continue
-        
-        # Handle missing data by keeping the original NaNs (don't drop them)
-        col_data = df[col]
+        # Create a new figure for each column
+        plt.figure(figsize=(18, 12))
 
-        # Skip columns with less than 6 distinct values
-        if len(col_data.dropna().unique()) < 6:
-            transformed_columns[col] = col_data  # Keep the original data without transformation
-            transformation_types[col] = 'No Transformation (Low Number of Unique Values)'
-            transformation_reasons[col] = 'Transformation skipped due to less than 6 distinct values in the column.'
-            continue
+        # Histogram Before Imputation
+        plt.subplot(3, 2, 1)
+        sns.histplot(original_data[col], kde=False, color='blue', bins=20)
+        # Adding Normal Distribution as a Dotted Line
+        mean, std = original_data[col].mean(), original_data[col].std()
+        x = np.linspace(mean - 3*std, mean + 3*std, 100)
+        plt.plot(x, norm.pdf(x, mean, std) * len(original_data[col]), 
+                 color='red', linestyle='dotted', label='Normal Dist.')
+        plt.legend()
+        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (Before {task}): {col}", width=50))  # Adjust width here
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
 
-        # Calculate skewness and handle NaNs
-        skewness = col_data.skew()
-        plt.figure(figsize=(14, 6))
+        # Histogram After Imputation
+        plt.subplot(3, 2, 2)
+        sns.histplot(imputed_data[col], kde=False, color='green', bins=20)
+        # Adding Normal Distribution as a Dotted Line
+        mean_imp, std_imp = imputed_data[col].mean(), imputed_data[col].std()
+        x_imp = np.linspace(mean_imp - 3*std_imp, mean_imp + 3*std_imp, 100)
+        plt.plot(x_imp, norm.pdf(x_imp, mean_imp, std_imp) * len(imputed_data[col]), 
+                 color='red', linestyle='dotted', label='Normal Dist.')
+        plt.legend()
+        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (After {task}): {col}", width=50))  # Adjust width here
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
 
-        # Plot the original distribution
-        plt.subplot(1, 2, 1)
-        sns.histplot(col_data.dropna(), kde=True, bins=30)  # Drop NaNs for visualization
-        plt.title(f'Original Distribution: {col} (Skewness: {skewness:.2f})')
+        # Box Plot Before Imputation
+        plt.subplot(3, 2, 3)
+        sns.boxplot(x=original_data[col], color='blue')
+        plt.title(f"Box Plot (Before {task}): {col}")
+        plt.xlabel(col)
 
-        # Apply appropriate transformation based on skewness
-        try:
-            if skewness > 0.5:  # Positively skewed
-                if all(col_data.dropna() > 0):  # Ensure positive values for Log or Box-Cox transformation
-                    if skewness > 1.5:  # Use log transformation for highly skewed data
-                        transformed_col = np.log1p(col_data)  # log(1 + x) to handle zeros
-                        transformation = 'Logarithmic Transformation'
-                        reason = 'Applied due to very high positive skewness (skewness > 1.5) and positive data values.'
-                    else:
-                        # Try Box-Cox transformation for moderate skewness
-                        transformed_col, fitted_lambda = stats.boxcox(col_data.dropna())  # Box-Cox works for positive values only
-                        transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
-                        transformation = 'Box-Cox Transformation'
-                        reason = 'Applied due to moderate positive skewness (0.5 < skewness < 1.5) and positive data values.'
-                else:
-                    # Apply Yeo-Johnson transformation for negative and positive data
-                    pt = PowerTransformer(method='yeo-johnson')
-                    transformed_col = pt.fit_transform(col_data.dropna().values.reshape(-1, 1)).flatten()
-                    transformed_col = pd.Series(transformed_col, index=col_data.dropna().index)  # Re-align with original index
-                    transformation = 'Yeo-Johnson Transformation'
-                    reason = 'Applied due to high positive skewness (skewness > 0.5) with non-positive data.'
+        # Box Plot After Imputation
+        plt.subplot(3, 2, 4)
+        sns.boxplot(x=imputed_data[col], color='green')
+        plt.title(f"Box Plot (After {task}): {col}")
+        plt.xlabel(col)
 
-            elif skewness < -0.5:  # Negatively skewed
-                # Apply Exponential transformation to adjust left-skewed data
-                transformed_col = np.expm1(col_data.max() - col_data + 1)
-                transformation = 'Exponential Transformation'
-                reason = 'Applied due to high negative skewness (skewness < -0.5).'
-
-            else:
-                transformed_col = col_data  # No transformation needed
-                transformation = 'No Transformation Needed'
-                reason = 'Data has low or no skewness (skewness between -0.5 and 0.5), so no transformation was applied.'
-
-            # Plot the transformed distribution
-            plt.subplot(1, 2, 2)
-            sns.histplot(transformed_col.dropna(), kde=True, bins=30)  # Drop NaNs for visualization
-            plt.title(f'Transformed Distribution ({transformation}): {col}')
-
-        except ValueError as e:
-            print(f"Error applying transformation to {col}: {e}")
-            transformed_col = col_data  # Keep the original column if transformation fails
-            transformation = 'No Transformation (Error)'
-            reason = f'Error during transformation: {e}. Kept the original data.'
-
-        # Fill in the transformed data and NaN values where applicable
-        transformed_columns[col] = transformed_col.reindex(df.index)  # Re-index to ensure same length
-        transformation_types[col] = transformation
-        transformation_reasons[col] = reason
-
+        # Show plots
+        plt.tight_layout()
         plt.show()
-
-    # Convert the transformed columns to a DataFrame
-    transformed_df = pd.DataFrame(transformed_columns)
-
-    # Create a DataFrame to store the transformation types and reasons for each column
-    transformation_summary = pd.DataFrame({
-        'Column': list(transformation_types.keys()),
-        'Transformation Type': list(transformation_types.values()),
-        'Reason for Transformation': list(transformation_reasons.values())
-    })
-
-    return transformed_df, transformation_summary
-
-# Example usage
-# Sample DataFrame
-data = {
-    'Feature1': [1, 2, 3, 4, 5],            # Mild skewness (no transformation)
-    'Feature2': [10, 100, 1000, 10000, 100000],  # Highly skewed (use Log or Box-Cox)
-    'Feature3': [50, 48, 47, 46, 45],        # Left-skewed (use Exponential)
-    'Category': ['A', 'B', 'A', 'B', 'C']    # Categorical column (no transformation)
-}
-
-df = pd.DataFrame(data)
-
-# Normalize the columns
-transformed_df, transformation_summary = treat_non_normal_distribution(df, ['Feature1', 'Feature2', 'Feature3', 'Category'])
-
-# Output the transformed data and the transformation summary
-print("Transformed DataFrame:\n", transformed_df)
-print("\nTransformation Summary:\n", transformation_summary)
