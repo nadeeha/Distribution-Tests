@@ -1,0 +1,135 @@
+def generate_plots_before_after_outliers_with_values(original_data, outlier_data, imputed_data, columns, folder_name, task, additional_dataframes):
+    """
+    Generate plots before, for outliers, and after imputation, and display column values from other DataFrames.
+
+    Args:
+    - original_data: DataFrame before imputation.
+    - outlier_data: DataFrame containing outlier values.
+    - imputed_data: DataFrame after imputation.
+    - columns: List of column names to process.
+    - folder_name: Folder to save the plots.
+    - task: Task name to include in plot titles.
+    - additional_dataframes: A dictionary of additional DataFrames to display column values.
+    """
+    for col in columns:
+        # Create a new figure for each column
+        plt.figure(figsize=(18, 18))
+
+        # Helper function to display values from additional DataFrames
+        def display_column_values(ax, col, dfs):
+            text_lines = []
+            for df_name, df in dfs.items():
+                if col in df.columns:
+                    values = df[col].dropna().unique()
+                    text_lines.append(f"{df_name}: {', '.join(map(str, values))}")
+            text_to_display = "\n".join(text_lines)
+            ax.text(0.5, -0.5, text_to_display, ha='center', fontsize=10, transform=ax.transAxes)
+
+        # Histogram Before Imputation
+        ax1 = plt.subplot(3, 3, 1)
+        sns.histplot(original_data[col], kde=False, color='black', bins=20)
+        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (Before {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+        display_column_values(ax1, col, additional_dataframes)
+
+        # Histogram for Outliers
+        ax2 = plt.subplot(3, 3, 2)
+        sns.histplot(outlier_data[col], kde=False, color='blue', bins=20)
+        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (Outliers {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+        display_column_values(ax2, col, additional_dataframes)
+
+        # Histogram After Imputation
+        ax3 = plt.subplot(3, 3, 3)
+        sns.histplot(imputed_data[col], kde=False, color='red', bins=20)
+        wrapped_title = "\n".join(textwrap.wrap(f"Histogram (After {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+        display_column_values(ax3, col, additional_dataframes)
+
+        # Box Plot Before Imputation
+        ax4 = plt.subplot(3, 3, 4)
+        if not original_data[col].dropna().empty:
+            sns.boxplot(x=original_data[col], color='black')
+            wrapped_title = "\n".join(textwrap.wrap(f"Box Plot (Before {task}): {col}", width=50))
+            plt.title(wrapped_title)
+        else:
+            plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
+            plt.title(f"Box Plot (Before {task}): {col}")
+        display_column_values(ax4, col, additional_dataframes)
+
+        # Box Plot for Outliers
+        ax5 = plt.subplot(3, 3, 5)
+        if not outlier_data[col].dropna().empty:
+            sns.boxplot(x=outlier_data[col], color='blue')
+            wrapped_title = "\n".join(textwrap.wrap(f"Box Plot (Outliers {task}): {col}", width=50))
+            plt.title(wrapped_title)
+        else:
+            plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
+            plt.title(f"Box Plot (Outliers {task}): {col}")
+        display_column_values(ax5, col, additional_dataframes)
+
+        # Box Plot After Imputation
+        ax6 = plt.subplot(3, 3, 6)
+        if not imputed_data[col].dropna().empty:
+            sns.boxplot(x=imputed_data[col], color='red')
+            wrapped_title = "\n".join(textwrap.wrap(f"Box Plot (After {task}): {col}", width=50))
+            plt.title(wrapped_title)
+        else:
+            plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
+            plt.title(f"Box Plot (After {task}): {col}")
+        display_column_values(ax6, col, additional_dataframes)
+
+        # KDE Plot Before Imputation
+        ax7 = plt.subplot(3, 3, 7)
+        sns.kdeplot(original_data[col], color='black')
+        wrapped_title = "\n".join(textwrap.wrap(f"KDE Plot (Before {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Density')
+        display_column_values(ax7, col, additional_dataframes)
+
+        # KDE Plot for Outliers
+        ax8 = plt.subplot(3, 3, 8)
+        sns.kdeplot(outlier_data[col], color='blue')
+        wrapped_title = "\n".join(textwrap.wrap(f"KDE Plot (Outliers {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Density')
+        display_column_values(ax8, col, additional_dataframes)
+
+        # KDE Plot After Imputation
+        ax9 = plt.subplot(3, 3, 9)
+        sns.kdeplot(imputed_data[col], color='red')
+        wrapped_title = "\n".join(textwrap.wrap(f"KDE Plot (After {task}): {col}", width=50))
+        plt.title(wrapped_title)
+        plt.xlabel(col)
+        plt.ylabel('Density')
+        display_column_values(ax9, col, additional_dataframes)
+
+        # Adjust the layout and save the figure
+        plt.tight_layout(pad=3.0)  # Increase padding around subplots
+        plt.savefig(f"{folder_name}/{col}.png")
+        plt.close()  # Close the figure to prevent display
+
+
+
+additional_dfs = {
+    "Outlier DataFrame": outlier_data,
+    "Another DataFrame": some_other_dataframe
+}
+
+generate_plots_before_after_outliers_with_values(
+    original_data=original_df,
+    outlier_data=outlier_df,
+    imputed_data=imputed_df,
+    columns=["column_name_1", "column_name_2"],
+    folder_name="output_folder",
+    task="Imputation Task",
+    additional_dataframes=additional_dfs
+)
