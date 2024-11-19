@@ -51,3 +51,29 @@ output_file = "image_gallery.html"
 
 # Generate the HTML
 generate_html_with_images(folders, output_file)
+
+
+
+import seaborn as sns
+import textwrap
+import matplotlib.pyplot as plt
+
+# Box Plot Before Imputation
+plt.subplot(3, 2, 3)
+if not original_data[col].dropna().empty:  # Check if the column has non-NaN values
+    sns.boxplot(x=original_data[col], color='black')
+    wrapped_title = "\n".join(textwrap.wrap(f'Box Plot (Before {task}): {col}', width=50))  # Adjust width here
+    plt.title(wrapped_title)
+else:
+    plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
+    plt.title(f'Box Plot (Before {task}): {col}')
+
+# Box Plot After Imputation
+plt.subplot(3, 2, 4)
+if not imputed_data[col].dropna().empty:  # Check if the column has non-NaN values
+    sns.boxplot(x=imputed_data[col], color='red')
+    wrapped_title = "\n".join(textwrap.wrap(f'Box Plot (After {task}): {col}', width=50))  # Adjust width here
+    plt.title(wrapped_title)
+else:
+    plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
+    plt.title(f'Box Plot (After {task}): {col}')
