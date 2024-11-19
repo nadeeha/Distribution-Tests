@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-def generate_plots_with_inline_generated_table(
+def generate_plots_with_large_table(
     original_data, outlier_data, imputed_data, columns, folder_name, task
 ):
     """
-    Generate clean plots with a table displaying a generated DataFrame at the end.
+    Generate clean plots with a larger table below the plots and highlight table headers.
 
     Args:
     - original_data: DataFrame before imputation.
@@ -41,56 +41,6 @@ def generate_plots_with_inline_generated_table(
         ax1.set_xlabel(col)
         ax1.set_ylabel("Frequency")
 
-        # Plot 2: Histogram Outliers
-        ax2 = fig.add_subplot(grid[0, 1])
-        sns.histplot(outlier_data[col], kde=False, color="blue", bins=20, ax=ax2)
-        ax2.set_title(f"Histogram (Outliers {task}): {col}")
-        ax2.set_xlabel(col)
-        ax2.set_ylabel("Frequency")
-
-        # Plot 3: Histogram After Imputation
-        ax3 = fig.add_subplot(grid[0, 2])
-        sns.histplot(imputed_data[col], kde=False, color="red", bins=20, ax=ax3)
-        ax3.set_title(f"Histogram (After {task}): {col}")
-        ax3.set_xlabel(col)
-        ax3.set_ylabel("Frequency")
-
-        # Plot 4: Box Plot Before Imputation
-        ax4 = fig.add_subplot(grid[1, 0])
-        sns.boxplot(x=original_data[col], color="black", ax=ax4)
-        ax4.set_title(f"Box Plot (Before {task}): {col}")
-
-        # Plot 5: Box Plot Outliers
-        ax5 = fig.add_subplot(grid[1, 1])
-        sns.boxplot(x=outlier_data[col], color="blue", ax=ax5)
-        ax5.set_title(f"Box Plot (Outliers {task}): {col}")
-
-        # Plot 6: Box Plot After Imputation
-        ax6 = fig.add_subplot(grid[1, 2])
-        sns.boxplot(x=imputed_data[col], color="red", ax=ax6)
-        ax6.set_title(f"Box Plot (After {task}): {col}")
-
-        # Plot 7: KDE Plot Before Imputation
-        ax7 = fig.add_subplot(grid[2, 0])
-        sns.kdeplot(original_data[col], color="black", ax=ax7)
-        ax7.set_title(f"KDE Plot (Before {task}): {col}")
-        ax7.set_xlabel(col)
-        ax7.set_ylabel("Density")
-
-        # Plot 8: KDE Plot Outliers
-        ax8 = fig.add_subplot(grid[2, 1])
-        sns.kdeplot(outlier_data[col], color="blue", ax=ax8)
-        ax8.set_title(f"KDE Plot (Outliers {task}): {col}")
-        ax8.set_xlabel(col)
-        ax8.set_ylabel("Density")
-
-        # Plot 9: KDE Plot After Imputation
-        ax9 = fig.add_subplot(grid[2, 2])
-        sns.kdeplot(imputed_data[col], color="red", ax=ax9)
-        ax9.set_title(f"KDE Plot (After {task}): {col}")
-        ax9.set_xlabel(col)
-        ax9.set_ylabel("Density")
-
         # Generate the DataFrame using the inline function
         summary_df = generate_summary_df()
 
@@ -105,10 +55,17 @@ def generate_plots_with_inline_generated_table(
             colLabels=table_data.columns,
             cellLoc="center",
             loc="center",
+            bbox=[0.125, 0.2, 0.75, 0.6],  # Adjusts the position and width of the table
         )
         table.auto_set_font_size(False)
-        table.set_fontsize(10)
+        table.set_fontsize(12)
         table.auto_set_column_width(col=list(range(len(table_data.columns))))
+
+        # Highlight headers
+        for (row, col), cell in table.get_celld().items():
+            if row == 0:  # Header row
+                cell.set_text_props(weight="bold", color="white")
+                cell.set_facecolor("gray")
 
         # Save the figure
         plt.savefig(f"{folder_name}/{col}_plots_with_table.png")
