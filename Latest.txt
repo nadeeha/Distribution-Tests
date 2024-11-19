@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-import textwrap
+import pandas as pd
 
-def generate_plots_cleanly(original_data, outlier_data, imputed_data, columns, folder_name, task, additional_dataframes):
+def generate_plots_with_inline_generated_table(
+    original_data, outlier_data, imputed_data, columns, folder_name, task
+):
     """
-    Generate clean plots with summaries displayed separately below the plots.
+    Generate clean plots with a table displaying a generated DataFrame at the end.
 
     Args:
     - original_data: DataFrame before imputation.
@@ -13,23 +15,24 @@ def generate_plots_cleanly(original_data, outlier_data, imputed_data, columns, f
     - columns: List of column names to process.
     - folder_name: Folder to save the plots.
     - task: Task name to include in plot titles.
-    - additional_dataframes: A dictionary of additional DataFrames to display relevant rows.
     """
-    def summarize_data(col, df, heading):
-        """Helper function to summarize rows from a DataFrame."""
-        if "attributes" in df.columns and col in df["attributes"].values:
-            filtered_rows = df[df["attributes"] == col]
-            summary = f"{heading}:\n" + "\n".join(
-                [f"{header}: {', '.join(map(str, filtered_rows[header].dropna().unique()))}" 
-                 for header in filtered_rows.columns if header != "attributes"]
-            )
-            return summary
-        return f"{heading}: No relevant data found for {col}"
-
     for col in columns:
-        # Create a new figure with extra space for text
-        fig = plt.figure(figsize=(18, 22))
-        grid = plt.GridSpec(4, 3, hspace=0.8)  # 4 rows, 3 columns grid with extra vertical spacing
+        # Inline function to generate a DataFrame for the table
+        def generate_summary_df():
+            # Example DataFrame generation logic
+            data = {
+                "Metric": ["Mean", "Median", "Std Dev"],
+                "Value": [
+                    original_data[col].mean(),
+                    original_data[col].median(),
+                    original_data[col].std(),
+                ],
+            }
+            return pd.DataFrame(data)
+
+        # Create a new figure with space for the table
+        fig = plt.figure(figsize=(18, 28))
+        grid = plt.GridSpec(5, 3, hspace=1.5, wspace=0.5)  # Adjust spacing for 5 rows
 
         # Plot 1: Histogram Before Imputation
         ax1 = fig.add_subplot(grid[0, 0])
@@ -88,18 +91,25 @@ def generate_plots_cleanly(original_data, outlier_data, imputed_data, columns, f
         ax9.set_xlabel(col)
         ax9.set_ylabel("Density")
 
-        # Summary Text Below the Plots
-        ax_text = fig.add_subplot(grid[3, :])
-        summaries = [
-            summarize_data(col, additional_dataframes["original"], "Summary of Original Data"),
-            summarize_data(col, additional_dataframes["outliers"], "Summary of Outlier Data"),
-            summarize_data(col, additional_dataframes["imputed"], "Summary of Imputed Data"),
-        ]
-        ax_text.axis("off")  # Turn off the axis
-        ax_text.text(
-            0.01, 0.8, "\n\n".join(summaries), fontsize=10, ha="left", va="top", wrap=True
+        # Generate the DataFrame using the inline function
+        summary_df = generate_summary_df()
+
+        # Add the table below the plots
+        ax_table = fig.add_subplot(grid[3:, :])
+        ax_table.axis("off")  # Turn off the axis for the table
+
+        # Display only the first 10 rows of the DataFrame for clarity
+        table_data = summary_df.head(10)  # Adjust the row limit as needed
+        table = ax_table.table(
+            cellText=table_data.values,
+            colLabels=table_data.columns,
+            cellLoc="center",
+            loc="center",
         )
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.auto_set_column_width(col=list(range(len(table_data.columns))))
 
         # Save the figure
-        plt.savefig(f"{folder_name}/{col}_plots.png")
+        plt.savefig(f"{folder_name}/{col}_plots_with_table.png")
         plt.close()
