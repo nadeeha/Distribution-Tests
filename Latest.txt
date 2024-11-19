@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-def generate_plots_with_large_table(
+def generate_plots_with_inline_dict_and_table(
     original_data, outlier_data, imputed_data, columns, folder_name, task
 ):
     """
-    Generate clean plots with a larger table below the plots and highlight table headers.
+    Generate clean plots with a dictionary summary and a table at the end.
 
     Args:
     - original_data: DataFrame before imputation.
@@ -30,9 +30,15 @@ def generate_plots_with_large_table(
             }
             return pd.DataFrame(data)
 
-        # Create a new figure with space for the table
-        fig = plt.figure(figsize=(18, 28))
-        grid = plt.GridSpec(5, 3, hspace=1.5, wspace=0.5)  # Adjust spacing for 5 rows
+        # Dictionary content to display
+        info_dict = {
+            'Outlier Treatment': ['name1', 'reason1'],
+            'Transformation': ['name2', 'reason2']
+        }
+
+        # Create a new figure with space for the dictionary and table
+        fig = plt.figure(figsize=(18, 32))  # Increased height to fit dictionary content
+        grid = plt.GridSpec(6, 3, hspace=1.5, wspace=0.5)  # Adjust spacing for 6 rows
 
         # Plot 1: Histogram Before Imputation
         ax1 = fig.add_subplot(grid[0, 0])
@@ -41,11 +47,71 @@ def generate_plots_with_large_table(
         ax1.set_xlabel(col)
         ax1.set_ylabel("Frequency")
 
-        # Generate the DataFrame using the inline function
+        # Plot 2: Histogram Outliers
+        ax2 = fig.add_subplot(grid[0, 1])
+        sns.histplot(outlier_data[col], kde=False, color="blue", bins=20, ax=ax2)
+        ax2.set_title(f"Histogram (Outliers {task}): {col}")
+        ax2.set_xlabel(col)
+        ax2.set_ylabel("Frequency")
+
+        # Plot 3: Histogram After Imputation
+        ax3 = fig.add_subplot(grid[0, 2])
+        sns.histplot(imputed_data[col], kde=False, color="red", bins=20, ax=ax3)
+        ax3.set_title(f"Histogram (After {task}): {col}")
+        ax3.set_xlabel(col)
+        ax3.set_ylabel("Frequency")
+
+        # Plot 4: Box Plot Before Imputation
+        ax4 = fig.add_subplot(grid[1, 0])
+        sns.boxplot(x=original_data[col], color="black", ax=ax4)
+        ax4.set_title(f"Box Plot (Before {task}): {col}")
+
+        # Plot 5: Box Plot Outliers
+        ax5 = fig.add_subplot(grid[1, 1])
+        sns.boxplot(x=outlier_data[col], color="blue", ax=ax5)
+        ax5.set_title(f"Box Plot (Outliers {task}): {col}")
+
+        # Plot 6: Box Plot After Imputation
+        ax6 = fig.add_subplot(grid[1, 2])
+        sns.boxplot(x=imputed_data[col], color="red", ax=ax6)
+        ax6.set_title(f"Box Plot (After {task}): {col}")
+
+        # Plot 7: KDE Plot Before Imputation
+        ax7 = fig.add_subplot(grid[2, 0])
+        sns.kdeplot(original_data[col], color="black", ax=ax7)
+        ax7.set_title(f"KDE Plot (Before {task}): {col}")
+        ax7.set_xlabel(col)
+        ax7.set_ylabel("Density")
+
+        # Plot 8: KDE Plot Outliers
+        ax8 = fig.add_subplot(grid[2, 1])
+        sns.kdeplot(outlier_data[col], color="blue", ax=ax8)
+        ax8.set_title(f"KDE Plot (Outliers {task}): {col}")
+        ax8.set_xlabel(col)
+        ax8.set_ylabel("Density")
+
+        # Plot 9: KDE Plot After Imputation
+        ax9 = fig.add_subplot(grid[2, 2])
+        sns.kdeplot(imputed_data[col], color="red", ax=ax9)
+        ax9.set_title(f"KDE Plot (After {task}): {col}")
+        ax9.set_xlabel(col)
+        ax9.set_ylabel("Density")
+
+        # Add dictionary content as a text block
+        ax_dict = fig.add_subplot(grid[3, :])
+        ax_dict.axis("off")  # Turn off axis for clean text display
+
+        # Format and display the dictionary content
+        formatted_text = "\n".join(
+            [f"**{key}**: {value[0]} ({value[1]})" for key, value in info_dict.items()]
+        )
+        ax_dict.text(0, 1, formatted_text, fontsize=12, ha="left", va="top", wrap=True)
+
+        # Generate the DataFrame for the table
         summary_df = generate_summary_df()
 
-        # Add the table below the plots
-        ax_table = fig.add_subplot(grid[3:, :])
+        # Add the table below the dictionary content
+        ax_table = fig.add_subplot(grid[4:, :])
         ax_table.axis("off")  # Turn off the axis for the table
 
         # Display only the first 10 rows of the DataFrame for clarity
@@ -58,7 +124,7 @@ def generate_plots_with_large_table(
             bbox=[0.125, 0.2, 0.75, 0.6],  # Adjusts the position and width of the table
         )
         table.auto_set_font_size(False)
-        table.set_fontsize(12)
+        table.set_fontsize(10)
         table.auto_set_column_width(col=list(range(len(table_data.columns))))
 
         # Highlight headers
@@ -66,7 +132,8 @@ def generate_plots_with_large_table(
             if row == 0:  # Header row
                 cell.set_text_props(weight="bold", color="white")
                 cell.set_facecolor("gray")
+            cell.set_height(0.05)  # Increase height for all rows
 
         # Save the figure
-        plt.savefig(f"{folder_name}/{col}_plots_with_table.png")
+        plt.savefig(f"{folder_name}/{col}_plots_with_dict_and_table.png")
         plt.close()
