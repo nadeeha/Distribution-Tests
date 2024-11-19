@@ -1,6 +1,6 @@
 def generate_plots_before_after_outliers_with_values(original_data, outlier_data, imputed_data, columns, folder_name, task, additional_dataframes):
     """
-    Generate plots before, for outliers, and after imputation, and display column values from other DataFrames.
+    Generate plots before, for outliers, and after imputation, and display relevant rows from additional DataFrames.
 
     Args:
     - original_data: DataFrame before imputation.
@@ -15,15 +15,20 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         # Create a new figure for each column
         plt.figure(figsize=(18, 18))
 
-        # Helper function to display values from additional DataFrames
-        def display_column_values(ax, col, dfs):
+        # Helper function to display relevant rows from additional DataFrames
+        def display_relevant_rows(ax, col, dfs):
             text_lines = []
             for df_name, df in dfs.items():
-                if col in df.columns:
-                    values = df[col].dropna().unique()
-                    text_lines.append(f"{df_name}: {', '.join(map(str, values))}")
-            text_to_display = "\n".join(text_lines)
-            ax.text(0.5, -0.5, text_to_display, ha='center', fontsize=10, transform=ax.transAxes)
+                if "attributes" in df.columns and col in df["attributes"].values:
+                    # Filter rows where 'attributes' matches the current column
+                    filtered_rows = df[df["attributes"] == col]
+                    for _, row in filtered_rows.iterrows():
+                        # Add all row values with column headers
+                        row_values = ", ".join([f"{header}: {value}" for header, value in row.items()])
+                        text_lines.append(f"{df_name}: {row_values}")
+            if text_lines:
+                text_to_display = "\n".join(text_lines)
+                ax.text(0.5, -0.5, text_to_display, ha='center', fontsize=10, wrap=True, transform=ax.transAxes)
 
         # Histogram Before Imputation
         ax1 = plt.subplot(3, 3, 1)
@@ -32,7 +37,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Frequency')
-        display_column_values(ax1, col, additional_dataframes)
+        display_relevant_rows(ax1, col, additional_dataframes)
 
         # Histogram for Outliers
         ax2 = plt.subplot(3, 3, 2)
@@ -41,7 +46,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Frequency')
-        display_column_values(ax2, col, additional_dataframes)
+        display_relevant_rows(ax2, col, additional_dataframes)
 
         # Histogram After Imputation
         ax3 = plt.subplot(3, 3, 3)
@@ -50,7 +55,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Frequency')
-        display_column_values(ax3, col, additional_dataframes)
+        display_relevant_rows(ax3, col, additional_dataframes)
 
         # Box Plot Before Imputation
         ax4 = plt.subplot(3, 3, 4)
@@ -61,7 +66,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         else:
             plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
             plt.title(f"Box Plot (Before {task}): {col}")
-        display_column_values(ax4, col, additional_dataframes)
+        display_relevant_rows(ax4, col, additional_dataframes)
 
         # Box Plot for Outliers
         ax5 = plt.subplot(3, 3, 5)
@@ -72,7 +77,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         else:
             plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
             plt.title(f"Box Plot (Outliers {task}): {col}")
-        display_column_values(ax5, col, additional_dataframes)
+        display_relevant_rows(ax5, col, additional_dataframes)
 
         # Box Plot After Imputation
         ax6 = plt.subplot(3, 3, 6)
@@ -83,7 +88,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         else:
             plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
             plt.title(f"Box Plot (After {task}): {col}")
-        display_column_values(ax6, col, additional_dataframes)
+        display_relevant_rows(ax6, col, additional_dataframes)
 
         # KDE Plot Before Imputation
         ax7 = plt.subplot(3, 3, 7)
@@ -92,7 +97,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Density')
-        display_column_values(ax7, col, additional_dataframes)
+        display_relevant_rows(ax7, col, additional_dataframes)
 
         # KDE Plot for Outliers
         ax8 = plt.subplot(3, 3, 8)
@@ -101,7 +106,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Density')
-        display_column_values(ax8, col, additional_dataframes)
+        display_relevant_rows(ax8, col, additional_dataframes)
 
         # KDE Plot After Imputation
         ax9 = plt.subplot(3, 3, 9)
@@ -110,7 +115,7 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
         plt.title(wrapped_title)
         plt.xlabel(col)
         plt.ylabel('Density')
-        display_column_values(ax9, col, additional_dataframes)
+        display_relevant_rows(ax9, col, additional_dataframes)
 
         # Adjust the layout and save the figure
         plt.tight_layout(pad=3.0)  # Increase padding around subplots
@@ -120,16 +125,16 @@ def generate_plots_before_after_outliers_with_values(original_data, outlier_data
 
 
 additional_dfs = {
-    "Outlier DataFrame": outlier_data,
-    "Another DataFrame": some_other_dataframe
+    "Outlier Info": outlier_df,
+    "Attribute Metadata": attribute_metadata_df
 }
 
 generate_plots_before_after_outliers_with_values(
     original_data=original_df,
     outlier_data=outlier_df,
     imputed_data=imputed_df,
-    columns=["column_name_1", "column_name_2"],
+    columns=["column1", "column2"],
     folder_name="output_folder",
-    task="Imputation Task",
+    task="Imputation",
     additional_dataframes=additional_dfs
 )
