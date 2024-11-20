@@ -17,7 +17,7 @@ bins = list(range(0, 101, 5))  # 0-5, 5-10, ..., 95-100
 df['bins'] = pd.cut(df['green_share_%'], bins=bins, right=False).apply(lambda x: int(x.left))
 
 # Folder to save the PNG files
-output_folder = "seaborn_minimal_yearly_plots"
+output_folder = "seaborn_beautified_yearly_plots"
 os.makedirs(output_folder, exist_ok=True)
 
 # Generate plots for years 2013 to 2025
@@ -29,8 +29,8 @@ for year in range(2013, 2026):
         continue  # Skip if no data for the year
 
     # Create a figure with subplots
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
-    fig.suptitle(f"Green Share % for Year {year}")
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharey=False)
+    fig.suptitle(f"Green Share % for Year {year}", fontsize=16, fontweight='bold')
 
     # Plot 1: Including 0-5%
     sns.histplot(
@@ -41,9 +41,11 @@ for year in range(2013, 2026):
         color='skyblue',
         kde=False
     )
-    axes[0].set_title("Including 0-5%")
-    axes[0].set_xlabel("Green Share %")
-    axes[0].set_ylabel("Number of Companies")
+    axes[0].set_title("Including 0-5%", fontsize=12, fontweight='bold')
+    axes[0].set_xlabel("Green Share %", fontsize=10)
+    axes[0].set_ylabel("Number of Companies", fontsize=10)
+    axes[0].set_xticks(bins)
+    axes[0].tick_params(axis='x', rotation=45)
 
     # Plot 2: Excluding 0-5%
     filtered_df_excluding = filtered_df[filtered_df['bins'] > 0]
@@ -55,14 +57,21 @@ for year in range(2013, 2026):
         color='lightcoral',
         kde=False
     )
-    axes[1].set_title("Excluding 0-5%")
-    axes[1].set_xlabel("Green Share %")
-    axes[1].set_ylabel("")
+    axes[1].set_title("Excluding 0-5%", fontsize=12, fontweight='bold')
+    axes[1].set_xlabel("Green Share %", fontsize=10)
+    axes[1].set_ylabel("Number of Companies", fontsize=10)
+    axes[1].set_xticks(bins)
+    axes[1].tick_params(axis='x', rotation=45)
+    
+    # Adjust y-axis scaling for the second plot
+    if not filtered_df_excluding.empty:
+        max_count = filtered_df_excluding['bins'].value_counts().max()
+        axes[1].set_ylim(0, max_count + 1)
 
     # Adjust layout and save the figure as PNG
     plt.tight_layout(rect=[0, 0, 1, 0.95])
-    output_file = os.path.join(output_folder, f"Green_Share_Plots_{year}.png")
+    output_file = os.path.join(output_folder, f"Green_Share_Beautified_Plots_{year}.png")
     plt.savefig(output_file)
     plt.close()
 
-print(f"PNG files for years 2013 to 2025 saved in '{output_folder}'")
+print(f"Beautified PNG files for years 2013 to 2025 saved in '{output_folder}'")
