@@ -1,6 +1,8 @@
+import os
 import pandas as pd
 import plotly.express as px
-from ipywidgets import interact
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 # Sample DataFrame
 data = {
@@ -17,26 +19,56 @@ bins = list(range(0, 101, 5))  # 0-5, 5-10, ..., 95-100
 # Add bin column to the DataFrame
 df_plot['bins'] = pd.cut(df_plot['green_share_revenue_%'], bins=bins, right=False).apply(lambda x: int(x.left))
 
-# Function to plot the histogram based on the selected year
-def plot_histogram(selected_year, exclude_low_bin=False):
-    # Filter data for the selected year
-    filtered_df = df_plot[df_plot['year'] == selected_year]
-    
-    # Optionally exclude the 0-5% bin
-    if exclude_low_bin:
-        filtered_df = filtered_df[filtered_df['bins'] > 0]
+# Folder to save PNG files
+output_folder = "green_revenue_share_png_files"
+os.makedirs(output_folder, exist_ok=True)
 
-    # Create the histogram
-    fig = px.histogram(
+# Generate and save PNGs for each year from 2013 to 2024
+for year in range(2013, 2025):
+    # Filter data for the year
+    filtered_df = df_plot[df_plot['year'] == year]
+    
+    if filtered_df.empty:
+        continue  # Skip years with no data
+    
+    # Create the first histogram (including 0-5%)
+    fig_including = px.histogram(
         filtered_df,
         x='bins',
-        title=f'Green Revenue Share for {selected_year} {"| Excluding 0-5%" if exclude_low_bin else ""}',
+        title=f'Green Revenue Share for {year} (Including 0-5%)',
         labels={"bins": "Green Revenue Share (%)"},
         category_orders={"bins": list(range(0, 101, 5))},  # Ensure consistent x-axis order
     )
-    fig.update_xaxes(type='category', tickmode='array', tickvals=list(range(0, 101, 5)), ticktext=list(range(0, 101, 5)))
-    fig.update_yaxes(title="Number of Companies")
-    fig.show()
+    fig_including.update_xaxes(type='category', tickmode='array', tickvals=list(range(0, 101, 5)), ticktext=list(range(0, 101, 5)))
+    fig_including.update_yaxes(title="Number of Companies")
+    fig_including.update_layout(plot_bgcolor='white', paper_bgcolor='white', font=dict(color='black'))
 
-# Interactive widget to select year and toggle 0-5% exclusion
-interact(plot_histogram, selected_year=df_plot['year'].unique(), exclude_low_bin=[False, True])
+    # Create the second histogram (excluding 0-5%)
+    filtered_df_excluding = filtered_df[filtered_df['bins'] > 0]
+    fig_excluding = px.histogram(
+        filtered_df_excluding,
+        x='bins',
+        title=f'Green Revenue Share for {year} (Excluding 0-5%)',
+        labels={"bins": "Green Revenue Share (%)"},
+        category_orders={"bins": list(range(0, 101, 5))},  # Ensure consistent x-axis order
+    )
+    fig_excluding.update_xaxes(type='category', tickmode='array', tickvals=list(range(0, 101, 5)), ticktext=list(range(0, 101, 5)))
+    fig_excluding.update_yaxes(title="Number of Companies")
+    fig_excluding.update_layout(plot_bgcolor='white', paper_bgcolor='white', font=dict(color='black'))
+
+    # Combine both plots into one figure
+    combined_fig = make_subplots(rows=1, cols=2, subplot_titles=(f"Green Revenue Share {year} (Including 0-5%)",
+                                                                 f"Green Revenue Share {year} (Excluding 0-5%)"))
+    
+    combined_fig.add_trace(go.Bar(x=fig_including.data[0].x, y=fig_including.data[0].y, name="Including 0-5%"),
+                           row=1, col=1)
+    combined_fig.add_trace(go.Bar(x=fig_excluding.data[0].x, y=fig_excluding.data[0].y, name="Excluding 0-5%"),
+                           row=1, col=2)
+
+    combined_fig.update_layout(title_text=f"Green Revenue Share for {year}", plot_bgcolor='white', paper_bgcolor='white')
+
+    # Save the combined figure as PNG
+    file_path = os.path.join(output_folder, f"Green_Revenue_Share_for_{year}.png")
+    combined_fig.write_image(file_path, width=1200, height=600)
+
+print(f"PNG files saved to {output_folder}")
