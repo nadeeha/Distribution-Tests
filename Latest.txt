@@ -1,4 +1,53 @@
-import matplotlib.pyplot as plt
+import pandas as pd
+import plotly.express as px
+
+# Sample DataFrame
+data = {
+    'company_name': ['Company A', 'Company B', 'Company C', 'Company D', 'Company E'],
+    'year': [2021, 2021, 2022, 2022, 2023],
+    'green_revenue_shares': [0.05, 0.12, 0.08, 0.20, 0.03],
+    'pct_green_revenue_shares': [0.05, 0.12, 0.08, 0.20, 0.03]  # 0-1 scale
+}
+
+df = pd.DataFrame(data)
+
+# Convert percentage values from 0-1 scale to 0-100 scale
+df['pct_green_revenue_shares'] = df['pct_green_revenue_shares'] * 100
+
+# Define bins
+bins = list(range(0, 101, 5))  # 0-5, 5-10, ..., 95-100
+
+# Add bin column to the DataFrame
+df['bins'] = pd.cut(df['pct_green_revenue_shares'], bins=bins, right=False)
+
+# Plot 1: Including 0-5 bin
+fig1 = px.histogram(
+    df, 
+    x='bins', 
+    color='year', 
+    barmode='group', 
+    title='Green Revenue Share (Including 0-5 Bin)', 
+    category_orders={"bins": [str(bin) for bin in bins]},
+    labels={"bins": "Green Revenue Share (%)"}
+)
+
+# Filter out 0-5 bin for the second plot
+df_excluding_0_5 = df[df['pct_green_revenue_shares'] > 5]
+
+# Plot 2: Excluding 0-5 bin
+fig2 = px.histogram(
+    df_excluding_0_5, 
+    x='bins', 
+    color='year', 
+    barmode='group', 
+    title='Green Revenue Share (Excluding 0-5 Bin)', 
+    category_orders={"bins": [str(bin) for bin in bins]},
+    labels={"bins": "Green Revenue Share (%)"}
+)
+
+# Show plots
+fig1.show()
+fig2.show()import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
