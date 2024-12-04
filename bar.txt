@@ -1,0 +1,47 @@
+import plotly.express as px
+
+# Example DataFrame (replace with your actual DataFrame)
+data = {
+    'relevance_flag_new': ['High', 'Moderate', 'Low', 'High', 'Moderate', 'High', 'Low', 'Low']
+}
+
+mapping_review = pd.DataFrame(data)
+
+# Count the occurrences of each category
+category_counts = mapping_review['relevance_flag_new'].value_counts().reset_index()
+category_counts.columns = ['Category', 'Count']
+
+# Create a bar chart for the counts of each category
+fig = px.bar(
+    category_counts,
+    x='Category',
+    y='Count',
+    color='Category',
+    color_discrete_map={"High": "green", "Moderate": "yellow", "Low": "red"},
+    title='Count of Relevance Flag Categories',
+    labels={'Category': 'Relevance Flag', 'Count': 'Count'}
+)
+
+# Add category conditions as an annotation
+fig.update_layout(
+    xaxis_title="Relevance Flag Category",
+    yaxis_title="Count",
+    title_font=dict(size=20),
+    annotations=[
+        dict(
+            x=0.5,
+            y=-0.2,
+            xref='paper',
+            yref='paper',
+            showarrow=False,
+            text=(
+                "Category Conditions: "
+                "High: >= 70%, "
+                "Moderate: 60% - 70%, "
+                "Low: < 60%"
+            ),
+            font=dict(size=12),
+            align="center"
+        )
+    ]
+)
