@@ -1,56 +1,63 @@
 import plotly.express as px
 import pandas as pd
+import numpy as np
 
-# Example DataFrame with a green share revenue column
+# Example DataFrame
 data = {
-    'green_share_revenue': [10, 20, 15, 25, 30, 20, 15, 10, 5, 35, 40],
-    'category': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+    'green_share_revenue_%': [12, 25, 37, 45, 52, 60, 78, 85, 91, 100, 115, 130, 145, 150]
 }
 
 df = pd.DataFrame(data)
 
-# Define the slices
+# Define slices
 slices = {
     "Whole Dataset": df,
-    "0 to 100": df[df['green_share_revenue'].between(0, 100)],
-    "5 to 100": df[df['green_share_revenue'].between(5, 100)],
-    "0 to 105": df[df['green_share_revenue'].between(0, 105)]
+    "0 to 100%": df[df['green_share_revenue_%'].between(0, 100)],
+    "50 to 150%": df[df['green_share_revenue_%'].between(50, 150)],
+    "0 to 120%": df[df['green_share_revenue_%'].between(0, 120)]
 }
 
-# Loop through the slices to generate plots
+# Loop through the slices and generate bar plots and histograms
 for name, subset in slices.items():
-    # Bar plot
+    # Create intervals for the bar plot
+    min_value = subset['green_share_revenue_%'].min()
+    max_value = subset['green_share_revenue_%'].max()
+    bins = np.arange(min_value, max_value + 10, 10)
+    subset['interval'] = pd.cut(subset['green_share_revenue_%'], bins=bins, right=False)
+
+    # 1. Bar Plot with Intervals
+    bar_data = subset.groupby('interval').size().reset_index(name='count')  # Count values in each interval
     fig_bar = px.bar(
-        subset,
-        x='category',  # X-axis: Categories
-        y='green_share_revenue',  # Y-axis: Green share revenue values
-        title=f"Green Share Revenue by Category ({name})",
-        labels={'category': 'Category', 'green_share_revenue': 'Green Share Revenue'},
-        color_discrete_sequence=["#3E701A"],  # Use green color for bars
+        bar_data,
+        x='interval',
+        y='count',
+        title=f"Bar Plot of Green Share Revenue (%) ({name})",
+        labels={'interval': 'Green Share Revenue (%) Intervals', 'count': 'Frequency'},
+        text='count',  # Display count on the bars
+        color_discrete_sequence=["#3E701A"]  # Green color
     )
     fig_bar.update_layout(
-        xaxis_title="Category",
-        yaxis_title="Green Share Revenue",
+        xaxis=dict(title="Green Share Revenue (%) Intervals"),
+        yaxis=dict(title="Frequency"),
         title_font=dict(size=18),
         font=dict(size=14),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        bargap=0.2  # Adjust bar gap for better aesthetics
     )
     fig_bar.show()
 
-    # Histogram
+    # 2. Histogram with 20 Bins
     fig_hist = px.histogram(
         subset,
-        x='green_share_revenue',  # Column to plot
-        nbins=10,  # Number of bins
-        title=f"Distribution of Green Share Revenue ({name})",
-        labels={'green_share_revenue': 'Green Share Revenue'},
-        color_discrete_sequence=["#3E701A"],  # Use green color for the histogram
+        x='green_share_revenue_%',
+        nbins=20,  # Set number of bins
+        title=f"Histogram of Green Share Revenue (%) ({name})",
+        labels={'green_share_revenue_%': 'Green Share Revenue (%)', 'count': 'Frequency'},
+        color_discrete_sequence=["#3E701A"]  # Green color
     )
     fig_hist.update_layout(
-        xaxis_title="Green Share Revenue",
-        yaxis_title="Frequency",
+        xaxis=dict(title="Green Share Revenue (%)"),
+        yaxis=dict(title="Frequency"),
         title_font=dict(size=18),
         font=dict(size=14),
         plot_bgcolor='white',
