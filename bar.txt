@@ -1,47 +1,56 @@
 import plotly.express as px
+import pandas as pd
 
-# Example DataFrame (replace with your actual DataFrame)
+# Example data to represent your original data structure
 data = {
-    'relevance_flag_new': ['High', 'Moderate', 'Low', 'High', 'Moderate', 'High', 'Low', 'Low']
+    'Category': ['High', 'Moderate', 'Low'],
+    'Count': [70, 50, 30]  # Example counts for each category
 }
 
-mapping_review = pd.DataFrame(data)
+# Create a DataFrame
+category_counts = pd.DataFrame(data)
 
-# Count the occurrences of each category
-category_counts = mapping_review['relevance_flag_new'].value_counts().reset_index()
-category_counts.columns = ['Category', 'Count']
-
-# Create a bar chart for the counts of each category
+# Create a single stacked bar
 fig = px.bar(
     category_counts,
-    x='Category',
+    x=['All Categories'],  # Single bar
     y='Count',
     color='Category',
-    color_discrete_map={"High": "green", "Moderate": "yellow", "Low": "red"},
-    title='Count of Relevance Flag Categories',
-    labels={'Category': 'Relevance Flag', 'Count': 'Count'}
+    color_discrete_map={"High": "#3E701A", "Moderate": "#EC7046", "Low": "#DB0011"},
+    title='Confidence Levels in a Single Stacked Bar',
+    labels={"Count": "Number of Items", "Category": "Confidence Levels"}
 )
 
-# Add category conditions as an annotation
+# Update layout for font size and appearance
 fig.update_layout(
-    xaxis_title="Relevance Flag Category",
-    yaxis_title="Count",
-    title_font=dict(size=20),
+    xaxis_title="",
+    yaxis_title="Number of Items",
+    title_font=dict(size=18),  # Set title font size
+    xaxis=dict(showticklabels=False, title_font=dict(size=18)),  # Hide tick labels, adjust x-axis font
+    yaxis=dict(title_font=dict(size=18)),  # Set y-axis title font size
+    plot_bgcolor='white',
+    paper_bgcolor='white',
+    title_x=0.5,  # Center the title
+    font=dict(size=18),  # Set font size for all text
     annotations=[
         dict(
             x=0.5,
-            y=-0.2,
-            xref='paper',
-            yref='paper',
+            y=1.1,
+            xref="paper",
+            yref="paper",
             showarrow=False,
+            bgcolor='white',
             text=(
-                "Category Conditions: "
-                "High: >= 70%, "
-                "Moderate: 60% - 70%, "
+                "Category Conditions:<br>"
+                "High: >= 70%<br>"
+                "Moderate: 60% - 70%<br>"
                 "Low: < 60%"
             ),
-            font=dict(size=12),
-            align="center"
+            font=dict(size=18),  # Set font size for annotations
+            align="center",
         )
     ]
 )
+
+# Show the figure
+fig.show()
