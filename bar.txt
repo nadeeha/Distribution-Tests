@@ -25,6 +25,9 @@ for name, subset in slices.items():
     bins = np.arange(min_value, max_value + 10, 10)
     subset['interval'] = pd.cut(subset['green_share_revenue_%'], bins=bins, right=False)
 
+    # Convert intervals to strings for Plotly
+    subset['interval'] = subset['interval'].astype(str)
+
     # 1. Bar Plot with Intervals
     bar_data = subset.groupby('interval').size().reset_index(name='count')  # Count values in each interval
     fig_bar = px.bar(
