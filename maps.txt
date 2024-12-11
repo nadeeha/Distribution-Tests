@@ -43,3 +43,27 @@ df['microsectors_vals'] = microsectors_vals
 
 # Display the resulting DataFrame
 print(df)
+
+
+
+
+
+#######
+import pandas as pd
+
+# Example DataFrame
+data = {
+    'theme': ['Theme1', 'Theme2', 'Theme1', 'Theme3', 'Theme2', 'Theme3'],
+    'value': [10, 20, 30, 40, 50, 60],
+    'description': ['A', 'B', 'C', 'D', 'E', 'F']
+}
+df = pd.DataFrame(data)
+
+# Create an Excel writer
+output_file = "themes_split.xlsx"
+with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+    # Group by 'theme' and write each group to a separate sheet
+    for theme, group in df.groupby('theme'):
+        group.to_excel(writer, sheet_name=theme, index=False)
+
+print(f"DataFrame has been split and saved to {output_file}")
