@@ -1,0 +1,45 @@
+import pandas as pd
+import re
+
+# Sample DataFrame (replace with your actual DataFrame)
+data = {
+    'Col1': ['A', 'X'],
+    'Col2': ['B', 'Y'],
+    'Col3': ['C', 'Z'],
+    'Col4': ['D', 'W'],
+    'AB_12_3_desc': [10, None],
+    'XY_34_5_data': [None, 50],
+    'ZZ_11_7_extra': [25, None],
+    'AnotherCol': [None, 60]
+}
+
+df = pd.DataFrame(data)
+
+# Define a regex pattern to match column names
+pattern = r'^[A-Z]{2}_\d{2}_\d_.*$'
+
+# Iterate over rows to create 'microsectors_list' and 'microsectors_vals'
+microsectors_list = []
+microsectors_vals = []
+
+for _, row in df.iterrows():
+    matching_columns = []
+    matching_values = []
+    
+    # Check columns starting from the 5th (index 4) onward
+    for col in df.columns[4:]:
+        if re.match(pattern, col):  # Check if the column name matches the pattern
+            value = row[col]
+            if pd.notnull(value):  # Check if the value is not null
+                matching_columns.append(col)
+                matching_values.append(value)
+    
+    microsectors_list.append(matching_columns)
+    microsectors_vals.append(matching_values)
+
+# Add the new columns to the DataFrame
+df['microsectors_list'] = microsectors_list
+df['microsectors_vals'] = microsectors_vals
+
+# Display the resulting DataFrame
+print(df)
