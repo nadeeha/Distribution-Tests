@@ -1,0 +1,28 @@
+import pandas as pd
+
+# Sample DataFrame
+data = {
+    'company': ['A', 'A', 'A', 'B', 'B', 'C', 'C', 'D'],
+    'year': [2021, 2022, 2023, 2021, 2022, 2021, 2022, 2021],
+    'value': [10, 20, 30, 15, 25, 12, 22, 35]
+}
+
+df = pd.DataFrame(data)
+
+# Function to subset the DataFrame
+def subset_by_year(df, year=2023):
+    # Sort the dataframe by year in descending order
+    df = df.sort_values(by=['company', 'year'], ascending=[True, False])
+    
+    # Group by company and get the required row
+    result = df.groupby('company').apply(lambda group: 
+                                         group[group['year'] == year]
+                                         if any(group['year'] == year) 
+                                         else group.iloc[0:1]).reset_index(drop=True)
+    return result
+
+# Subset the dataframe
+result_df = subset_by_year(df, year=2023)
+
+# Display the result
+print(result_df)
