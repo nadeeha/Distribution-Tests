@@ -1,0 +1,92 @@
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+from plotly.subplots import make_subplots
+
+# Sample DataFrame
+data = {
+    "CompanyID": [f"C{i}" for i in range(1, 101)],  # 100 companies
+    "GR_Provider1": [60 + i % 40 for i in range(100)],
+    "GR_Provider2": [50 + (i * 3) % 45 for i in range(100)],
+}
+df = pd.DataFrame(data)
+df["Difference"] = df["GR_Provider1"] - df["GR_Provider2"]
+df["Difference_Category"] = df["Difference"].apply(lambda x: "Positive" if x >= 0 else "Negative")
+
+# Create subplots
+fig = make_subplots(
+    rows=2, cols=2,
+    specs=[[{"type": "scatter"}, {"type": "histogram"}], [{"type": "bar"}, None]],
+    subplot_titles=(
+        "Scatter Plot: GR Comparison",
+        "Histogram: GR Differences",
+        "Bar Plot: Positive vs Negative Differences",
+    ),
+    vertical_spacing=0.3
+)
+
+# 1. Scatter Plot
+fig.add_trace(
+    go.Scatter(
+        x=df["GR_Provider2"],
+        y=df["GR_Provider1"],
+        mode="markers",
+        marker=dict(size=8, color=df["Difference"], colorscale="RdYlGn", showscale=True),
+        text=[
+            f"Company: {cid}<br>Provider1: {gr1}<br>Provider2: {gr2}<br>Difference: {diff}"
+            for cid, gr1, gr2, diff in zip(
+                df["CompanyID"], df["GR_Provider1"], df["GR_Provider2"], df["Difference"]
+            )
+        ],
+        name="Scatter",
+    ),
+    row=1, col=1
+)
+
+# Add a diagonal reference line (y=x)
+fig.add_trace(
+    go.Scatter(
+        x=[df["GR_Provider2"].min(), df["GR_Provider2"].max()],
+        y=[df["GR_Provider2"].min(), df["GR_Provider2"].max()],
+        mode="lines",
+        line=dict(color="black", dash="dash"),
+        name="y=x Reference Line",
+    ),
+    row=1, col=1
+)
+
+# 2. Histogram
+fig.add_trace(
+    go.Histogram(
+        x=df["Difference"],
+        marker=dict(color=["green" if diff >= 0 else "red" for diff in df["Difference"]]),
+        name="Histogram",
+    ),
+    row=1, col=2
+)
+
+# 3. Bar Plot
+bar_counts = df["Difference_Category"].value_counts()
+fig.add_trace(
+    go.Bar(
+        x=bar_counts.index,
+        y=bar_counts.values,
+        marker=dict(color=["green", "red"]),
+        text=[f"{count} Companies" for count in bar_counts.values],
+        textposition="auto",
+        name="Bar",
+    ),
+    row=2, col=1
+)
+
+# Update layout
+fig.update_layout(
+    height=800,
+    width=1000,
+    title_text="Green Revenue Comparison: Multi-View Visualization",
+    showlegend=False,
+)
+
+# Save to HTML
+fig.write_html("combined_interactive_plots.html")
+fig.show()
