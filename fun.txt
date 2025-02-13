@@ -1,0 +1,106 @@
+import pandas as pd
+import numpy as np
+import faiss
+from sklearn.preprocessing import MinMaxScaler
+from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer, AutoModel
+import torch
+
+# Load Data
+df_1 = pd.DataFrame({"bus_seg_name": ["Renewable Energy", "Sustainable Agriculture", "Electric Vehicles"]})
+df_2 = pd.DataFrame({
+    "L6_NAME": ["Solar Power", "Organic Farming", "EV Manufacturing"],
+    "L6_DESCRIPTION": [
+        "Companies that generate electricity from solar energy.",
+        "Farms that grow crops without synthetic fertilizers and pesticides.",
+        "Production of battery-powered electric vehicles."
+    ]
+})
+
+# Load Models
+esg_bert_model_name = "bert-base-uncased"  # Replace with actual ESG BERT model path if available
+esg_bert_tokenizer = AutoTokenizer.from_pretrained(esg_bert_model_name)
+esg_bert_model = AutoModel.from_pretrained(esg_bert_model_name)
+
+miniLM_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Function to generate embeddings from ESG BERT
+def get_esg_bert_embedding(text):
+    inputs = esg_bert_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    with torch.no_grad():
+        outputs = esg_bert_model(**inputs)
+    return outputs.last_hidden_state.mean(dim=1).squeeze().numpy()
+
+# Function to compute cosine similarity
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+# Compute embeddings
+df_1["esg_bert_emb"] = df_1["bus_seg_name"].apply(get_esg_bert_embedding)
+df_1["miniLM_emb"] = df_1["bus_seg_name"].apply(lambda x: miniLM_model.encode(x, normalize_embeddings=True))
+
+df_2["esg_bert_emb_name"] = df_2["L6_NAME"].apply(get_esg_bert_embedding)
+df_2["esg_bert_emb_desc"] = df_2["L6_DESCRIPTION"].apply(get_esg_bert_embedding)
+df_2["miniLM_emb_name"] = df_2["L6_NAME"].apply(lambda x: miniLM_model.encode(x, normalize_embeddings=True))
+df_2["miniLM_emb_desc"] = df_2["L6_DESCRIPTION"].apply(lambda x: miniLM_model.encode(x, normalize_embeddings=True))
+
+# FAISS Indexing
+dimension = len(df_1["miniLM_emb"].iloc[0])
+faiss_index = faiss.IndexFlatL2(dimension)
+faiss_vectors = np.stack(df_2["miniLM_emb_name"].values)
+faiss_index.add(faiss_vectors)
+
+# Compute Similarity Scores
+results = []
+
+for _, row1 in df_1.iterrows():
+    bus_seg_name = row1["bus_seg_name"]
+    esg_emb = row1["esg_bert_emb"]
+    miniLM_emb = row1["miniLM_emb"]
+
+    for _, row2 in df_2.iterrows():
+        l6_name = row2["L6_NAME"]
+        l6_desc = row2["L6_DESCRIPTION"]
+
+        # ESG BERT Similarity
+        esg_sim_name = cosine_similarity(esg_emb, row2["esg_bert_emb_name"])
+        esg_sim_desc = cosine_similarity(esg_emb, row2["esg_bert_emb_desc"])
+
+        # MiniLM Similarity
+        miniLM_sim_name = cosine_similarity(miniLM_emb, row2["miniLM_emb_name"])
+        miniLM_sim_desc = cosine_similarity(miniLM_emb, row2["miniLM_emb_desc"])
+
+        # FAISS Similarity
+        D, I = faiss_index.search(np.expand_dims(miniLM_emb, axis=0), 1)
+        faiss_sim = 1 - D[0][0]  # Convert L2 distance to similarity
+
+        # Weighted Score
+        weight_name = 0.7  # Higher weight to name similarity
+        weight_desc = 0.3  # Lower weight to description similarity
+
+        final_esg_score = (esg_sim_name * weight_name) + (esg_sim_desc * weight_desc)
+        final_miniLM_score = (miniLM_sim_name * weight_name) + (miniLM_sim_desc * weight_desc)
+
+        # Combine all scores
+        final_score = (final_esg_score + final_miniLM_score + faiss_sim) / 3
+
+        results.append({
+            "bus_seg_name": bus_seg_name,
+            "L6_NAME": l6_name,
+            "L6_DESCRIPTION": l6_desc,
+            "ESG_BERT_Similarity": final_esg_score,
+            "MiniLM_Similarity": final_miniLM_score,
+            "FAISS_Similarity": faiss_sim,
+            "Final_Weighted_Score": final_score
+        })
+
+# Convert results to DataFrame
+df_results = pd.DataFrame(results)
+
+# Normalize Final Scores
+scaler = MinMaxScaler()
+df_results["Final_Weighted_Score"] = scaler.fit_transform(df_results[["Final_Weighted_Score"]])
+
+# Display results
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Semantic Similarity Results", dataframe=df_results)
