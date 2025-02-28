@@ -1,0 +1,83 @@
+Got it! Here’s a single Pandas DataFrame along with five progressively complex questions based on it.
+
+
+---
+
+Dataset: df_employees
+
+The following dataset contains employee records, including department, salary, experience, and performance ratings.
+
+import pandas as pd
+
+df_employees = pd.DataFrame({
+    'EmployeeID': [101, 102, 103, 104, 105, 106, 107, 108, 109, 110],
+    'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack'],
+    'Department': ['HR', 'IT', 'IT', 'Sales', 'HR', 'Sales', 'IT', 'Finance', 'Finance', 'Sales'],
+    'Salary': [50000, 75000, 80000, 65000, 55000, 72000, 85000, 90000, 88000, 70000],
+    'Experience': [5, 8, 10, 4, 6, 7, 12, 9, 10, 3],
+    'Performance_Rating': [4.5, 3.8, 4.2, 4.0, 3.5, 4.1, 4.8, 3.9, 4.0, 3.7]
+})
+
+
+---
+
+Questions:
+
+1. Basic Filtering (Easy)
+
+Question:
+Write a query to filter and display employees from the IT department who have more than 8 years of experience.
+
+
+---
+
+2. Aggregation & Grouping (Basic)
+
+Question:
+Compute the average salary for each department and display the result in descending order of average salary.
+
+
+---
+
+3. Applying a Function (Intermediate)
+
+Question:
+Create a new column "Bonus", where:
+
+Employees with a Performance Rating >= 4.5 get a 10% salary bonus.
+
+Employees with a Performance Rating between 4.0 and 4.5 get a 5% bonus.
+
+Others get no bonus.
+
+
+
+---
+
+4. Handling Missing Values (Intermediate)
+
+Question:
+Suppose the Performance_Rating column has some missing values. Fill missing ratings with the average rating of the respective department.
+
+
+---
+
+5. Advanced Merging (Intermediate to Advanced)
+
+Question:
+Assume you have another dataset df_promotions:
+
+df_promotions = pd.DataFrame({
+    'EmployeeID': [101, 103, 105, 108],
+    'Promoted': [True, True, False, True]
+})
+
+Merge this dataset with df_employees to add the "Promoted" column, ensuring that employees who are not listed in df_promotions have False as the default value.
+
+
+---
+
+This approach ensures that candidates work with a single DataFrame while still testing their ability to filter, aggregate, apply functions, handle missing values, and merge data.
+
+Would you like me to execute these queries and display the results?
+
