@@ -81,32 +81,29 @@ Here is the list of L6 revenue streams:
 This prompt ensures that the OpenAI model filters only the relevant revenue streams aligned with the circular economy. If you want additional reasoning for each decision, you can modify the prompt to include a brief justification. Let me know if you need further refinements!
 
 
-
-
 def keyword_search(rbics_clean, df_key):
     matches = []
+    
     for keyword in df_key['keyword']:
-        match_rows_name = rbics_clean[rbics_clean['L6_NAME'].str.contains(keyword, case=False, na=False)]
-        match_rows_desc = rbics_clean[rbics_clean['L6_DESCRIPTION'].str.contains(keyword, case=False, na=False)]
-        
-        # Capture matches from L6_NAME
-        for _, row in match_rows_name.iterrows():
+        match_rows = rbics_clean[
+            rbics_clean['L6_NAME'].str.contains(keyword, case=False, na=False) |
+            rbics_clean['L6_DESCRIPTION'].str.contains(keyword, case=False, na=False)
+        ]
+
+        for _, row in match_rows.iterrows():
+            match_sources = []
+            if keyword.lower() in str(row['L6_NAME']).lower():
+                match_sources.append("L6_NAME")
+            if keyword.lower() in str(row['L6_DESCRIPTION']).lower():
+                match_sources.append("L6_DESCRIPTION")
+
             matches.append({
                 "L6_NAME": row['L6_NAME'],
                 "L6_DESCRIPTION": row['L6_DESCRIPTION'],
                 "matched_keyword": keyword,
-                "match_source": "L6_NAME"  # Indicates the match was from L6_NAME
+                "match_source": ", ".join(match_sources)  # Combine sources if both match
             })
-
-        # Capture matches from L6_DESCRIPTION
-        for _, row in match_rows_desc.iterrows():
-            matches.append({
-                "L6_NAME": row['L6_NAME'],
-                "L6_DESCRIPTION": row['L6_DESCRIPTION'],
-                "matched_keyword": keyword,
-                "match_source": "L6_DESCRIPTION"  # Indicates the match was from L6_DESCRIPTION
-            })
-
+    
     return pd.DataFrame(matches)
 
 # Perform keyword search
