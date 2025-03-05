@@ -36,3 +36,47 @@ df["expanded_level_3"] = df.apply(
 df.to_csv("expanded_circular_economy_taxonomy.csv", index=False)
 
 print("Circular Economy taxonomy expansion completed and saved.")
+
+
+
+Here's a strong prompt you can use with the OpenAI API to filter the valid L6 level revenue streams that can be tagged under the circular economy:
+
+
+---
+
+Prompt:
+
+> You are an expert in sustainability and circular economy principles. You will receive a list of 1800 revenue streams categorized under L6 level classification. Your task is to analyze each revenue stream and determine if it aligns with the principles of the circular economy.
+
+A revenue stream is considered part of the circular economy if it contributes to any of the following:
+
+Resource Efficiency & Waste Reduction: Minimizing material use, extending product life cycles, or reducing waste through reuse, repair, or recycling.
+
+Recycling & Upcycling: Processing used materials into new products or repurposing materials to reduce waste.
+
+Sustainable Materials & Renewable Resources: Using biodegradable, recyclable, or renewable materials.
+
+Sharing Economy & Product-as-a-Service Models: Enabling resource sharing, rental, or subscription-based services to maximize product usage.
+
+Industrial Symbiosis & Closed-Loop Systems: Utilizing byproducts or waste from one process as inputs for another.
+
+
+Instructions:
+
+Evaluate each L6 revenue stream based on the circular economy principles above.
+
+If the revenue stream aligns with the circular economy, return it as valid. Otherwise, exclude it from the final list.
+
+Return only the valid L6 revenue streams, without explanations or additional formatting.
+
+
+Here is the list of L6 revenue streams:
+[Insert the list of 1800 revenue streams here]
+
+
+
+
+---
+
+This prompt ensures that the OpenAI model filters only the relevant revenue streams aligned with the circular economy. If you want additional reasoning for each decision, you can modify the prompt to include a brief justification. Let me know if you need further refinements!
+
