@@ -83,21 +83,30 @@ This prompt ensures that the OpenAI model filters only the relevant revenue stre
 
 
 
-
 def keyword_search(rbics_clean, df_key):
     matches = []
     for keyword in df_key['keyword']:
-        match_rows = rbics_clean[
-            rbics_clean['L6_NAME'].str.contains(keyword, case=False, na=False) |
-            rbics_clean['L6_DESCRIPTION'].str.contains(keyword, case=False, na=False)
-        ]
-        for _, row in match_rows.iterrows():
+        match_rows_name = rbics_clean[rbics_clean['L6_NAME'].str.contains(keyword, case=False, na=False)]
+        match_rows_desc = rbics_clean[rbics_clean['L6_DESCRIPTION'].str.contains(keyword, case=False, na=False)]
+        
+        # Capture matches from L6_NAME
+        for _, row in match_rows_name.iterrows():
             matches.append({
                 "L6_NAME": row['L6_NAME'],
                 "L6_DESCRIPTION": row['L6_DESCRIPTION'],
-                "matched_keyword": keyword
+                "matched_keyword": keyword,
+                "match_source": "L6_NAME"  # Indicates the match was from L6_NAME
             })
-    
+
+        # Capture matches from L6_DESCRIPTION
+        for _, row in match_rows_desc.iterrows():
+            matches.append({
+                "L6_NAME": row['L6_NAME'],
+                "L6_DESCRIPTION": row['L6_DESCRIPTION'],
+                "matched_keyword": keyword,
+                "match_source": "L6_DESCRIPTION"  # Indicates the match was from L6_DESCRIPTION
+            })
+
     return pd.DataFrame(matches)
 
 # Perform keyword search
