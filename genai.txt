@@ -1,0 +1,38 @@
+import openai
+
+# Set OpenAI API Key
+openai.api_key = "your-api-key"
+
+def expand_level_3_circular_economy(level_1, level_2, level_3, keywords):
+    """Expands Level 3 taxonomy under Circular Economy using keywords."""
+    prompt = f"""
+    You are an expert in sustainability and Circular Economy taxonomy. Expand and refine the Level 3 taxonomy under the given Level 1 and Level 2 categories within the Circular Economy theme. Use the provided keywords to generate related subcategories.
+
+    - **Theme**: Circular Economy
+    - **Level 1 Category**: {level_1}
+    - **Level 2 Category**: {level_2}
+    - **Existing Level 3 Category**: {level_3}
+    - **Keywords**: {keywords}
+    
+    Provide a structured list of additional, well-defined Level 3 subcategories relevant to the Circular Economy. Return them in a **comma-separated format**.
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=200
+    )
+
+    expanded_text = response["choices"][0]["message"]["content"].strip()
+    return expanded_text
+
+
+# Apply the Circular Economy expansion function to each row
+df["expanded_level_3"] = df.apply(
+    lambda row: expand_level_3_circular_economy(row["level_1"], row["level_2"], row["level_3"], row["keywords"]), axis=1
+)
+
+# Save the expanded taxonomy
+df.to_csv("expanded_circular_economy_taxonomy.csv", index=False)
+
+print("Circular Economy taxonomy expansion completed and saved.")
