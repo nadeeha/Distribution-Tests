@@ -111,3 +111,65 @@ exact_matches = keyword_search(rbics_clean, df_key)
 
 import ace_tools as tools
 tools.display_dataframe_to_user(name="Exact Keyword Match Results", dataframe=exact_matches)
+
+
+import pandas as pd
+import numpy as np
+import os
+import time
+
+# Paths for storing embeddings
+rbics_embedding_file = "rbics_clean_embeddings.csv"
+keywords_embedding_file = "df_key_embeddings.csv"
+batch_size = 100  # Increased batch size for efficiency
+request_count = 0  # Track API calls
+
+# Function to batch generate embeddings using Azure OpenAI
+def get_batch_embeddings(text_list):
+    global request_count
+    response = client.embeddings.create(
+        input=text_list,  # Batch input
+        model="HBEUNovaTextEmbeddingAda002"
+    )
+    request_count += 1  # Increment request count
+    return [np.array(emb.embedding, dtype=np.float32) for emb in response.data]
+
+### **📍 Step 1: Process & Store RBICS Data Embeddings**
+try:
+    rbics_clean = pd.read_csv(rbics_embedding_file)
+    rbics_clean['embedding'] = rbics_clean['embedding'].apply(lambda x: np.fromstring(x[1:-1], sep=' '))
+    print("✅ Loaded stored embeddings for RBICS data from CSV!")
+except FileNotFoundError:
+    print("⚠ No existing RBICS embeddings found, generating now...")
+
+    # Generate embeddings in batches
+    all_embeddings = []
+    for i in range(0, len(rbics_clean), batch_size):
+        batch_texts = rbics_clean['L6_DESCRIPTION'][i:i + batch_size].tolist()
+        batch_embeddings = get_batch_embeddings(batch_texts)
+        all_embeddings.extend(batch_embeddings)
+
+        print(f"Processed {i + len(batch_texts)}/{len(rbics_clean)} descriptions - Total Requests: {request_count}")
+        time.sleep(1)  # Optional: Avoid rate limits
+
+    # Store embeddings
+    rbics_clean['embedding'] = all_embeddings
+    rbics_clean['embedding'] = rbics_clean['embedding'].apply(lambda x: str(list(x)))
+    rbics_clean.to_csv(rbics_embedding_file, index=False)
+    print(f"✅ RBICS embeddings saved! Total API Requests: {request_count}")
+
+### **📍 Step 2: Process & Store Keywords Embeddings**
+try:
+    df_key = pd.read_csv(keywords_embedding_file)
+    df_key['embedding'] = df_key['embedding'].apply(lambda x: np.fromstring(x[1:-1], sep=' '))
+    print("✅ Loaded stored embeddings for Keywords from CSV!")
+except FileNotFoundError:
+    print("⚠ No existing Keywords embeddings found, generating now...")
+
+    # Generate embeddings for keywords
+    df_key['embedding'] = df_key['keyword'].apply(lambda x: get_batch_embeddings([x])[0])
+
+    # Store embeddings
+    df_key['embedding'] = df_key['embedding'].apply(lambda x: str(list(x)))
+    df_key.to_csv(keywords_embedding_file, index=False)
+    print(f"✅ Keywords embeddings saved! Total API Requests: {request_count}")
