@@ -173,3 +173,46 @@ except FileNotFoundError:
     df_key['embedding'] = df_key['embedding'].apply(lambda x: str(list(x)))
     df_key.to_csv(keywords_embedding_file, index=False)
     print(f"✅ Keywords embeddings saved! Total API Requests: {request_count}")
+
+
+
+import faiss
+import numpy as np
+import pandas as pd
+
+# Load stored RBICS embeddings
+rbics_clean = pd.read_csv("rbics_clean_embeddings.csv")
+rbics_clean['embedding'] = rbics_clean['embedding'].apply(lambda x: np.fromstring(x[1:-1], sep=',', dtype=np.float32))
+
+# Load stored keyword embeddings
+df_key = pd.read_csv("df_key_embeddings.csv")
+df_key['embedding'] = df_key['embedding'].apply(lambda x: np.fromstring(x[1:-1], sep=',', dtype=np.float32))
+
+# Convert embeddings to NumPy arrays for FAISS
+rbics_embeddings = np.vstack(rbics_clean['embedding'].values).astype("float32")
+keyword_embeddings = np.vstack(df_key['embedding'].values).astype("float32")
+
+# Build FAISS index
+index = faiss.IndexFlatL2(rbics_embeddings.shape[1])  # L2 (Euclidean) distance index
+index.add(rbics_embeddings)
+
+# Perform similarity search for each keyword
+D, I = index.search(keyword_embeddings, k=5)  # Top 5 closest matches
+
+# Extract results
+semantic_matches = []
+for i, keyword in enumerate(df_key['keyword']):
+    for j, idx in enumerate(I[i]):
+        if idx < len(rbics_clean):  # Ensure index is valid
+            semantic_matches.append({
+                "keyword": keyword,
+                "L6_NAME": rbics_clean.iloc[idx]['L6_NAME'],
+                "L6_DESCRIPTION": rbics_clean.iloc[idx]['L6_DESCRIPTION'],
+                "similarity_score": 1 - (D[i][j] / max(D[i]) if max(D[i]) > 0 else 1)
+            })
+
+# Convert results to DataFrame
+semantic_matches_df = pd.DataFrame(semantic_matches)
+
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Semantic Match Results", dataframe=semantic_matches_df)
