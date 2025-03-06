@@ -216,3 +216,72 @@ semantic_matches_df = pd.DataFrame(semantic_matches)
 
 import ace_tools as tools
 tools.display_dataframe_to_user(name="Semantic Match Results", dataframe=semantic_matches_df)
+
+import openai
+
+# OpenAI API Key
+openai.api_key = "your_api_key"
+
+# Create structured prompt
+prompt = """
+You are an expert in Circular Economy classifications. Your task is to match each Circular Economy taxonomy description 
+to multiple relevant L6 descriptions from the provided list.
+
+### **Circular Economy Taxonomy Descriptions (13 Entries)**:
+"""
+
+# Add Circular Economy descriptions
+for i, row in circular_taxonomy.iterrows():
+    prompt += f"\n{i+1}. {row['taxonomy_description']}"
+
+prompt += "\n\n### **L6 Descriptions (1,800 Entries)**:\n"
+
+# Add all L6 descriptions
+for i, row in rbics_clean.iterrows():
+    prompt += f"\n{i+1}. {row['L6_DESCRIPTION']}"
+
+prompt += """
+\n\nFor each Circular Economy taxonomy description, return multiple relevant L6 descriptions (up to 5).
+Format your response as:
+
+**Circular Economy Description**: <taxonomy_description>
+**Matching L6 Descriptions**:
+- <L6_DESCRIPTION 1>
+- <L6_DESCRIPTION 2>
+- <L6_DESCRIPTION 3>
+...
+\nOnly include the most relevant matches.
+"""
+
+print("✅ Prompt Ready! Sending to GPT-4o...")
+
+response = openai.ChatCompletion.create(
+    model="gpt-4o",
+    messages=[{"role": "system", "content": "You are a Circular Economy expert."},
+              {"role": "user", "content": prompt}],
+    temperature=0  # Ensures consistency
+)
+
+# Extract text response
+matches = response["choices"][0]["message"]["content"]
+print("✅ Received GPT-4o Matches!")
+
+# Parse response into a structured format
+parsed_matches = []
+for entry in matches.split("\n\n"):
+    if "**Circular Economy Description**" in entry:
+        parts = entry.split("\n")
+        taxonomy_desc = parts[0].split(":")[1].strip()
+        matched_l6_list = [p.strip("- ") for p in parts[2:]]  # Extract L6 matches
+
+        for matched_l6 in matched_l6_list:
+            parsed_matches.append({
+                "taxonomy_description": taxonomy_desc,
+                "matched_L6_DESCRIPTION": matched_l6
+            })
+
+# Convert to DataFrame
+gpt4o_matches_df = pd.DataFrame(parsed_matches)
+
+import ace_tools as tools
+tools.display_dataframe_to_user(name="GPT-4o Multiple Matches", dataframe=gpt4o_matches_df)
