@@ -285,3 +285,70 @@ gpt4o_matches_df = pd.DataFrame(parsed_matches)
 
 import ace_tools as tools
 tools.display_dataframe_to_user(name="GPT-4o Multiple Matches", dataframe=gpt4o_matches_df)
+
+
+import openai
+import pandas as pd
+import json
+import ace_tools as tools
+
+# Load CSV file
+df = pd.read_csv("your_file.csv")
+
+# Construct API prompt with the refined structure
+prompt = f"""
+You are an expert in circular economy and sustainability taxonomy mapping. Your task is to analyze the dataset below to determine whether each L6 description should be included or excluded based on circular economy principles.
+
+Each row contains:
+- **L6_ID**: A unique identifier.
+- **L6_DESCRIPTION**: The core description of the activity.
+- **matched_keyword**: A keyword found in the description that triggered a match.
+- **semantic_keyword**: A similarity-based match indicating a relationship between L6 and circular economy principles.
+- **taxonomy_description**: An existing taxonomy description that could be relevant for circular economy classification.
+
+### Decision Criteria:
+1. **Assess the validity of the match** based on the relationship between `matched_keyword`, `semantic_keyword`, and `taxonomy_description`.
+2. **Decide whether to "Include" or "Exclude"**, considering circular economy principles such as resource efficiency, waste reduction, product longevity, and closed-loop supply chains.
+3. **Provide reasoning for the classification**, referencing the relevant fields.
+
+### Expected Output (JSON Format)
+Return a JSON array where each object contains:
+{
+    "L6_ID": "<L6 unique ID>",
+    "L6_DESCRIPTION": "<L6 description text>",
+    "Bucket": "Include" or "Exclude",
+    "Reasoning": "<Detailed explanation referencing the matched_keyword, semantic_keyword, and taxonomy_description>"
+}
+
+Now, analyze the following dataset and return the JSON response:
+
+L6_ID | L6_DESCRIPTION | matched_keyword | semantic_keyword | taxonomy_description  
+{df.to_string(index=False)}
+"""
+
+# OpenAI API Call
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[{"role": "system", "content": "You are a sustainability expert."},
+              {"role": "user", "content": prompt}],
+    max_tokens=4000
+)
+
+# Parse and format the response
+output = response["choices"][0]["message"]["content"]
+
+# Convert the output from JSON string to Python list
+try:
+    results = json.loads(output)
+except json.JSONDecodeError:
+    print("Error decoding JSON response:", output)
+    results = []
+
+# Convert results into a DataFrame
+df_results = pd.DataFrame(results)
+
+# Save to CSV
+df_results.to_csv("L6_classification_results.csv", index=False)
+
+# Display the DataFrame
+tools.display_dataframe_to_user(name="L6 Classification Results", dataframe=df_results)
