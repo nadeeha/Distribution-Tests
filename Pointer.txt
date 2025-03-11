@@ -1,0 +1,624 @@
+[11/03, 11:05] Nadeeha: 1. Fairness & Non-Discrimination
+
+Avoid biases in AI training data and decision-making.
+
+Ensure equitable treatment across diverse user groups.
+
+
+2. Transparency & Explainability
+
+AI decisions should be understandable to users.
+
+Provide clear documentation on AI system operations.
+
+
+3. Privacy & Data Security
+
+Protect user data through encryption and secure access.
+
+Follow regulations like GDPR, CCPA for ethical AI data handling.
+
+
+4. Accountability & Governance
+
+Define responsible AI ownership within organizations.
+
+Establish audit mechanisms for AI-driven decisions.
+
+
+5. Safety & Reliability
+
+AI should be robust, accurate, and safe for users.
+
+Implement testing protocols to prevent unintended consequences.
+
+
+6. Social & Environmental Responsibility
+
+Ensure AI benefits society and minimizes environmental impact.
+
+Consider AI’s carbon footprint and ethical implications.
+[11/03, 11:08] Nadeeha: Slide 5: Examples of AI Ethics Committees & Boards
+
+1. EU AI Act Advisory Board – Enforces AI risk categorization in Europe.
+
+
+2. U.S. National AI Advisory Committee (NAIAC) – Provides AI safety recommendations.
+
+
+3. Partnership on AI – Non-profit alliance for responsible AI development.
+
+
+4. OECD AI Policy Observatory – Global AI policy and governance framework.
+
+
+5. Google AI Ethics Review Board – Internal AI governance for fairness and accountability.
+
+
+6. Facebook/Meta Oversight Board – AI-driven content moderation governance.
+[11/03, 11:20] Nadeeha: Bias and Fairness Mitigation in AI – Slide Pointers
+
+
+---
+
+Slide 1: Title Slide
+
+Title: Bias and Fairness Mitigation in AI
+Subtitle: Ensuring Ethical and Equitable AI
+
+
+---
+
+Slide 2: What is Bias in AI?
+
+Bias occurs when AI models produce unfair, inaccurate, or prejudiced outcomes.
+
+It arises due to biased data, flawed algorithms, or systemic inequalities.
+
+Can disproportionately impact gender, race, age, disability, and socioeconomic groups.
+
+
+Types of Bias in AI:
+
+1. Historical Bias: Bias embedded in past data (e.g., biased hiring data).
+
+
+2. Sampling Bias: Training data does not represent the full population.
+
+
+3. Algorithmic Bias: AI models amplify patterns favoring certain groups.
+
+
+4. Measurement Bias: Data collection methods introduce unfairness.
+
+
+5. Societal Bias: AI reflects societal inequalities and stereotypes.
+
+
+
+
+---
+
+Slide 3: Real-World Examples of AI Bias
+
+1. Hiring Algorithms (Amazon Case)
+
+AI favored male candidates due to biased training data.
+
+
+
+2. Facial Recognition (Racial Bias in AI)
+
+Higher error rates for people with darker skin tones.
+
+
+
+3. Healthcare AI (Unequal Risk Prediction)
+
+AI prioritized white patients over Black patients for treatment.
+
+
+
+4. Loan Approval Models (Financial Bias)
+
+AI denied loans to marginalized communities based on biased credit data.
+
+
+
+
+
+---
+
+Slide 4: What is Fairness in AI?
+
+Fairness ensures that AI treats all individuals and groups equitably.
+
+AI models should not reinforce discrimination or marginalization.
+
+
+Approaches to Fairness:
+
+1. Demographic Parity: Equal outcomes across different groups.
+
+
+2. Equal Opportunity: Ensures fairness for disadvantaged groups.
+
+
+3. Fairness Through Awareness: AI is explicitly trained for fairness.
+
+
+4. Counterfactual Fairness: Decisions should remain unchanged if an individual’s demographic details change.
+
+
+
+
+---
+
+Slide 5: Bias and Fairness Mitigation Strategies
+
+1. Data Preprocessing
+
+Diversify training datasets to include underrepresented groups.
+
+Remove historical biases from datasets.
+
+Balance class distribution to avoid skewed AI predictions.
+
+
+2. Algorithmic Adjustments
+
+Use fairness-aware machine learning models (e.g., adversarial debiasing).
+
+Implement re-weighting techniques to correct biases in model training.
+
+Adjust model thresholds to equalize error rates across groups.
+
+
+3. Post-Processing Techniques
+
+Recalibrate model outputs to ensure fair decision-making.
+
+Apply bias correction layers in AI models.
+
+
+4. Human Oversight and Interpretability
+
+Conduct AI fairness audits regularly.
+
+Use explainable AI (XAI) techniques to understand model decisions.
+
+Ensure human-in-the-loop decision-making to override biased outputs.
+
+
+
+---
+
+Slide 6: Tools for Bias Detection and Fairness in AI
+
+IBM AI Fairness 360 (AIF360): Open-source toolkit for bias detection.
+
+Google’s What-If Tool: Analyzes fairness in AI models.
+
+Microsoft Fairlearn: Measures and mitigates bias in ML models.
+
+LIME & SHAP: Explainability tools to interpret AI decisions.
+
+
+
+---
+
+Slide 7: Challenges in Bias and Fairness Mitigation
+
+Defining fairness – Different fairness metrics may conflict.
+
+Trade-offs between accuracy and fairness – Striking the right balance.
+
+Lack of diverse datasets – Many AI models are trained on biased data.
+
+Regulatory gaps – AI fairness laws vary globally.
+
+
+
+---
+
+Slide 8: Future of Fair AI
+
+Strengthening global AI regulations to enforce fairness.
+
+Developing self-regulating AI models to detect and fix bias automatically.
+
+Increasing cross-disciplinary collaboration (AI researchers, ethicists)
+[11/03, 11:26] Nadeeha: GDPR Act and EU AI Act – Slide Pointers
+
+
+---
+
+Slide 1: Title Slide
+
+Title: GDPR Act and EU AI Act
+Subtitle: Navigating Data Protection and AI Regulation in Europe
+
+
+---
+
+Slide 2: What is the GDPR Act?
+
+GDPR (General Data Protection Regulation) is a regulation in EU law focused on data protection and privacy.
+
+Effective Date: May 25, 2018.
+
+Purpose: Protect personal data and give individuals control over their data.
+
+Scope: Applies to all organizations processing the data of EU citizens, even outside the EU.
+
+
+Key Principles of GDPR:
+
+1. Data Minimization: Only collect data that is necessary.
+
+
+2. Accountability and Transparency: Organizations must be transparent in data usage.
+
+
+3. Right to Access and Portability: Individuals can request their data and transfer it to other services.
+
+
+4. Right to Erasure (Right to be Forgotten): Individuals can request the deletion of their personal data.
+
+
+5. Data Security: Personal data must be protected with adequate security measures.
+
+
+6. Consent: Individuals must give explicit consent for data processing.
+
+
+
+
+---
+
+Slide 3: Key Rights Under the GDPR
+
+1. Right to Access: Individuals can request details about how their data is being processed.
+
+
+2. Right to Rectification: Individuals can correct inaccurate personal data.
+
+
+3. Right to Data Portability: Individuals can transfer their data between service providers.
+
+
+4. Right to Erasure: Individuals can request the deletion of personal data.
+
+
+5. Right to Object: Individuals can opt out of processing for marketing purposes.
+
+
+6. Right to Restrict Processing: Individuals can limit how their data is processed.
+
+
+
+
+---
+
+Slide 4: Key Responsibilities Under the GDPR
+
+Data Controllers: Entities responsible for collecting and managing data.
+
+Data Processors: Entities that process data on behalf of controllers.
+
+Data Protection Officer (DPO): Appointed to oversee compliance.
+
+Impact Assessments: Required for high-risk data processing activities.
+
+Notification of Breaches: Must inform individuals and authorities within 72 hours of a data breach.
+
+
+
+---
+
+Slide 5: What is the EU AI Act?
+
+The EU AI Act is a comprehensive framework to regulate artificial intelligence (AI) technologies in the European Union.
+
+Effective Date: Expected in 2024.
+
+Purpose: To ensure that AI systems used within the EU are safe, ethical, and comply with legal and ethical standards.
+
+
+Key Goals of the EU AI Act:
+
+1. Protect Fundamental Rights: Ensures AI respects human rights and avoids discriminatory impacts.
+
+
+2. Promote Trustworthy AI: Establishes governance to ensure AI is fair, transparent, and accountable.
+
+
+3. Foster Innovation: Encourages AI development while safeguarding against potential risks.
+
+
+
+
+---
+
+Slide 6: Risk-Based Classification of AI Systems
+
+The EU AI Act classifies AI systems into four risk categories:
+
+1. Unacceptable Risk: AI systems that pose a threat to safety, dignity, or human rights (e.g., social scoring by governments) will be banned.
+
+
+2. High-Risk AI Systems: AI that can significantly affect individuals (e.g., biometric identification, critical infrastructure, education) must meet strict requirements (e.g., documentation, risk assessments).
+
+
+3. Limited Risk AI Systems: AI systems with specific transparency obligations (e.g., chatbots, recommendation systems).
+
+
+4. Minimal Risk AI Systems: AI systems with little to no regulatory oversight (e.g., spam filters).
+
+
+
+
+---
+
+Slide 7: Key Requirements for High-Risk AI Systems
+
+1. Transparency: Users must be informed when they interact with AI systems.
+
+
+2. Accountability: Clear responsibility for AI system outputs.
+
+
+3. Data Governance: High-quality data management and documentation.
+
+
+4. Human Oversight: Ensure human intervention in critical decision-making.
+
+
+5. Bias Mitigation: Steps to ensure AI decisions are fair and non-discriminatory.
+
+
+6. Security and Robustness: AI systems must be secure against attacks and failures.
+
+
+
+
+---
+
+Slide 8: Compliance and Enforcement
+
+Penalties for Non-Compliance:
+
+Up to €30 million or 6% of global annual turnover, whichever is higher, for violations.
+
+
+Conformity Assessment: High-risk AI systems must undergo rigorous testing for compliance.
+
+National Authorities: Each EU country will have its own national supervisory authority to enforce compliance with the EU AI Act.
+
+
+
+---
+
+Slide 9: The Intersection of GDPR and the EU AI Act
+
+GDPR + AI Act Compatibility:
+
+AI systems must ensure data protection by design and by default (GDPR Article 25).
+
+AI systems that process personal data must comply with GDPR principles (data minimization, transparency, consent).
+
+
+Ensuring Accountability in AI:
+
+Both regulations emphasize accountability in data handling and AI decision-making.
+
+
+Security & Privacy in AI:
+
+AI models must implement privacy-preserving techniques and data security measures as required by both GDPR and the EU AI Act.
+
+
+
+
+---
+
+Slide 10: Challenges and Future Outlook
+
+Compliance Complexity: Ensuring AI systems meet both GDPR and EU AI Act requirements.
+
+Global Coordination: AI regulations must align across regions to promote interoperability.
+
+Balancing Innovation with Regulation: Ensuring AI innovation continues while maintaining ethical, legal, and security standards.
+
+Continuous Adaptation: Both the GDPR and EU AI Act must evolve with emerging AI technologies.
+
+
+
+---
+
+Would you like me to prepare a PowerPoint (PPT) with visuals for these slides? I can create a professional deck with your content.
+[11/03, 11:27] Nadeeha: Amazon AI Hiring Bias – Slide Pointers
+
+
+---
+
+Slide 1: Title Slide
+
+Title: Amazon AI Hiring Bias
+Subtitle: Lessons in Fairness, Transparency, and Ethical AI
+
+
+---
+
+Slide 2: Introduction to AI in Hiring
+
+AI is widely used in recruitment to automate resume screening and identify top candidates.
+
+Companies, including Amazon, Google, and IBM, have used AI for talent acquisition.
+
+Goal: Improve efficiency, reduce costs, and eliminate human bias.
+
+Reality: AI can reinforce and amplify biases present in historical data.
+
+
+
+---
+
+Slide 3: Amazon’s AI Hiring System – Overview
+
+Launched: Amazon developed an AI-powered hiring tool in 2014.
+
+Purpose: Automatically review resumes and rank candidates.
+
+Approach:
+
+AI model scanned resumes and assigned scores (1-5 stars).
+
+Focused on past hiring data to learn what Amazon considered a “good hire.”
+
+Trained using 10 years of past hiring decisions.
+
+
+
+
+---
+
+Slide 4: How Bias Emerged in Amazon’s AI Hiring Tool?
+
+1. Training Data Bias
+
+AI learned from past hiring decisions, which favored male candidates.
+
+Historical data reflected male dominance in tech jobs, leading to skewed AI outcomes.
+
+
+2. Gender Bias in Resume Screening
+
+AI downgraded resumes containing words like “women’s” (e.g., “Women’s Chess Club”).
+
+Preference was given to resumes with male-associated terms or backgrounds.
+
+
+3. Reinforcement of Systemic Bias
+
+AI favored candidates from male-dominated industries and universities.
+
+Did not evaluate skills fairly, reinforcing existing workplace inequalities.
+
+
+
+---
+
+Slide 5: Amazon’s Response and Decision to Shut Down AI Hiring Tool
+
+2017: Amazon discovered bias issues and attempted to modify the algorithm.
+
+Challenges: AI continued to find alternative ways to discriminate.
+
+2018: Amazon abandoned the AI hiring project, admitting it could not be fixed.
+
+
+Key Lessons from Amazon’s Case:
+
+1. AI learns existing biases unless actively mitigated.
+
+
+2. Data quality is crucial – biased data leads to biased AI decisions.
+
+
+3. Ethical AI requires constant auditing and human oversight.
+
+
+
+
+---
+
+Slide 6: Broader Implications of AI Hiring Bias
+
+Many AI-based hiring tools still lack fairness and transparency.
+
+HR automation risks:
+
+Discriminatory screening based on race, gender, or socioeconomic background.
+
+AI rejecting qualified candidates due to algorithmic bias.
+
+Limited diversity in recruitment outcomes.
+
+
+
+Other Examples of AI Bias in Hiring:
+
+LinkedIn AI bias: Prioritized men’s profiles over women’s.
+
+HireVue’s facial recognition AI: Criticized for unfair assessments based on appearance.
+
+
+
+---
+
+Slide 7: Bias Mitigation Strategies in AI Hiring
+
+1. Diverse and Representative Training Data
+
+Ensure datasets include diverse candidates across gender, race, and backgrounds.
+
+
+2. AI Fairness Testing and Auditing
+
+Regular audits to check for discriminatory patterns in AI decisions.
+
+Use tools like IBM’s AI Fairness 360 and Google’s What-If Tool.
+
+
+3. Transparency in AI Hiring Decisions
+
+Provide explainable AI outputs so recruiters understand why candidates are ranked.
+
+Ensure human oversight in final hiring decisions.
+
+
+4. Bias Reduction Techniques in AI Models
+
+Reweighting techniques to balance decision-making.
+
+Adversarial debiasing to remove discriminatory features from models.
+
+
+
+---
+
+Slide 8: Ethical AI and the Future of AI in Recruitment
+
+AI can be beneficial if implemented responsibly with fairness in mind.
+
+Regulatory frameworks (e.g., EU AI Act, EEOC guidelines) will shape the future of AI hiring.
+
+Companies must adopt ethical AI principles:
+
+Fairness – Avoid bias in data and decision-making.
+
+Transparency – AI models should be explainable.
+
+Accountability – AI decisions should be auditable.
+
+
+
+
+---
+
+Slide 9: Conclusion – What We Can Learn from Amazon’s AI Hiring Bias
+
+AI is not neutral – it learns from historical human biases.
+
+Bias mitigation requires continuous monitoring and improvements.
+
+Transparency and ethical AI development are crucial for fair hiring processes.
+
+Regulations and human oversight must work alongside AI to ensure fair outcomes.
+
+
+
+---
+
+Would you like me to prepare a PowerPoint (PPT) file for this with visuals? Let me know, and I can generate a professional deck for you!
