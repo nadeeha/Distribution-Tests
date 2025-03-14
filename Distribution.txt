@@ -1,79 +1,134 @@
-import os
-import base64
+# Define expected keywords for each ETF theme
+expected_rbics = {
+    "XAIX_GT": ["AI", "Big Data", "Machine Learning", "Deep Learning", "Neural Networks",
+                "Predictive Analytics", "Natural Language Processing", "Computer Vision"],
+    
+    "LOCK_LN": ["Cybersecurity", "Network Security", "Threat Detection", "Encryption",
+                "Firewall", "Penetration Testing", "Malware Protection", "Data Privacy"],
+    
+    "SMH_LN": ["Semiconductors", "Chip Manufacturing", "Processors", "Memory Chips",
+                "Integrated Circuits", "GPU", "CPU", "Microcontrollers", "Nanotechnology",
+                "Embedded Systems", "Transistors"],
+    
+    "IXAROBU": ["Robotics", "Automation", "Industrial Robotics", "AI Robotics",
+                "Robotic Process Automation", "Drones", "Autonomous Vehicles",
+                "Humanoid Robots", "Exoskeleton"],
+    
+    "IXDIGITU": ["Digital Transformation", "Cloud Infrastructure", "Enterprise IT",
+                 "Blockchain", "IoT", "Internet of Things", "Distributed Computing",
+                 "Edge Computing", "Virtual Reality", "Augmented Reality", "Metaverse"]
+}
 
-def generate_html_with_images(folder_paths, output_html):
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Image Gallery</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                text-align: center;
-            }
-            img {
-                margin: 10px;
-                max-width: 300px;
-                max-height: 300px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Image Gallery</h1>
-    """
-
-    for folder_path in folder_paths:
-        html_content += f"<h2>{os.path.basename(folder_path)}</h2>\n"
-        for filename in os.listdir(folder_path):
-            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                file_path = os.path.join(folder_path, filename)
-                with open(file_path, "rb") as img_file:
-                    encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
-                    img_format = filename.split('.')[-1].lower()
-                    html_content += f'<img src="data:image/{img_format};base64,{encoded_string}" alt="{filename}">\n'
-
-    html_content += """
-    </body>
-    </html>
-    """
-
-    # Write the HTML content to the output file
-    with open(output_html, "w", encoding="utf-8") as html_file:
-        html_file.write(html_content)
-    print(f"HTML file created: {output_html}")
-
-# Specify the folders containing images and the output HTML file
-folders = ["path_to_folder1", "path_to_folder2"]  # Add paths to your image folders
-output_file = "image_gallery.html"
-
-# Generate the HTML
-generate_html_with_images(folders, output_file)
-
-
-
-import seaborn as sns
-import textwrap
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Box Plot Before Imputation
-plt.subplot(3, 2, 3)
-if not original_data[col].dropna().empty:  # Check if the column has non-NaN values
-    sns.boxplot(x=original_data[col], color='black')
-    wrapped_title = "\n".join(textwrap.wrap(f'Box Plot (Before {task}): {col}', width=50))  # Adjust width here
-    plt.title(wrapped_title)
-else:
-    plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
-    plt.title(f'Box Plot (Before {task}): {col}')
+# Define the ETF DataFrames (assuming they are already loaded)
+etf_dfs = {
+    "XAIX_GT": df_xaixgt_rbics,  # AI & Big Data
+    "LOCK_LN": df_lockln_rbics,  # Digital Security
+    "SMH_LN": df_smhl_rbics,  # Semiconductors
+    "IXAROBU": df_ixarobu_rbics,  # Robotics
+    "IXDIGITU": df_ixdigitu_rbics  # Digital Transformation
+}
 
-# Box Plot After Imputation
-plt.subplot(3, 2, 4)
-if not imputed_data[col].dropna().empty:  # Check if the column has non-NaN values
-    sns.boxplot(x=imputed_data[col], color='red')
-    wrapped_title = "\n".join(textwrap.wrap(f'Box Plot (After {task}): {col}', width=50))  # Adjust width here
-    plt.title(wrapped_title)
-else:
-    plt.text(0.5, 0.5, f'No data available for {col}', horizontalalignment='center', verticalalignment='center')
-    plt.title(f'Box Plot (After {task}): {col}')
+# List of RBICS levels and their descriptions
+rbics_levels = ["l3_name", "l4_name", "l5_name", "l6_name"]
+rbics_descriptions = ["l3_description", "l4_description", "l5_description", "l6_description"]
+
+# Store results
+summary_list = []
+all_holdings_count = []
+all_sector_proportion = []
+all_non_relevant_holdings = []
+
+### 🟢 Process Each ETF Separately ###
+for etf_name, df in etf_dfs.items():
+    print(f"Processing {etf_name}...")
+
+    # Ensure weight column is numeric
+    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
+
+    for level, description in zip(rbics_levels, rbics_descriptions):
+        df[level] = df[level].astype(str).str.lower()  # Convert category names to lowercase
+        df[description] = df[description].astype(str).str.lower()  # Convert descriptions to lowercase
+
+        ### 1️⃣ Count Holdings by RBICS Level ###
+        holdings_count = df.groupby(level).size().reset_index(name='count')
+        holdings_count['ETF'] = etf_name
+        holdings_count['RBICS_Level'] = level
+        all_holdings_count.append(holdings_count)
+
+        ### 2️⃣ Calculate Proportions of Each Sector ###
+        sector_proportion = df.groupby(level)['weight'].sum().reset_index()
+        sector_proportion['proportion'] = sector_proportion['weight'] / sector_proportion['weight'].sum()
+        sector_proportion['ETF'] = etf_name
+        sector_proportion['RBICS_Level'] = level
+        all_sector_proportion.append(sector_proportion)
+
+        ### 3️⃣ Ensure Each ETF Contains Only Relevant Technology Sectors ###
+        expected_keywords = expected_rbics[etf_name]  # Get expected keywords for the ETF
+        expected_keywords = [word.lower() for word in expected_keywords]  # Convert to lowercase
+
+        # Check if either the category name or description matches expected keywords
+        df['matches_etf_category'] = df.apply(lambda row: 
+            any(word in row[level] for word in expected_keywords) or 
+            any(word in row[description] for word in expected_keywords), axis=1)
+
+        # Flag non-relevant holdings
+        non_relevant_holdings = df[df['matches_etf_category'] == False].copy()
+        non_relevant_holdings['ETF'] = etf_name
+        non_relevant_holdings['RBICS_Level'] = level
+        all_non_relevant_holdings.append(non_relevant_holdings)
+
+    ### 4️⃣ Generate Summary Statistics ###
+    total_holdings = len(df)
+    relevant_match_count = df['matches_etf_category'].sum()
+    non_relevant_count = total_holdings - relevant_match_count
+    total_weight = df['weight'].sum()
+    relevant_match_pct = (relevant_match_count / total_holdings) * 100 if total_holdings > 0 else 0
+
+    summary_list.append({
+        "ETF": etf_name,
+        "Total Holdings": total_holdings,
+        "Relevant Match Count": relevant_match_count,
+        "Non-Relevant Count": non_relevant_count,
+        "Relevant Match Percentage": relevant_match_pct,
+        "Total Weight": total_weight
+    })
+
+### 🟢 Convert Results into DataFrames ###
+summary_df = pd.DataFrame(summary_list)
+holdings_count_df = pd.concat(all_holdings_count, ignore_index=True)
+sector_proportion_df = pd.concat(all_sector_proportion, ignore_index=True)
+non_relevant_holdings_df = pd.concat(all_non_relevant_holdings, ignore_index=True)
+
+### 🟢 5. Generate Visualizations ###
+
+# 📊 Bar Chart: Number of Holdings per RBICS Level for Each ETF
+plt.figure(figsize=(12, 6))
+sns.barplot(data=holdings_count_df, x='RBICS_Level', y='count', hue='ETF')
+plt.xticks(rotation=90)
+plt.ylabel("Number of Holdings")
+plt.title("Holdings Count by RBICS Level for Each ETF")
+plt.legend(title="ETF")
+plt.show()
+
+# 📊 Stacked Bar Chart: Sector Proportions per ETF
+pivot_data = sector_proportion_df.pivot(index='RBICS_Level', columns='ETF', values='proportion').fillna(0)
+pivot_data.plot(kind='bar', stacked=True, figsize=(12, 6))
+plt.xticks(rotation=90)
+plt.ylabel("Proportion (%)")
+plt.title("Sector Proportions in ETFs (RBICS Levels L3 to L6)")
+plt.legend(title="ETF")
+plt.show()
+
+### 🟢 6. Save Results to CSV ###
+summary_df.to_csv("summary_etf_analysis.csv", index=False)
+holdings_count_df.to_csv("holdings_count_per_etf.csv", index=False)
+sector_proportion_df.to_csv("sector_proportion_per_etf.csv", index=False)
+non_relevant_holdings_df.to_csv("non_relevant_holdings.csv", index=False)
+
+# Print Summary
+print("\n🔍 Summary of ETF Analysis:")
+print(summary_df)
