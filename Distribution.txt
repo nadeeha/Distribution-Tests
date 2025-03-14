@@ -377,3 +377,48 @@ def visualize_etf_clusters(final_df, level=None):
     )
 
     fig.show()
+
+
+import textwrap
+
+def visualize_etf_clusters(final_df, level=None):
+    """
+    Visualizes ETF clusters for a selected RBICS level or combined view.
+    level: "L3", "L4", "L5", "L6", or None for combined view.
+    """
+    if level:
+        print(f"Visualizing {level}...")
+
+        # Ensure text wrapping for readability
+        final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
+
+        fig = px.scatter(
+            final_df[final_df["RBICS_Level"] == level],
+            x=f"x_{level}", y=f"y_{level}", color="ETF",
+            custom_data=["ISIN", "name", "ETF", "wrapped_text", f"similarity_score_{level}"],
+            title=f"t-SNE Visualization for {level} - ETF Technology Clusters",
+            labels={"x": "t-SNE Dimension 1", "y": "t-SNE Dimension 2"}
+        )
+
+    else:
+        print("Visualizing Combined View...")
+        
+        final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
+
+        fig = px.scatter(
+            final_df, x="x_L3", y="y_L3", color="ETF",
+            custom_data=["ISIN", "name", "ETF", "wrapped_text", "similarity_score_L3"],
+            title="Combined t-SNE Visualization - All RBICS Levels",
+            labels={"x": "t-SNE Dimension 1", "y": "t-SNE Dimension 2"}
+        )
+
+    # 📌 Improve hover text formatting for better readability
+    fig.update_traces(
+        hovertemplate="<b>ISIN:</b> %{customdata[0]}<br>"
+                      "<b>Company:</b> %{customdata[1]}<br>"
+                      "<b>ETF:</b> %{customdata[2]}<br>"
+                      "<b>Similarity Score:</b> %{customdata[4]:.4f}<br>"
+                      "<b>Description:</b> %{customdata[3]}"
+    )
+
+    fig.show()
