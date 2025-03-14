@@ -1,4 +1,18 @@
-# Define expected keywords for each ETF theme
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import re
+
+# Define the ETF DataFrames (assuming they are already loaded)
+etf_dfs = {
+    "XAIX_GT": df_xaixgt_rbics,  # AI & Big Data
+    "LOCK_LN": df_lockln_rbics,  # Digital Security
+    "SMH_LN": df_smhl_rbics,  # Semiconductors
+    "IXAROBU": df_ixarobu_rbics,  # Robotics
+    "IXDIGITU": df_ixdigitu_rbics  # Digital Transformation
+}
+
+# Expected categories per ETF
 expected_rbics = {
     "XAIX_GT": ["AI", "Big Data", "Machine Learning", "Deep Learning", "Neural Networks",
                 "Predictive Analytics", "Natural Language Processing", "Computer Vision"],
@@ -19,19 +33,6 @@ expected_rbics = {
                  "Edge Computing", "Virtual Reality", "Augmented Reality", "Metaverse"]
 }
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Define the ETF DataFrames (assuming they are already loaded)
-etf_dfs = {
-    "XAIX_GT": df_xaixgt_rbics,  # AI & Big Data
-    "LOCK_LN": df_lockln_rbics,  # Digital Security
-    "SMH_LN": df_smhl_rbics,  # Semiconductors
-    "IXAROBU": df_ixarobu_rbics,  # Robotics
-    "IXDIGITU": df_ixdigitu_rbics  # Digital Transformation
-}
-
 # List of RBICS levels and their descriptions
 rbics_levels = ["l3_name", "l4_name", "l5_name", "l6_name"]
 rbics_descriptions = ["l3_description", "l4_description", "l5_description", "l6_description"]
@@ -42,6 +43,11 @@ all_holdings_count = []
 all_sector_proportion = []
 all_non_relevant_holdings = []
 
+# Function to check exact word match in RBICS categories/descriptions
+def exact_match(text, keywords):
+    words = re.split(r'\W+', str(text).lower())  # Split into words, remove punctuation
+    return any(word in words for word in keywords)
+
 ### 🟢 Process Each ETF Separately ###
 for etf_name, df in etf_dfs.items():
     print(f"Processing {etf_name}...")
@@ -49,48 +55,48 @@ for etf_name, df in etf_dfs.items():
     # Ensure weight column is numeric
     df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
 
+    # Convert all RBICS levels and descriptions to lowercase for uniformity
     for level, description in zip(rbics_levels, rbics_descriptions):
-        df[level] = df[level].astype(str).str.lower()  # Convert category names to lowercase
-        df[description] = df[description].astype(str).str.lower()  # Convert descriptions to lowercase
+        df[level] = df[level].astype(str).str.lower()
+        df[description] = df[description].astype(str).str.lower()
 
-        ### 1️⃣ Count Holdings by RBICS Level ###
-        holdings_count = df.groupby(level).size().reset_index(name='count')
-        holdings_count['ETF'] = etf_name
-        holdings_count['RBICS_Level'] = level
-        all_holdings_count.append(holdings_count)
+    # Define expected keywords for this ETF
+    expected_keywords = expected_rbics[etf_name]
+    expected_keywords = [word.lower() for word in expected_keywords]
 
-        ### 2️⃣ Calculate Proportions of Each Sector ###
-        sector_proportion = df.groupby(level)['weight'].sum().reset_index()
-        sector_proportion['proportion'] = sector_proportion['weight'] / sector_proportion['weight'].sum()
-        sector_proportion['ETF'] = etf_name
-        sector_proportion['RBICS_Level'] = level
-        all_sector_proportion.append(sector_proportion)
+    # Apply keyword matching row-wise
+    df['row_match'] = df.apply(lambda row: 
+        exact_match(row['l3_name'], expected_keywords) or
+        exact_match(row['l4_name'], expected_keywords) or
+        exact_match(row['l5_name'], expected_keywords) or
+        exact_match(row['l6_name'], expected_keywords) or
+        exact_match(row['l3_description'], expected_keywords) or
+        exact_match(row['l4_description'], expected_keywords) or
+        exact_match(row['l5_description'], expected_keywords) or
+        exact_match(row['l6_description'], expected_keywords), axis=1)
 
-        ### 3️⃣ Ensure Each ETF Contains Only Relevant Technology Sectors ###
-        expected_keywords = expected_rbics[etf_name]  # Get expected keywords for the ETF
-        expected_keywords = [word.lower() for word in expected_keywords]  # Convert to lowercase
+    # Aggregate results at the ISIN level (if any row for ISIN matches, mark entire ISIN as relevant)
+    isin_match = df.groupby('ISIN')['row_match'].max().reset_index()
+    isin_match.rename(columns={'row_match': 'matches_etf_category'}, inplace=True)
 
-        # Check if either the category name or description matches expected keywords
-        df['matches_etf_category'] = df.apply(lambda row: 
-            any(word in row[level] for word in expected_keywords) or 
-            any(word in row[description] for word in expected_keywords), axis=1)
+    # Merge aggregated match results back to original dataframe
+    df = df.merge(isin_match, on='ISIN', how='left')
 
-        # Flag non-relevant holdings
-        non_relevant_holdings = df[df['matches_etf_category'] == False].copy()
-        non_relevant_holdings['ETF'] = etf_name
-        non_relevant_holdings['RBICS_Level'] = level
-        all_non_relevant_holdings.append(non_relevant_holdings)
+    # Flag non-relevant holdings
+    non_relevant_holdings = df[df['matches_etf_category'] == False].copy()
+    non_relevant_holdings['ETF'] = etf_name
+    all_non_relevant_holdings.append(non_relevant_holdings)
 
     ### 4️⃣ Generate Summary Statistics ###
-    total_holdings = len(df)
-    relevant_match_count = df['matches_etf_category'].sum()
+    total_holdings = df['ISIN'].nunique()  # Unique ISINs
+    relevant_match_count = isin_match['matches_etf_category'].sum()
     non_relevant_count = total_holdings - relevant_match_count
     total_weight = df['weight'].sum()
     relevant_match_pct = (relevant_match_count / total_holdings) * 100 if total_holdings > 0 else 0
 
     summary_list.append({
         "ETF": etf_name,
-        "Total Holdings": total_holdings,
+        "Total Unique ISINs": total_holdings,
         "Relevant Match Count": relevant_match_count,
         "Non-Relevant Count": non_relevant_count,
         "Relevant Match Percentage": relevant_match_pct,
@@ -99,34 +105,30 @@ for etf_name, df in etf_dfs.items():
 
 ### 🟢 Convert Results into DataFrames ###
 summary_df = pd.DataFrame(summary_list)
-holdings_count_df = pd.concat(all_holdings_count, ignore_index=True)
-sector_proportion_df = pd.concat(all_sector_proportion, ignore_index=True)
 non_relevant_holdings_df = pd.concat(all_non_relevant_holdings, ignore_index=True)
 
 ### 🟢 5. Generate Visualizations ###
 
 # 📊 Bar Chart: Number of Holdings per RBICS Level for Each ETF
 plt.figure(figsize=(12, 6))
-sns.barplot(data=holdings_count_df, x='RBICS_Level', y='count', hue='ETF')
+sns.barplot(data=summary_df, x='ETF', y='Relevant Match Percentage')
 plt.xticks(rotation=90)
-plt.ylabel("Number of Holdings")
-plt.title("Holdings Count by RBICS Level for Each ETF")
-plt.legend(title="ETF")
+plt.ylabel("Relevant Match Percentage (%)")
+plt.title("Percentage of Relevant Holdings in Each ETF")
 plt.show()
 
 # 📊 Stacked Bar Chart: Sector Proportions per ETF
-pivot_data = sector_proportion_df.pivot(index='RBICS_Level', columns='ETF', values='proportion').fillna(0)
+plt.figure(figsize=(12, 6))
+pivot_data = summary_df.set_index("ETF")[["Relevant Match Count", "Non-Relevant Count"]]
 pivot_data.plot(kind='bar', stacked=True, figsize=(12, 6))
 plt.xticks(rotation=90)
-plt.ylabel("Proportion (%)")
-plt.title("Sector Proportions in ETFs (RBICS Levels L3 to L6)")
-plt.legend(title="ETF")
+plt.ylabel("Number of Holdings")
+plt.title("Relevant vs. Non-Relevant Holdings in ETFs")
+plt.legend(title="Holdings Classification")
 plt.show()
 
 ### 🟢 6. Save Results to CSV ###
 summary_df.to_csv("summary_etf_analysis.csv", index=False)
-holdings_count_df.to_csv("holdings_count_per_etf.csv", index=False)
-sector_proportion_df.to_csv("sector_proportion_per_etf.csv", index=False)
 non_relevant_holdings_df.to_csv("non_relevant_holdings.csv", index=False)
 
 # Print Summary
