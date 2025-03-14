@@ -300,3 +300,72 @@ visualize_etf_clusters(final_df, level="L4")  # Visualize L4
 visualize_etf_clusters(final_df, level="L5")  # Visualize L5
 visualize_etf_clusters(final_df, level="L6")  # Visualize L6
 visualize_etf_clusters(final_df)  # Combined view
+
+
+import textwrap
+
+def visualize_etf_clusters(final_df, level=None):
+    """
+    Visualizes ETF clusters for a selected RBICS level or combined view with bounding boxes for outliers and best matches.
+    level: "L3", "L4", "L5", "L6", or None for combined view.
+    """
+    if level:
+        print(f"Visualizing {level}...")
+
+        # Wrapping text for better readability
+        final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
+
+        # Define similarity column dynamically
+        similarity_col = f"similarity_score_{level}"
+
+        # Determine thresholds for best matches & outliers
+        high_threshold = final_df[similarity_col].quantile(0.95)  # Top 5%
+        low_threshold = final_df[similarity_col].quantile(0.05)   # Bottom 5%
+
+        # Assign match categories
+        final_df["match_category"] = "Normal"
+        final_df.loc[final_df[similarity_col] >= high_threshold, "match_category"] = "Best Match"
+        final_df.loc[final_df[similarity_col] <= low_threshold, "match_category"] = "Outlier"
+
+        fig = px.scatter(
+            final_df[final_df["RBICS_Level"] == level],
+            x=f"x_{level}", y=f"y_{level}", color="ETF",
+            custom_data=["ISIN", "company_name", "ETF", "combined_text", similarity_col, "match_category"],
+            title=f"t-SNE Visualization for {level} - ETF Technology Clusters",
+            labels={"x": "t-SNE Dimension 1", "y": "t-SNE Dimension 2"},
+            symbol="match_category"  # Different markers for outliers & best matches
+        )
+
+    else:
+        print("Visualizing Combined View...")
+        
+        final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
+
+        similarity_col = "similarity_score_L3"  # Use L3 similarity as default for combined view
+
+        high_threshold = final_df[similarity_col].quantile(0.95)
+        low_threshold = final_df[similarity_col].quantile(0.05)
+
+        final_df["match_category"] = "Normal"
+        final_df.loc[final_df[similarity_col] >= high_threshold, "match_category"] = "Best Match"
+        final_df.loc[final_df[similarity_col] <= low_threshold, "match_category"] = "Outlier"
+
+        fig = px.scatter(
+            final_df, x="x_L3", y="y_L3", color="ETF",
+            custom_data=["ISIN", "company_name", "ETF", "combined_text", similarity_col, "match_category"],
+            title="Combined t-SNE Visualization - All RBICS Levels",
+            labels={"x": "t-SNE Dimension 1", "y": "t-SNE Dimension 2"},
+            symbol="match_category"
+        )
+
+    # 📌 Improve hover text formatting
+    fig.update_traces(
+        hovertemplate="<b>ISIN:</b> %{customdata[0]}<br>"
+                      "<b>Company:</b> %{customdata[1]}<br>"
+                      "<b>ETF:</b> %{customdata[2]}<br>"
+                      "<b>Similarity Score:</b> %{customdata[4]:.4f}<br>"
+                      "<b>Match Category:</b> %{customdata[5]}<br>"
+                      "<b>Description:</b> %{customdata[3]}"
+    )
+
+    fig.show()
