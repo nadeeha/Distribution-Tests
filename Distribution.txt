@@ -13,26 +13,46 @@ etf_dfs = {
 }
 
 # Expected categories per ETF
+# 🚀 Updated Expected Keywords for Each ETF
 expected_rbics = {
-    "XAIX_GT": ["AI", "Big Data", "Machine Learning", "Deep Learning", "Neural Networks",
-                "Predictive Analytics", "Natural Language Processing", "Computer Vision"],
+    "XAIX_GT": [  # AI & Big Data
+        "ai", "artificial intelligence", "machine learning", "deep learning", "neural networks",
+        "computer vision", "nlp", "natural language processing", "predictive analytics", 
+        "data science", "ai-powered", "automated", "automation", "cognitive",
+        "reinforcement", "speech", "image", "recognition", "analytics", "prediction",
+        "intelligent", "algorithm", "adaptive", "autonomous", "chatbot"
+    ],
     
-    "LOCK_LN": ["Cybersecurity", "Network Security", "Threat Detection", "Encryption",
-                "Firewall", "Penetration Testing", "Malware Protection", "Data Privacy"],
+    "LOCK_LN": [  # Cybersecurity & Digital Security
+        "cybersecurity", "security", "network", "threat", "encryption", "firewall",
+        "penetration", "malware", "privacy", "access", "secure", "zero trust", 
+        "endpoint", "digital", "identity", "protection", "vpn", "intrusion", "phishing",
+        "blockchain", "compliance", "auth", "ransomware", "breach"
+    ],
     
-    "SMH_LN": ["Semiconductors", "Chip Manufacturing", "Processors", "Memory Chips",
-                "Integrated Circuits", "GPU", "CPU", "Microcontrollers", "Nanotechnology",
-                "Embedded Systems", "Transistors"],
+    "SMH_LN": [  # Semiconductors & Hardware
+        "semiconductor", "chip", "processor", "memory", "integrated", "circuits",
+        "gpu", "cpu", "microcontroller", "embedded", "transistor", "quantum",
+        "fabrication", "wafer", "nanotechnology", "foundry", "logic", "power",
+        "optoelectronics", "hardware", "system-on-chip", "microchip", "silicon",
+        "electronic", "module", "ic", "component", "design"
+    ],
     
-    "IXAROBU": ["Robotics", "Automation", "Industrial Robotics", "AI Robotics",
-                "Robotic Process Automation", "Drones", "Autonomous Vehicles",
-                "Humanoid Robots", "Exoskeleton"],
+    "IXAROBU": [  # Robotics & Automation
+        "robot", "automation", "industrial", "rpa", "drones", "autonomous", "ai robotics",
+        "navigation", "exoskeleton", "warehouse", "robotic", "sensors", "self-driving",
+        "welding", "assembly", "humanoid", "cobot", "collaborative", "manipulation",
+        "bipedal", "drone", "automation", "automated", "motion", "vision"
+    ],
     
-    "IXDIGITU": ["Digital Transformation", "Cloud Infrastructure", "Enterprise IT",
-                 "Blockchain", "IoT", "Internet of Things", "Distributed Computing",
-                 "Edge Computing", "Virtual Reality", "Augmented Reality", "Metaverse"]
+    "IXDIGITU": [  # Digital Transformation & Emerging Tech
+        "digital", "cloud", "enterprise", "blockchain", "decentralized", "distributed",
+        "iot", "internet", "5g", "wireless", "fiber", "edge", "metaverse",
+        "augmented", "virtual", "mixed", "saas", "paas", "twins", "computational",
+        "software", "cloud-native", "hybrid", "infrastructure", "virtualization",
+        "protocol", "automation", "computing", "server", "storage", "networks"
+    ]
 }
-
 # List of RBICS levels and their descriptions
 rbics_levels = ["l3_name", "l4_name", "l5_name", "l6_name"]
 rbics_descriptions = ["l3_description", "l4_description", "l5_description", "l6_description"]
