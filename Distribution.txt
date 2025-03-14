@@ -312,11 +312,15 @@ def visualize_etf_clusters(final_df, level=None):
     if level:
         print(f"Visualizing {level}...")
 
-        # Wrapping text for better readability
+        # Ensure text wrapping for readability
         final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
 
-        # Define similarity column dynamically
+        # Dynamically select similarity column
         similarity_col = f"similarity_score_{level}"
+
+        # Ensure the similarity column exists
+        if similarity_col not in final_df.columns:
+            raise ValueError(f"Column '{similarity_col}' not found in DataFrame. Available columns: {final_df.columns.tolist()}")
 
         # Determine thresholds for best matches & outliers
         high_threshold = final_df[similarity_col].quantile(0.95)  # Top 5%
@@ -341,7 +345,11 @@ def visualize_etf_clusters(final_df, level=None):
         
         final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
 
-        similarity_col = "similarity_score_L3"  # Use L3 similarity as default for combined view
+        # Use L3 similarity as default for combined view
+        similarity_col = "similarity_score_L3"
+
+        if similarity_col not in final_df.columns:
+            raise ValueError(f"Column '{similarity_col}' not found in DataFrame. Available columns: {final_df.columns.tolist()}")
 
         high_threshold = final_df[similarity_col].quantile(0.95)
         low_threshold = final_df[similarity_col].quantile(0.05)
