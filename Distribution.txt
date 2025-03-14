@@ -422,3 +422,159 @@ def visualize_etf_clusters(final_df, level=None):
     )
 
     fig.show()
+
+
+
+
+#-----------
+
+
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import textwrap
+from sklearn.manifold import TSNE
+from sentence_transformers import SentenceTransformer, util
+
+# Load pre-trained BERT model for embeddings
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Define ETF categories and their corresponding technology sub-themes
+expected_rbics = {
+    "XAIX_GT": ["AI", "Artificial Intelligence", "Machine Learning", "Deep Learning", "Neural Networks",
+                "Computer Vision", "NLP", "Natural Language Processing", "Predictive Analytics", 
+                "Data Science", "AI-powered", "Automated", "Automation", "Cognitive",
+                "Reinforcement", "Speech", "Image", "Recognition", "Analytics", "Prediction",
+                "Intelligent", "Algorithm", "Adaptive", "Autonomous", "Chatbot"],
+
+    "LOCK_LN": ["Cybersecurity", "Security", "Network", "Threat", "Encryption", "Firewall",
+                "Penetration", "Malware", "Privacy", "Access", "Secure", "Zero Trust", 
+                "Endpoint", "Digital", "Identity", "Protection", "VPN", "Intrusion", "Phishing",
+                "Blockchain", "Compliance", "Auth", "Ransomware", "Breach"],
+
+    "SMH_LN": ["Semiconductor", "Chip", "Processor", "Memory", "Integrated", "Circuits",
+               "GPU", "CPU", "Microcontroller", "Embedded", "Transistor", "Quantum",
+               "Fabrication", "Wafer", "Nanotechnology", "Foundry", "Logic", "Power",
+               "Optoelectronics", "Hardware", "System-on-Chip", "Microchip", "Silicon",
+               "Electronic", "Module", "IC", "Component", "Design"],
+
+    "IXAROBU": ["Robot", "Automation", "Industrial", "RPA", "Drones", "Autonomous", "AI Robotics",
+                "Navigation", "Exoskeleton", "Warehouse", "Robotic", "Sensors", "Self-Driving",
+                "Welding", "Assembly", "Humanoid", "Cobot", "Collaborative", "Manipulation",
+                "Bipedal", "Drone", "Automation", "Automated", "Motion", "Vision"],
+
+    "IXDIGITU": ["Digital", "Cloud", "Enterprise", "Blockchain", "Decentralized", "Distributed",
+                 "IoT", "Internet", "5G", "Wireless", "Fiber", "Edge", "Metaverse",
+                 "Augmented", "Virtual", "Mixed", "SaaS", "PaaS", "Twins", "Computational",
+                 "Software", "Cloud-native", "Hybrid", "Infrastructure", "Virtualization",
+                 "Protocol", "Automation", "Computing", "Server", "Storage", "Networks"]
+}
+
+# Your separate DataFrames for each ETF
+etf_dfs = {
+    "XAIX_GT": df_xaixgt_rbics,
+    "LOCK_LN": df_lockln_rbics,
+    "SMH_LN": df_smhl_rbics,
+    "IXAROBU": df_ixarobu_rbics,
+    "IXDIGITU": df_ixdigitu_rbics
+}
+
+# Define RBICS Levels to process separately
+rbics_levels = {
+    "L3": ["l3_name", "l3_description"],
+    "L4": ["l4_name", "l4_description"],
+    "L5": ["l5_name", "l5_description"],
+    "L6": ["l6_name", "l6_description"]
+}
+
+
+def process_etf_data():
+    """Processes each ETF and RBICS level, aggregates embeddings per ISIN, and computes similarity scores."""
+    all_results = []
+
+    for etf_name, df in etf_dfs.items():
+        print(f"Processing {etf_name}...")
+
+        df.fillna("", inplace=True)
+
+        for level, columns in rbics_levels.items():
+            print(f"Processing Level {level} for {etf_name}...")
+
+            df[f"combined_{level}"] = df[columns[0]] + " " + df[columns[1]]
+
+            # Compute Sentence Embeddings for the RBICS Level
+            level_embeddings = model.encode(df[f"combined_{level}"].fillna(""), convert_to_tensor=True)
+
+            # Get expanded keyword list for each ETF
+            keywords = expected_rbics[etf_name]
+
+            # Compute Sentence Embeddings for ETF Theme using all keywords
+            theme_embeddings = model.encode(keywords, convert_to_tensor=True)
+
+            # Compute similarity scores for each L3–L6 description
+            similarity_scores = util.cos_sim(level_embeddings, theme_embeddings).max(dim=1).values.cpu().numpy()
+
+            # Reduce Dimensions using t-SNE
+            tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+            tsne_results = tsne.fit_transform(level_embeddings.cpu().numpy())
+
+            # Store t-SNE Coordinates
+            df[f"x_{level}"] = tsne_results[:, 0]
+            df[f"y_{level}"] = tsne_results[:, 1]
+            df[f"similarity_score_{level}"] = similarity_scores
+
+            # Store results for visualization
+            df["ETF"] = etf_name
+            df["RBICS_Level"] = level
+            df["combined_text"] = df[f"combined_{level}"]
+
+            all_results.append(df[["ISIN", "company_name", "ETF", "RBICS_Level",
+                                   f"x_{level}", f"y_{level}", f"similarity_score_{level}", "combined_text"]])
+
+    final_df = pd.concat(all_results, ignore_index=True)
+
+    # **📌 Handle Multiple RBICS Rows Per ISIN: Averaging the Values**
+    agg_df = final_df.groupby(["ISIN", "company_name", "ETF"]).agg({
+        "x_L3": "mean",
+        "y_L3": "mean",
+        "similarity_score_L3": "mean",
+        "combined_text": lambda texts: " | ".join(set(texts))
+    }).reset_index()
+
+    return agg_df
+
+
+def visualize_etf_clusters(final_df, level=None):
+    """Visualizes ETF clusters with bounding boxes for outliers and best matches."""
+    print(f"Visualizing {level if level else 'Combined View'}...")
+
+    final_df["wrapped_text"] = final_df["combined_text"].apply(lambda x: "<br>".join(textwrap.wrap(x, width=50)))
+    similarity_col = "similarity_score_L3" if level is None else f"similarity_score_{level}"
+
+    high_threshold = final_df[similarity_col].quantile(0.95)
+    low_threshold = final_df[similarity_col].quantile(0.05)
+
+    final_df["match_category"] = "Normal"
+    final_df.loc[final_df[similarity_col] >= high_threshold, "match_category"] = "Best Match"
+    final_df.loc[final_df[similarity_col] <= low_threshold, "match_category"] = "Outlier"
+
+    fig = px.scatter(
+        final_df,
+        x="x_L3" if level is None else f"x_{level}",
+        y="y_L3" if level is None else f"y_{level}",
+        color="ETF",
+        symbol="match_category",
+        custom_data=["ISIN", "company_name", "ETF", "wrapped_text", similarity_col, "match_category"],
+        title=f"t-SNE Visualization for {level if level else 'Combined View'} - ETF Technology Clusters"
+    )
+
+    fig.update_traces(
+        hovertemplate="<b>ISIN:</b> %{customdata[0]}<br>"
+                      "<b>Company:</b> %{customdata[1]}<br>"
+                      "<b>ETF:</b> %{customdata[2]}<br>"
+                      "<b>Similarity Score:</b> %{customdata[4]:.4f}<br>"
+                      "<b>Match Category:</b> %{customdata[5]}<br>"
+                      "<b>Description:</b> %{customdata[3]}"
+    )
+
+    fig.show()
