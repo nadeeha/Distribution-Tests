@@ -81,3 +81,119 @@ expected_rbics = {
         "deforestation", "bushland", "marine-life", "wetland"
     ]
 }
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Define Green Transformation keyword list
+green_transformation_keywords = [
+    "solar", "wind", "hydro", "geothermal", "biomass", "biofuels", "hydrogen", 
+    "photovoltaics", "wave", "tidal", "offshore", "battery", "grid", "storage", 
+    "smart-grid", "decarbonization", "fuel-cells", "low-carbon", "fusion", 
+    "solarpark", "inverter", "windmill", "microgrid", "thermal", "offshore-wind",
+    "green", "urban", "buildings", "construction", "architecture", "low-carbon", 
+    "energy-efficient", "net-zero", "carbon-neutral", "insulation", "passive", 
+    "modular", "district-heating", "smart-cities", "leed", "retrofitting", 
+    "eco-friendly", "adaptive", "materials", "bioclimatic", "smart-meter", 
+    "zero-energy", "heat-pump", "climate-resilient", "cooling", "sequestration",
+    "recycling", "waste", "biodegradable", "upcycling", "remanufacturing", 
+    "compost", "reuse", "repurpose", "decompose", "garbage", "zero-waste", 
+    "sustainable", "plastic", "e-waste", "bio-waste", "carbon-footprint", 
+    "textiles", "packaging", "cradle-to-cradle", "remanufacture", "eco-packaging", 
+    "reclaimed", "recycled", "reverse-logistics", "material-recovery", "reuse-stream",
+    "carbon", "emissions", "offset", "climate", "mitigation", "resilience", 
+    "carbon-capture", "sequestration", "decarbonization", "hydrology", "disaster", 
+    "flood", "stormwater", "drought", "coastal", "ecosystem", "rainwater", 
+    "extreme-weather", "restoration", "climate-risk", "fire-resistant", "dune-restoration",
+    "electric", "battery", "hydrogen", "charging", "transportation", "autonomous", 
+    "mobility", "low-emission", "aerospace", "self-driving", "aviation", 
+    "lightweight", "fuel", "rail", "trucking", "public-transit", "car-sharing", 
+    "bike-sharing", "robotaxi", "motor", "powertrain", "hydrogen-vehicle", "ev-charging",
+    "biodiversity", "ecosystem", "wildlife", "reforestation", "pollination", 
+    "forest", "habitat", "species", "carbon", "restoration", "marine", "fauna", 
+    "flora", "conservation", "endangered", "nature", "corridor", "protected-area", 
+    "sustainability", "landscape", "wetlands", "bushland", "afforestation", 
+    "wilderness", "marine-life", "soil-restoration", "natural-capital",
+    "agriculture", "farming", "soil", "crop", "irrigation", "organic", "hydroponics", 
+    "aeroponics", "vermiculture", "permaculture", "regenerative", "gmos", 
+    "pesticide", "fertilizer", "agronomy", "carbon-farming", "precision", 
+    "greenhouse", "no-till", "rotation", "rural", "smart-farming", "agritech", 
+    "climate-smart", "drought-resistant", "pest-control", "seed-innovation",
+    "water", "freshwater", "wetlands", "ocean", "groundwater", "basin", "hydrology", 
+    "seawater", "river", "desalination", "stormwater", "flood", "coastal", "aquatic", 
+    "estuaries", "marine", "fisheries", "tidal", "catchment", "aquifer", 
+    "water-cycle", "filtration", "riparian", "wastewater", "dam", "sediment", 
+    "hydro-power", "water-reuse", "aquaculture", "river-cleanup", "blue-carbon",
+    "carbon", "offset", "trading", "emissions", "sequestration", "carbon-credit", 
+    "carbon-footprint", "low-carbon", "greenhouse-gas", "climate-finance", "net-zero", 
+    "carbon-neutral", "direct-air-capture", "methane", "cap-and-trade", 
+    "compliance-market", "voluntary-market", "carbon-tax", "decarbonization", 
+    "climate-policy", "kyoto-protocol", "carbon-capture", "green-finance"
+]
+
+def count_green_transformation_per_etf(etf_dfs, keyword_list):
+    """
+    Counts distinct ISIN occurrences where Green Transformation keywords are found per ETF.
+
+    Parameters:
+        etf_dfs (dict): Dictionary of ETF DataFrames.
+        keyword_list (list): List of Green Transformation keywords.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing distinct ISIN match counts for each ETF.
+    """
+    keyword_set = set(map(str.lower, keyword_list))
+    etf_match_counts = {}
+
+    for etf_name, df in etf_dfs.items():
+        print(f"Processing {etf_name}...")
+
+        # Combine all relevant text columns into a single lowercase string per row
+        df["combined_text"] = df[
+            ["l1_name", "l2_name", "l3_name", "l4_name", "l5_name", "l6_name", 
+             "l1_description", "l2_description", "l3_description", 
+             "l4_description", "l5_description", "l6_description"]
+        ].astype(str).apply(lambda x: " ".join(x).lower(), axis=1)
+
+        # Identify ISINs that have at least one match
+        matching_isins = df.groupby("ISIN")["combined_text"].apply(
+            lambda texts: any(any(keyword in text for keyword in keyword_set) for text in texts)
+        )
+
+        # Count the number of unique ISINs with matches
+        etf_match_counts[etf_name] = matching_isins.sum()
+
+    return pd.DataFrame.from_dict(etf_match_counts, orient="index", columns=["Distinct ISIN Matches"])
+
+def plot_green_transformation_bar_chart(match_df):
+    """
+    Plots a bar chart of Green Transformation distinct ISIN matches per ETF.
+
+    Parameters:
+        match_df (pd.DataFrame): DataFrame containing distinct ISIN match counts per ETF.
+    """
+    plt.figure(figsize=(10, 6))
+    match_df.sort_values("Distinct ISIN Matches", ascending=False).plot(
+        kind="bar", legend=False, color="green"
+    )
+    plt.title("Distinct ISIN Matches for Green Transformation Keywords Per ETF")
+    plt.xlabel("ETF Name")
+    plt.ylabel("Distinct ISIN Matches")
+    plt.xticks(rotation=45, ha="right")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.show()
+
+# Example ETF DataFrames (Replace with actual DataFrames)
+etf_dfs = {
+    "ETF_A": df_etf_a,  # Replace with actual DataFrames
+    "ETF_B": df_etf_b,
+    "ETF_C": df_etf_c
+}
+
+# Run the match count function
+match_counts_df = count_green_transformation_per_etf(etf_dfs, green_transformation_keywords)
+
+# Plot the bar graph
+plot_green_transformation_bar_chart(match_counts_df)
