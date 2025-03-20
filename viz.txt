@@ -1,89 +1,67 @@
-expected_rbics = {
-    "8_MILL_LN_Equity": [  # Millennials ESG
-        "millennials", "youth", "digital", "technology", "impact",
-        "sustainability", "investing", "fintech", "education", "eco",
-        "diversity", "mental", "health", "gig", "remote", "nomads",
-        "subscription", "entrepreneurship", "urbanization", "sustainable",
-        "ethical", "learning", "finance", "independence", "wellness",
-        "zero", "influencer", "green", "social", "innovation",
-        "blockchain", "crowdfunding", "wallets", "branding", "creator",
-        "hustle", "freelance", "startups", "coliving", "coworking",
-        "shared", "biodegradable", "vegan", "payments", "cashless",
-        "models", "growth", "impact", "minimalism", "recycling"
-    ],
+evolving_societies_keywords = [
+    # 🌍 Sustainability & Social Impact
+    "sustainability", "impact", "environment", "climate", "equity", "justice",
+    "fair", "diversity", "inclusion", "rights", "ethics", "empowerment",
+    "freedom", "safety", "justice", "innovation", "social", "policy",
+    "employment", "culture", "education", "awareness", "community",
 
-    "30_IXAGPOPU_Index": [  # Future Consumer - Silver Economy
-        "aging", "elderly", "retirement", "pension", "care",
-        "assisted", "healthcare", "security", "geriatrics",
-        "elder", "senior", "home", "medicare", "disability",
-        "mobility", "wearable", "smart", "retirement",
-        "population", "independent", "rights", "advice",
-        "longevity", "research", "pharmaceuticals", "memory",
-        "telemedicine", "nursing", "rehabilitation",
-        "fall", "wheelchair", "robotic", "fitness",
-        "housing", "medication", "wellness", "policy",
-        "insurance", "hospice", "vision", "hearing", "nutrition"
-    ],
+    # 🏡 Future Consumer & Society
+    "millennials", "youth", "elderly", "aging", "retirement", "population",
+    "urbanization", "migration", "finance", "mobility", "housing", "family",
+    "parenting", "generation", "trends", "living", "shopping", "behavior",
+    "consumption", "economy", "budgeting", "saving", "lifestyle", "mental",
+    "habits", "nutrition", "diet", "wellness", "organic", "demographics",
+    "access", "opportunity", "humanity", "society", "wellbeing", "security",
 
-    "31_SOCL_Index": [  # Future Consumer - Social Media
-        "social", "media", "content", "video",
-        "streaming", "marketing", "viral",
-        "brand", "commerce", "peer", "platforms",
-        "influencer", "memes", "algorithm", "networking",
-        "advertising", "microblogging", "monetization",
-        "privacy", "community", "personalization",
-        "campaigns", "gaming", "virtual", "ugc",
-        "engagement", "moderation", "digital", "feeds",
-        "communication", "sharing", "news", "interactive",
-        "immersive", "trend", "shorts", "branding"
-    ],
+    # 📱 Digital Transformation & Social Media
+    "technology", "media", "social", "content", "video", "streaming", "branding",
+    "marketing", "commerce", "advertising", "networking", "engagement",
+    "privacy", "security", "platforms", "digital", "sharing", "communication",
+    "influencer", "gaming", "trends", "community", "interactive", "socializing",
+    "news", "apps", "microblogging", "algorithm", "trend", "connectivity",
+    "transparency", "automation", "collaboration", "participation", "creativity",
 
-    "32_SOLGGENR_Index": [  # DE&I - Diversity
-        "diversity", "equity", "gender", "lgbtq",
-        "justice", "inclusive", "corporate",
-        "minority", "pay", "disability", "neurodiversity",
-        "women", "action", "intersection",
-        "hiring", "cultural", "accessibility",
-        "representation", "employment",
-        "design", "finance", "trade",
-        "fair", "impact", "LGBTQ", "access",
-        "adaptive", "education", "ethnicity",
-        "freedom", "empowerment", "policy"
-    ],
+    # 🌎 Diversity, Equity & Inclusion (DE&I)
+    "diversity", "equality", "equity", "gender", "lgbtq", "minority",
+    "representation", "neurodiversity", "ethnicity", "integration",
+    "justice", "fairness", "workplace", "pay", "hiring", "rights",
+    "accessibility", "education", "freedom", "inclusion", "humanitarian",
+    "universal", "corporate", "discrimination", "culture", "identity",
+    "fairness", "tolerance", "acceptance", "multicultural", "values",
+    "humanity", "collaboration", "change", "leadership",
 
-    "35_DXBRHLTU_Index": [  # Healthcare Innovation - Future Health
-        "biotech", "telemedicine", "genomics", "devices",
-        "pharmaceuticals", "precision", "wearable", "surgery",
-        "nanomedicine", "monitoring", "therapy",
-        "regenerative", "cancer", "automation",
-        "drugs", "immunotherapy", "trials", "longevity",
-        "robot", "digital", "medical", "analytics",
-        "bioprinting", "organs", "biology",
-        "drug", "AI", "development", "informatics", "molecular",
-        "medicine", "robotics", "hospital", "emergency"
-    ],
+    # 🏥 Healthcare & Future Medicine
+    "health", "care", "hospital", "medical", "wellness", "mental", "fitness",
+    "nutrition", "biotech", "telemedicine", "pharmaceuticals", "medicine",
+    "robotics", "automation", "disease", "vaccines", "rehabilitation",
+    "preventive", "surgery", "monitoring", "wearable", "fitness", "wellbeing",
+    "hospitality", "therapy", "treatment", "genetics", "trials", "hygiene",
+    "pandemic", "crisis", "public", "medication", "research", "medicine",
+    "emergency", "recovery", "awareness", "longevity",
 
-    "36_NOHTECN_Index": [  # Healthcare Innovation - Digital Health
-        "health", "mhealth", "remote", "hospital",
-        "wearable", "ehealth", "telehealth", "diagnostics",
-        "virtual", "data", "electronic", "portals",
-        "blockchain", "personalized", "cloud",
-        "consultation", "devices", "apps",
-        "therapeutics", "home", "robotic",
-        "genetic", "preventive", "AI",
-        "big", "connected", "IoT", "clinical",
-        "nursing", "fitness", "smart"
-    ],
+    # 🔬 Technology & AI in Society
+    "AI", "machine", "learning", "robotics", "automation", "cybersecurity",
+    "big", "data", "analytics", "blockchain", "cloud", "apps", "virtual",
+    "metaverse", "augmented", "VR", "NFT", "crypto", "wireless", "mobility",
+    "connectivity", "IoT", "5G", "smart", "devices", "wearables",
+    "sensors", "cyber", "autonomy", "prediction", "processing", "decision",
+    "surveillance", "algorithms", "automation", "interaction", "AI",
 
-    "37_SOLSUHWN_Index": [  # Healthcare Innovation - Sustainable Healthcare
-        "green", "eco", "sustainable",
-        "biodegradable", "carbon", "circular",
-        "waste", "resilient", "low",
-        "energy", "decarbonized", "supply",
-        "vaccines", "recyclable", "medtech",
-        "footprint", "climate", "biotech",
-        "solar", "emission", "health",
-        "powered", "renewable", "reduction",
-        "smart", "hospitals", "transport"
-    ]
-}
+    # 🏡 Sustainable Living & Smart Cities
+    "eco", "friendly", "zero", "green", "smart", "urban", "housing",
+    "transport", "mobility", "energy", "renewable", "recycling",
+    "circular", "biodegradable", "emission", "solar", "carbon",
+    "neutral", "waste", "clean", "power", "hydrogen", "grid",
+    "efficiency", "climate", "resilient", "decarbonization",
+    "biodiversity", "conservation", "pollution", "resources",
+    "smart", "clean", "low", "cities", "public", "adaptive",
+
+    # 🌐 Broader Societal Transformation Terms
+    "freedom", "human", "culture", "values", "identity", "progress",
+    "innovation", "participation", "engagement", "leadership", "change",
+    "opportunity", "access", "voice", "security", "cooperation", "collaboration",
+    "policy", "decision", "movement", "initiative", "empowerment",
+    "activism", "dialogue", "discussion", "ethics", "trust",
+    "democracy", "transparency", "development", "vision", "future",
+    "transformation", "openness", "responsibility", "global", "citizen"
+]
