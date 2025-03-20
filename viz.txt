@@ -1,49 +1,83 @@
-import pandas as pd
-import plotly.express as px
-import ipywidgets as widgets
-from IPython.display import display
+expected_rbics = {
+    "4_WOOD_LN_Equity": [  # 🌲 Timber & Forestry
+        "forestry", "wood", "logging", "lumber", "sawmill", "timber", "forest", 
+        "paper", "biomaterials", "reforestation", "agroforestry", "fiber", 
+        "carbon", "plantations", "bioenergy", "bamboo", "hardwood", "softwood",
+        "deforestation", "pulp", "sustainability", "ecosystem", "harvesting",
+        "conservation", "co2", "sawmills", "chipboard", "plywood", "veneer",
+        "tree", "forestland", "biodegradable", "carbon-storage"
+    ],
 
-# Load your dataset
-df = pd.read_csv('path_to_your_data.csv')  # Replace with your file path
+    "5_IH2O_LN_Equity": [  # 💧 Water
+        "water", "desalination", "wastewater", "hydrology", "purification", 
+        "aquifer", "freshwater", "irrigation", "hydropower", "stormwater", 
+        "drinking", "seawater", "sustainability", "conservation", "sanitation",
+        "leak", "pollution", "filtration", "reuse", "ocean", "flood",
+        "groundwater", "sewage", "wetlands", "marsh", "drainage", "evaporation",
+        "hydro", "aquatic", "brackish", "river", "lake", "catchment"
+    ],
 
-# Ensure the date column is in datetime format and extract the year
-df['year'] = pd.to_datetime(df['period_end_date']).dt.year
+    "7_REUSE_FP_Equity": [  # 🔄 Circular Economy
+        "recycling", "waste", "zero", "efficiency", "packaging", "re-manufacturing", 
+        "recovery", "biodegradable", "upcycling", "energy", "remanufacture", 
+        "repurpose", "reuse", "compost", "materials", "decompose", "refurbish",
+        "e-waste", "plastic", "sustainability", "pollution", "repurposing",
+        "metals", "garbage", "electronics", "organic", "bio-waste", "degradable",
+        "emissions", "climate", "carbon", "textiles", "footprint", "sustainable"
+    ],
 
-# Create widgets for selecting company ID and year
-company_id_widget = widgets.Dropdown(
-    options=df['factset_entity_id'].unique(),
-    description='Company ID:',
-    value=df['factset_entity_id'].unique()[0]
-)
+    "12_SPGTCLNT_Index": [  # 🌍 Renewable Energy
+        "renewable", "solar", "wind", "hydro", "geothermal", "biofuels", 
+        "clean", "emissions", "carbon", "offset", "power", "battery", 
+        "grid", "storage", "photovoltaics", "hydrogen", "low-carbon",
+        "energy", "bio", "fuel", "pv", "windmill", "inverter",
+        "wave", "turbine", "offshore", "cells", "generation", "thermal",
+        "microgrid", "decarbonization", "fusion", "solarpark"
+    ],
 
-year_widget = widgets.Dropdown(
-    description='Year:'
-)
+    "13_STXELVV_Index": [  # 🚗 Future Mobility
+        "electric", "battery", "charging", "fuel", "autonomous", "mobility", 
+        "ride", "transport", "hybrid", "lightweight", "aviation", "high-speed", 
+        "hydrogen", "rail", "vehicles", "fleets", "logistics",
+        "charging-station", "powertrain", "self-driving", "connectivity",
+        "battery-electric", "decarbonization", "ai", "telemetry", "telematics",
+        "infrastructure", "trucking", "aerospace", "robotaxi", "motor"
+    ],
 
-# Update the year dropdown based on selected company ID
-def update_year_options(*args):
-    selected_company_id = company_id_widget.value
-    years = df[df['factset_entity_id'] == selected_company_id]['year'].unique()
-    year_widget.options = years
-    year_widget.value = years[0] if len(years) > 0 else None
+    "15_FGCITIU_Index": [  # 🌿 Green Infrastructure
+        "green", "sustainable", "urban", "buildings", "construction", 
+        "architecture", "climate", "design", "recycled", "low-carbon", 
+        "adaptive", "net-zero", "cement", "energy-efficient", "permeable",
+        "insulation", "carbon-neutral", "biodiversity", "eco", "leed",
+        "passive", "retrofitting", "renovation", "modular", "carbon", "materials",
+        "heat", "cooling", "sequestration", "district-heating", "thermal"
+    ],
 
-# Link the update function to the company ID widget
-company_id_widget.observe(update_year_options, names='value')
+    "17_SPCPAGN_Index": [  # 🌱 Agriculture
+        "agriculture", "farming", "soil", "irrigation", "crop", "carbon", 
+        "no-till", "rotation", "agritech", "organic", "precision", "greenhouse", 
+        "plant", "seeds", "climate", "ecosystem", "biodiversity",
+        "agronomy", "yield", "cultivation", "hydroponics", "pesticide", "fertilizer",
+        "aqua", "vermiculture", "gmos", "harvesting", "farming-tech", "carbon-capture",
+        "drip", "aeroponics", "vertical", "rural"
+    ],
 
-# Initial call to set the year options based on the first company ID
-update_year_options()
+    "18_SOLWATR_Index": [  # 🌊 Natural Resources & Water
+        "water", "conservation", "wetland", "groundwater", "ecosystem", 
+        "coastal", "pollution", "flood", "reuse", "ocean", "wastewater", 
+        "fisheries", "desalination", "river", "basin", "filtration",
+        "marine", "estuary", "tidal", "delta", "fresh", "stream",
+        "lakes", "pond", "canal", "tributary", "riparian", "watershed",
+        "aquifer", "water-cycle", "catchment", "dam", "sediment"
+    ],
 
-# Function to update and display the plot
-def update_plot(company_id, year):
-    filtered_df = df[(df['factset_entity_id'] == company_id) & (df['year'] == year)]
-    fig = px.treemap(
-        filtered_df,
-        path=['l1_name', 'l2_name', 'l3_name', 'l4_name', 'l5_name', 'l6_name'],
-        values='l6_revenue',
-        title=f'Hierarchical Revenue Distribution for Company ID {company_id} in {year}'
-    )
-    fig.show()
-
-# Display the widgets and update plot function
-widgets.interactive(update_plot, company_id=company_id_widget, year=year_widget)
-          display(company_id_widget, year_widget)
+    "19_ESGBIONW_Index": [  # 🏞️ Biodiversity
+        "biodiversity", "ecosystem", "wildlife", "forest", "habitat", 
+        "species", "reforestation", "pollination", "restoration", 
+        "carbon", "nature", "protection", "landscape", "sustainability",
+        "extinction", "flora", "fauna", "conservation", "endangered",
+        "reintroduction", "genetics", "genome", "bioreserve", "wilderness",
+        "corridor", "climate", "reserve", "ecoregion", "migratory",
+        "deforestation", "bushland", "marine-life", "wetland"
+    ]
+}
