@@ -1,118 +1,69 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+expected_rbics = {
+    "8_MILL_LN_Equity": [  # Millennials ESG
+        "millennials", "sustainability", "digital", "technology", "innovation",
+        "fintech", "education", "wellness", "diversity", "eco-friendly",
+        "social-impact", "mental-health", "ethical-consumption", "green-investing",
+        "entrepreneurship", "urbanization", "sustainable-living",
+        "gig-economy", "remote-work", "mental-wellbeing", "digital-nomads",
+        "financial-independence", "health-conscious", "eco-conscious", 
+        "subscription-economy", "social-media-generation"
+    ],
 
-# Define Green Transformation keyword list
-green_transformation_keywords = [
-    "solar", "wind", "hydro", "geothermal", "biomass", "biofuels", "hydrogen", 
-    "photovoltaics", "wave", "tidal", "offshore", "battery", "grid", "storage", 
-    "smart-grid", "decarbonization", "fuel-cells", "low-carbon", "fusion", 
-    "solarpark", "inverter", "windmill", "microgrid", "thermal", "offshore-wind",
-    "green", "urban", "buildings", "construction", "architecture", "low-carbon", 
-    "energy-efficient", "net-zero", "carbon-neutral", "insulation", "passive", 
-    "modular", "district-heating", "smart-cities", "leed", "retrofitting", 
-    "eco-friendly", "adaptive", "materials", "bioclimatic", "smart-meter", 
-    "zero-energy", "heat-pump", "climate-resilient", "cooling", "sequestration",
-    "recycling", "waste", "biodegradable", "upcycling", "remanufacturing", 
-    "compost", "reuse", "repurpose", "decompose", "garbage", "zero-waste", 
-    "sustainable", "plastic", "e-waste", "bio-waste", "carbon-footprint", 
-    "textiles", "packaging", "cradle-to-cradle", "remanufacture", "eco-packaging", 
-    "reclaimed", "recycled", "reverse-logistics", "material-recovery", "reuse-stream",
-    "carbon", "emissions", "offset", "climate", "mitigation", "resilience", 
-    "carbon-capture", "sequestration", "decarbonization", "hydrology", "disaster", 
-    "flood", "stormwater", "drought", "coastal", "ecosystem", "rainwater", 
-    "extreme-weather", "restoration", "climate-risk", "fire-resistant", "dune-restoration",
-    "electric", "battery", "hydrogen", "charging", "transportation", "autonomous", 
-    "mobility", "low-emission", "aerospace", "self-driving", "aviation", 
-    "lightweight", "fuel", "rail", "trucking", "public-transit", "car-sharing", 
-    "bike-sharing", "robotaxi", "motor", "powertrain", "hydrogen-vehicle", "ev-charging",
-    "biodiversity", "ecosystem", "wildlife", "reforestation", "pollination", 
-    "forest", "habitat", "species", "carbon", "restoration", "marine", "fauna", 
-    "flora", "conservation", "endangered", "nature", "corridor", "protected-area", 
-    "sustainability", "landscape", "wetlands", "bushland", "afforestation", 
-    "wilderness", "marine-life", "soil-restoration", "natural-capital",
-    "agriculture", "farming", "soil", "crop", "irrigation", "organic", "hydroponics", 
-    "aeroponics", "vermiculture", "permaculture", "regenerative", "gmos", 
-    "pesticide", "fertilizer", "agronomy", "carbon-farming", "precision", 
-    "greenhouse", "no-till", "rotation", "rural", "smart-farming", "agritech", 
-    "climate-smart", "drought-resistant", "pest-control", "seed-innovation",
-    "water", "freshwater", "wetlands", "ocean", "groundwater", "basin", "hydrology", 
-    "seawater", "river", "desalination", "stormwater", "flood", "coastal", "aquatic", 
-    "estuaries", "marine", "fisheries", "tidal", "catchment", "aquifer", 
-    "water-cycle", "filtration", "riparian", "wastewater", "dam", "sediment", 
-    "hydro-power", "water-reuse", "aquaculture", "river-cleanup", "blue-carbon",
-    "carbon", "offset", "trading", "emissions", "sequestration", "carbon-credit", 
-    "carbon-footprint", "low-carbon", "greenhouse-gas", "climate-finance", "net-zero", 
-    "carbon-neutral", "direct-air-capture", "methane", "cap-and-trade", 
-    "compliance-market", "voluntary-market", "carbon-tax", "decarbonization", 
-    "climate-policy", "kyoto-protocol", "carbon-capture", "green-finance"
-]
+    "30_IXAGPOPU_Index": [  # Future Consumer - Silver Economy
+        "aging", "elderly", "retirement", "pensions", "healthcare", 
+        "wellness", "caregiving", "medical-innovation", "financial-security", 
+        "longevity", "silver-economy", "assistive-technology", "elder-tech",
+        "mobility", "smart-homes", "insurance", "pharmaceuticals", "geriatrics",
+        "home-care", "disability-inclusion", "age-friendly", "independent-living",
+        "senior-finance", "elder-rights", "age-tech", "medicare"
+    ],
 
-def calculate_green_transformation_percentage(etf_dfs, keyword_list):
-    """
-    Calculates the percentage of distinct ISINs that match Green Transformation keywords per ETF.
+    "31_SOCL_Index": [  # Future Consumer - Social Media
+        "social-media", "communication", "influencers", "advertising",
+        "content-creation", "digital-platforms", "streaming", "e-commerce",
+        "virtual-reality", "digital-identity", "community-engagement",
+        "user-generated-content", "digital-marketing", "data-privacy",
+        "personalization", "brand-engagement", "social-networking",
+        "short-form-video", "social-commerce", "peer-to-peer", "viral-content",
+        "live-streaming", "algorithmic-feeds", "microblogging", "memes"
+    ],
 
-    Parameters:
-        etf_dfs (dict): Dictionary of ETF DataFrames.
-        keyword_list (list): List of Green Transformation keywords.
+    "32_SOLGGENR_Index": [  # DE&I - Diversity
+        "diversity", "inclusion", "equity", "gender-equality", "social-justice",
+        "lgbtq", "women-empowerment", "minority-rights", "equal-opportunity",
+        "workplace-inclusion", "fair-pay", "ethnicity", "corporate-social-responsibility",
+        "human-rights", "economic-inclusion", "employment-diversity",
+        "intersectionality", "disability-rights", "neurodiversity", "affirmative-action",
+        "representation", "universal-design", "social-innovation", "equal-access"
+    ],
 
-    Returns:
-        pd.DataFrame: A DataFrame containing match percentages for each ETF.
-    """
-    keyword_set = set(map(str.lower, keyword_list))
-    etf_match_stats = {}
+    "35_DXBRHLTU_Index": [  # Healthcare Innovation - Future Health
+        "biotech", "telemedicine", "genomics", "medical-devices", "pharmaceuticals",
+        "precision-medicine", "wearables", "artificial-intelligence", "robotic-surgery",
+        "personalized-healthcare", "nanomedicine", "remote-monitoring",
+        "gene-therapy", "regenerative-medicine", "digital-health",
+        "smart-drugs", "clinical-trials", "healthcare-automation",
+        "immunotherapy", "dna-editing", "longevity-science", "digital-twins"
+    ],
 
-    for etf_name, df in etf_dfs.items():
-        print(f"Processing {etf_name}...")
+    "36_NOHTECN_Index": [  # Healthcare Innovation - Digital Health
+        "e-health", "m-health", "remote-healthcare", "digital-hospitals",
+        "health-data", "wearable-technology", "patient-portals", "teleconsultation",
+        "electronic-health-records", "health-ai", "virtual-care", "health-analytics",
+        "telehealth", "predictive-diagnostics", "health-blockchain",
+        "smart-medical-devices", "cloud-healthcare", "medical-chatbots",
+        "digital-therapeutics", "mobile-health-apps", "robotic-assistants",
+        "home-based-monitoring", "personalized-medicine"
+    ],
 
-        # Combine all relevant text columns into a single lowercase string per row
-        df["combined_text"] = df[
-            ["l1_name", "l2_name", "l3_name", "l4_name", "l5_name", "l6_name", 
-             "l1_description", "l2_description", "l3_description", 
-             "l4_description", "l5_description", "l6_description"]
-        ].astype(str).apply(lambda x: " ".join(x).lower(), axis=1)
-
-        # Get unique ISINs and match Green Transformation keywords
-        total_isins = df["ISIN"].nunique()
-        matching_isins = df.groupby("ISIN")["combined_text"].apply(
-            lambda texts: any(any(keyword in text for keyword in keyword_set) for text in texts)
-        ).sum()
-
-        # Calculate percentage of matched ISINs
-        match_percentage = (matching_isins / total_isins) * 100 if total_isins > 0 else 0
-
-        etf_match_stats[etf_name] = {"Matched ISINs": matching_isins, 
-                                     "Total ISINs": total_isins, 
-                                     "Match Percentage": match_percentage}
-
-    return pd.DataFrame.from_dict(etf_match_stats, orient="index")
-
-def plot_green_transformation_percentage(match_df):
-    """
-    Plots a bar chart of Green Transformation match percentage per ETF.
-
-    Parameters:
-        match_df (pd.DataFrame): DataFrame containing match percentages per ETF.
-    """
-    plt.figure(figsize=(10, 6))
-    match_df["Match Percentage"].sort_values(ascending=False).plot(
-        kind="bar", color="green"
-    )
-    plt.title("Percentage of ISINs Matching Green Transformation Keywords Per ETF")
-    plt.xlabel("ETF Name")
-    plt.ylabel("Match Percentage (%)")
-    plt.xticks(rotation=45, ha="right")
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.show()
-
-# Example ETF DataFrames (Replace with actual DataFrames)
-etf_dfs = {
-    "ETF_A": df_etf_a,  # Replace with actual DataFrames
-    "ETF_B": df_etf_b,
-    "ETF_C": df_etf_c
+    "37_SOLSUHWN_Index": [  # Healthcare Innovation - Sustainable Healthcare
+        "green-hospitals", "eco-friendly-medicine", "sustainable-pharmaceuticals",
+        "biodegradable-medical-supplies", "carbon-neutral-healthcare", 
+        "waste-management", "energy-efficient-hospitals", "climate-resilient-healthcare",
+        "health-equity", "global-health", "public-health-initiatives",
+        "sustainable-biotech", "zero-waste-medical-supply", "eco-friendly-packaging",
+        "low-carbon-healthcare", "recyclable-medical-equipment",
+        "green-supply-chain", "biodegradable-drugs", "circular-economy-healthcare",
+        "decarbonized-medicine", "sustainable-vaccines", "medtech-recycling"
+    ]
 }
-
-# Run the match percentage calculation function
-match_percentage_df = calculate_green_transformation_percentage(etf_dfs, green_transformation_keywords)
-
-# Plot the percentage bar graph
-plot_green_transformation_percentage(match_percentage_df)
