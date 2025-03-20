@@ -1,89 +1,3 @@
-expected_rbics = {
-    "4_WOOD_LN_Equity": [  # 🌲 Timber & Forestry
-        "forestry", "wood", "logging", "lumber", "sawmill", "timber", "forest", 
-        "paper", "biomaterials", "reforestation", "agroforestry", "fiber", 
-        "carbon", "plantations", "bioenergy", "bamboo", "hardwood", "softwood",
-        "deforestation", "pulp", "sustainability", "ecosystem", "harvesting",
-        "conservation", "co2", "sawmills", "chipboard", "plywood", "veneer",
-        "tree", "forestland", "biodegradable", "carbon-storage"
-    ],
-
-    "5_IH2O_LN_Equity": [  # 💧 Water
-        "water", "desalination", "wastewater", "hydrology", "purification", 
-        "aquifer", "freshwater", "irrigation", "hydropower", "stormwater", 
-        "drinking", "seawater", "sustainability", "conservation", "sanitation",
-        "leak", "pollution", "filtration", "reuse", "ocean", "flood",
-        "groundwater", "sewage", "wetlands", "marsh", "drainage", "evaporation",
-        "hydro", "aquatic", "brackish", "river", "lake", "catchment"
-    ],
-
-    "7_REUSE_FP_Equity": [  # 🔄 Circular Economy
-        "recycling", "waste", "zero", "efficiency", "packaging", "re-manufacturing", 
-        "recovery", "biodegradable", "upcycling", "energy", "remanufacture", 
-        "repurpose", "reuse", "compost", "materials", "decompose", "refurbish",
-        "e-waste", "plastic", "sustainability", "pollution", "repurposing",
-        "metals", "garbage", "electronics", "organic", "bio-waste", "degradable",
-        "emissions", "climate", "carbon", "textiles", "footprint", "sustainable"
-    ],
-
-    "12_SPGTCLNT_Index": [  # 🌍 Renewable Energy
-        "renewable", "solar", "wind", "hydro", "geothermal", "biofuels", 
-        "clean", "emissions", "carbon", "offset", "power", "battery", 
-        "grid", "storage", "photovoltaics", "hydrogen", "low-carbon",
-        "energy", "bio", "fuel", "pv", "windmill", "inverter",
-        "wave", "turbine", "offshore", "cells", "generation", "thermal",
-        "microgrid", "decarbonization", "fusion", "solarpark"
-    ],
-
-    "13_STXELVV_Index": [  # 🚗 Future Mobility
-        "electric", "battery", "charging", "fuel", "autonomous", "mobility", 
-        "ride", "transport", "hybrid", "lightweight", "aviation", "high-speed", 
-        "hydrogen", "rail", "vehicles", "fleets", "logistics",
-        "charging-station", "powertrain", "self-driving", "connectivity",
-        "battery-electric", "decarbonization", "ai", "telemetry", "telematics",
-        "infrastructure", "trucking", "aerospace", "robotaxi", "motor"
-    ],
-
-    "15_FGCITIU_Index": [  # 🌿 Green Infrastructure
-        "green", "sustainable", "urban", "buildings", "construction", 
-        "architecture", "climate", "design", "recycled", "low-carbon", 
-        "adaptive", "net-zero", "cement", "energy-efficient", "permeable",
-        "insulation", "carbon-neutral", "biodiversity", "eco", "leed",
-        "passive", "retrofitting", "renovation", "modular", "carbon", "materials",
-        "heat", "cooling", "sequestration", "district-heating", "thermal"
-    ],
-
-    "17_SPCPAGN_Index": [  # 🌱 Agriculture
-        "agriculture", "farming", "soil", "irrigation", "crop", "carbon", 
-        "no-till", "rotation", "agritech", "organic", "precision", "greenhouse", 
-        "plant", "seeds", "climate", "ecosystem", "biodiversity",
-        "agronomy", "yield", "cultivation", "hydroponics", "pesticide", "fertilizer",
-        "aqua", "vermiculture", "gmos", "harvesting", "farming-tech", "carbon-capture",
-        "drip", "aeroponics", "vertical", "rural"
-    ],
-
-    "18_SOLWATR_Index": [  # 🌊 Natural Resources & Water
-        "water", "conservation", "wetland", "groundwater", "ecosystem", 
-        "coastal", "pollution", "flood", "reuse", "ocean", "wastewater", 
-        "fisheries", "desalination", "river", "basin", "filtration",
-        "marine", "estuary", "tidal", "delta", "fresh", "stream",
-        "lakes", "pond", "canal", "tributary", "riparian", "watershed",
-        "aquifer", "water-cycle", "catchment", "dam", "sediment"
-    ],
-
-    "19_ESGBIONW_Index": [  # 🏞️ Biodiversity
-        "biodiversity", "ecosystem", "wildlife", "forest", "habitat", 
-        "species", "reforestation", "pollination", "restoration", 
-        "carbon", "nature", "protection", "landscape", "sustainability",
-        "extinction", "flora", "fauna", "conservation", "endangered",
-        "reintroduction", "genetics", "genome", "bioreserve", "wilderness",
-        "corridor", "climate", "reserve", "ecoregion", "migratory",
-        "deforestation", "bushland", "marine-life", "wetland"
-    ]
-}
-
-
-
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -133,19 +47,19 @@ green_transformation_keywords = [
     "climate-policy", "kyoto-protocol", "carbon-capture", "green-finance"
 ]
 
-def count_green_transformation_per_etf(etf_dfs, keyword_list):
+def calculate_green_transformation_percentage(etf_dfs, keyword_list):
     """
-    Counts distinct ISIN occurrences where Green Transformation keywords are found per ETF.
+    Calculates the percentage of distinct ISINs that match Green Transformation keywords per ETF.
 
     Parameters:
         etf_dfs (dict): Dictionary of ETF DataFrames.
         keyword_list (list): List of Green Transformation keywords.
 
     Returns:
-        pd.DataFrame: A DataFrame containing distinct ISIN match counts for each ETF.
+        pd.DataFrame: A DataFrame containing match percentages for each ETF.
     """
     keyword_set = set(map(str.lower, keyword_list))
-    etf_match_counts = {}
+    etf_match_stats = {}
 
     for etf_name, df in etf_dfs.items():
         print(f"Processing {etf_name}...")
@@ -157,30 +71,35 @@ def count_green_transformation_per_etf(etf_dfs, keyword_list):
              "l4_description", "l5_description", "l6_description"]
         ].astype(str).apply(lambda x: " ".join(x).lower(), axis=1)
 
-        # Identify ISINs that have at least one match
+        # Get unique ISINs and match Green Transformation keywords
+        total_isins = df["ISIN"].nunique()
         matching_isins = df.groupby("ISIN")["combined_text"].apply(
             lambda texts: any(any(keyword in text for keyword in keyword_set) for text in texts)
-        )
+        ).sum()
 
-        # Count the number of unique ISINs with matches
-        etf_match_counts[etf_name] = matching_isins.sum()
+        # Calculate percentage of matched ISINs
+        match_percentage = (matching_isins / total_isins) * 100 if total_isins > 0 else 0
 
-    return pd.DataFrame.from_dict(etf_match_counts, orient="index", columns=["Distinct ISIN Matches"])
+        etf_match_stats[etf_name] = {"Matched ISINs": matching_isins, 
+                                     "Total ISINs": total_isins, 
+                                     "Match Percentage": match_percentage}
 
-def plot_green_transformation_bar_chart(match_df):
+    return pd.DataFrame.from_dict(etf_match_stats, orient="index")
+
+def plot_green_transformation_percentage(match_df):
     """
-    Plots a bar chart of Green Transformation distinct ISIN matches per ETF.
+    Plots a bar chart of Green Transformation match percentage per ETF.
 
     Parameters:
-        match_df (pd.DataFrame): DataFrame containing distinct ISIN match counts per ETF.
+        match_df (pd.DataFrame): DataFrame containing match percentages per ETF.
     """
     plt.figure(figsize=(10, 6))
-    match_df.sort_values("Distinct ISIN Matches", ascending=False).plot(
-        kind="bar", legend=False, color="green"
+    match_df["Match Percentage"].sort_values(ascending=False).plot(
+        kind="bar", color="green"
     )
-    plt.title("Distinct ISIN Matches for Green Transformation Keywords Per ETF")
+    plt.title("Percentage of ISINs Matching Green Transformation Keywords Per ETF")
     plt.xlabel("ETF Name")
-    plt.ylabel("Distinct ISIN Matches")
+    plt.ylabel("Match Percentage (%)")
     plt.xticks(rotation=45, ha="right")
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.show()
@@ -192,8 +111,8 @@ etf_dfs = {
     "ETF_C": df_etf_c
 }
 
-# Run the match count function
-match_counts_df = count_green_transformation_per_etf(etf_dfs, green_transformation_keywords)
+# Run the match percentage calculation function
+match_percentage_df = calculate_green_transformation_percentage(etf_dfs, green_transformation_keywords)
 
-# Plot the bar graph
-plot_green_transformation_bar_chart(match_counts_df)
+# Plot the percentage bar graph
+plot_green_transformation_percentage(match_percentage_df)
