@@ -1,69 +1,89 @@
 expected_rbics = {
     "8_MILL_LN_Equity": [  # Millennials ESG
-        "millennials", "sustainability", "digital", "technology", "innovation",
-        "fintech", "education", "wellness", "diversity", "eco-friendly",
-        "social-impact", "mental-health", "ethical-consumption", "green-investing",
-        "entrepreneurship", "urbanization", "sustainable-living",
-        "gig-economy", "remote-work", "mental-wellbeing", "digital-nomads",
-        "financial-independence", "health-conscious", "eco-conscious", 
-        "subscription-economy", "social-media-generation"
+        "millennials", "youth", "digital", "technology", "impact",
+        "sustainability", "investing", "fintech", "education", "eco",
+        "diversity", "mental", "health", "gig", "remote", "nomads",
+        "subscription", "entrepreneurship", "urbanization", "sustainable",
+        "ethical", "learning", "finance", "independence", "wellness",
+        "zero", "influencer", "green", "social", "innovation",
+        "blockchain", "crowdfunding", "wallets", "branding", "creator",
+        "hustle", "freelance", "startups", "coliving", "coworking",
+        "shared", "biodegradable", "vegan", "payments", "cashless",
+        "models", "growth", "impact", "minimalism", "recycling"
     ],
 
     "30_IXAGPOPU_Index": [  # Future Consumer - Silver Economy
-        "aging", "elderly", "retirement", "pensions", "healthcare", 
-        "wellness", "caregiving", "medical-innovation", "financial-security", 
-        "longevity", "silver-economy", "assistive-technology", "elder-tech",
-        "mobility", "smart-homes", "insurance", "pharmaceuticals", "geriatrics",
-        "home-care", "disability-inclusion", "age-friendly", "independent-living",
-        "senior-finance", "elder-rights", "age-tech", "medicare"
+        "aging", "elderly", "retirement", "pension", "care",
+        "assisted", "healthcare", "security", "geriatrics",
+        "elder", "senior", "home", "medicare", "disability",
+        "mobility", "wearable", "smart", "retirement",
+        "population", "independent", "rights", "advice",
+        "longevity", "research", "pharmaceuticals", "memory",
+        "telemedicine", "nursing", "rehabilitation",
+        "fall", "wheelchair", "robotic", "fitness",
+        "housing", "medication", "wellness", "policy",
+        "insurance", "hospice", "vision", "hearing", "nutrition"
     ],
 
     "31_SOCL_Index": [  # Future Consumer - Social Media
-        "social-media", "communication", "influencers", "advertising",
-        "content-creation", "digital-platforms", "streaming", "e-commerce",
-        "virtual-reality", "digital-identity", "community-engagement",
-        "user-generated-content", "digital-marketing", "data-privacy",
-        "personalization", "brand-engagement", "social-networking",
-        "short-form-video", "social-commerce", "peer-to-peer", "viral-content",
-        "live-streaming", "algorithmic-feeds", "microblogging", "memes"
+        "social", "media", "content", "video",
+        "streaming", "marketing", "viral",
+        "brand", "commerce", "peer", "platforms",
+        "influencer", "memes", "algorithm", "networking",
+        "advertising", "microblogging", "monetization",
+        "privacy", "community", "personalization",
+        "campaigns", "gaming", "virtual", "ugc",
+        "engagement", "moderation", "digital", "feeds",
+        "communication", "sharing", "news", "interactive",
+        "immersive", "trend", "shorts", "branding"
     ],
 
     "32_SOLGGENR_Index": [  # DE&I - Diversity
-        "diversity", "inclusion", "equity", "gender-equality", "social-justice",
-        "lgbtq", "women-empowerment", "minority-rights", "equal-opportunity",
-        "workplace-inclusion", "fair-pay", "ethnicity", "corporate-social-responsibility",
-        "human-rights", "economic-inclusion", "employment-diversity",
-        "intersectionality", "disability-rights", "neurodiversity", "affirmative-action",
-        "representation", "universal-design", "social-innovation", "equal-access"
+        "diversity", "equity", "gender", "lgbtq",
+        "justice", "inclusive", "corporate",
+        "minority", "pay", "disability", "neurodiversity",
+        "women", "action", "intersection",
+        "hiring", "cultural", "accessibility",
+        "representation", "employment",
+        "design", "finance", "trade",
+        "fair", "impact", "LGBTQ", "access",
+        "adaptive", "education", "ethnicity",
+        "freedom", "empowerment", "policy"
     ],
 
     "35_DXBRHLTU_Index": [  # Healthcare Innovation - Future Health
-        "biotech", "telemedicine", "genomics", "medical-devices", "pharmaceuticals",
-        "precision-medicine", "wearables", "artificial-intelligence", "robotic-surgery",
-        "personalized-healthcare", "nanomedicine", "remote-monitoring",
-        "gene-therapy", "regenerative-medicine", "digital-health",
-        "smart-drugs", "clinical-trials", "healthcare-automation",
-        "immunotherapy", "dna-editing", "longevity-science", "digital-twins"
+        "biotech", "telemedicine", "genomics", "devices",
+        "pharmaceuticals", "precision", "wearable", "surgery",
+        "nanomedicine", "monitoring", "therapy",
+        "regenerative", "cancer", "automation",
+        "drugs", "immunotherapy", "trials", "longevity",
+        "robot", "digital", "medical", "analytics",
+        "bioprinting", "organs", "biology",
+        "drug", "AI", "development", "informatics", "molecular",
+        "medicine", "robotics", "hospital", "emergency"
     ],
 
     "36_NOHTECN_Index": [  # Healthcare Innovation - Digital Health
-        "e-health", "m-health", "remote-healthcare", "digital-hospitals",
-        "health-data", "wearable-technology", "patient-portals", "teleconsultation",
-        "electronic-health-records", "health-ai", "virtual-care", "health-analytics",
-        "telehealth", "predictive-diagnostics", "health-blockchain",
-        "smart-medical-devices", "cloud-healthcare", "medical-chatbots",
-        "digital-therapeutics", "mobile-health-apps", "robotic-assistants",
-        "home-based-monitoring", "personalized-medicine"
+        "health", "mhealth", "remote", "hospital",
+        "wearable", "ehealth", "telehealth", "diagnostics",
+        "virtual", "data", "electronic", "portals",
+        "blockchain", "personalized", "cloud",
+        "consultation", "devices", "apps",
+        "therapeutics", "home", "robotic",
+        "genetic", "preventive", "AI",
+        "big", "connected", "IoT", "clinical",
+        "nursing", "fitness", "smart"
     ],
 
     "37_SOLSUHWN_Index": [  # Healthcare Innovation - Sustainable Healthcare
-        "green-hospitals", "eco-friendly-medicine", "sustainable-pharmaceuticals",
-        "biodegradable-medical-supplies", "carbon-neutral-healthcare", 
-        "waste-management", "energy-efficient-hospitals", "climate-resilient-healthcare",
-        "health-equity", "global-health", "public-health-initiatives",
-        "sustainable-biotech", "zero-waste-medical-supply", "eco-friendly-packaging",
-        "low-carbon-healthcare", "recyclable-medical-equipment",
-        "green-supply-chain", "biodegradable-drugs", "circular-economy-healthcare",
-        "decarbonized-medicine", "sustainable-vaccines", "medtech-recycling"
+        "green", "eco", "sustainable",
+        "biodegradable", "carbon", "circular",
+        "waste", "resilient", "low",
+        "energy", "decarbonized", "supply",
+        "vaccines", "recyclable", "medtech",
+        "footprint", "climate", "biotech",
+        "solar", "emission", "health",
+        "powered", "renewable", "reduction",
+        "smart", "hospitals", "transport"
     ]
 }
