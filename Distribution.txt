@@ -13,7 +13,7 @@ rbics_l6_file = "rbics_l6_data.xlsx"  # Replace with actual file path
 rbics_df = pd.read_excel(rbics_l6_file, engine="openpyxl")
 
 # Filter rows where Level 4 needs expansion
-grouped_df = rbics_sub_new[rbics_sub_new["examples_for_level_4"].notna()]
+grouped_df = rbics_sub_new[rbics_sub_new["level_4"].isna()]
 
 # Dictionary to store results
 matched_results = []
@@ -21,8 +21,14 @@ matched_results = []
 # Process each Level 3 entry
 for index, row in grouped_df.iterrows():
     level3_text = row["level_3"]
-    example_text = row["examples_for_level_4"]
-    example_list = example_text.split(" | ")  # Convert examples into a list
+    
+    # Check if examples exist, but still allow inference
+    if pd.notna(row["examples_for_level_4"]):
+        example_text = row["examples_for_level_4"]
+        example_list = example_text.split(" | ")  # Convert examples into a list
+        example_text_clean = f"**Use these as reference points, but also infer independently:** {example_list}"
+    else:
+        example_text_clean = "**No examples available. Infer the best matches based on climate mitigation knowledge.**"
 
     # Construct prompt for GPT-4
     prompt = f"""
@@ -33,7 +39,7 @@ for index, row in grouped_df.iterrows():
     - **Level 1:** {row["level_1"]}
     - **Level 2:** {row["level_2"]}
     - **Level 3:** {level3_text}
-    - **Examples for Level 4:** {example_list}
+    - {example_text_clean}
 
     **Your task:**
     1. Identify **multiple** relevant RBICS L6 categories (not just one).
