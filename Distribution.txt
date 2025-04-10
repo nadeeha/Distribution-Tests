@@ -1,96 +1,68 @@
-import openai
+import requests
 import pandas as pd
+import json
 
-# Set OpenAI API Key
-openai.api_key = "your_openai_api_key"
+# Constants
+OPENAI_API_KEY = "your-api-key-here"
+OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
+MODEL = "gpt-4"  # or "gpt-3.5-turbo"
 
-# Load your structured file (replace with actual file path)
-file_path = "your_file.xlsx"
-rbics_sub_new = pd.read_excel(file_path, engine="openpyxl")
+# Construct taxonomy block
+taxonomy_block = ""
+for _, row in taxonomy_df.iterrows():
+    l1 = str(row['level_1']).strip()
+    l2 = str(row['level_2']).strip()
+    l3 = str(row['level_3']).strip() if pd.notna(row['level_3']) else ""
+    ex = str(row['examples_for_level_4']).strip() if pd.notna(row['examples_for_level_4']) else ""
 
-# Load RBICS L6 categories (Ensure it has 'RBICS_L6_Name', 'RBICS_L6_Description')
-rbics_l6_file = "rbics_l6_data.xlsx"  # Replace with actual file path
-rbics_df = pd.read_excel(rbics_l6_file, engine="openpyxl")
+    line = f"- L1: {l1} | L2: {l2}"
+    if l3:
+        line += f" | L3: {l3}"
+    if ex:
+        line += f" | Example: {ex}"
+    taxonomy_block += line + "\n"
 
-# Filter rows where Level 4 needs expansion
-grouped_df = rbics_sub_new[rbics_sub_new["level_4"].isna()]
-
-# Dictionary to store results
-matched_results = []
-
-# Process each Level 3 entry
-for index, row in grouped_df.iterrows():
-    level3_text = row["level_3"]
-    
-    # Check if examples exist, but still allow inference
-    if pd.notna(row["examples_for_level_4"]):
-        example_text = row["examples_for_level_4"]
-        example_list = example_text.split(" | ")  # Convert examples into a list
-        example_text_clean = f"**Use these as reference points, but also infer independently:** {example_list}"
-    else:
-        example_text_clean = "**No examples available. Infer the best matches based on climate mitigation knowledge.**"
-
-    # Construct prompt for GPT-4
+# Function to send API call using requests
+def map_l6_to_taxonomy(name, desc):
     prompt = f"""
-    You are an expert in sustainability and climate finance.
+You are helping map circular economy items to a taxonomy.
 
-    **Task:** Expand the Level 4 categories for the Climate Mitigation hierarchy.
+Given this L6 item:
+Name: {name}
+Description: {desc}
 
-    - **Level 1:** {row["level_1"]}
-    - **Level 2:** {row["level_2"]}
-    - **Level 3:** {level3_text}
-    - {example_text_clean}
+Match it to the most relevant taxonomy paths (you may return more than one if applicable) from the list below:
 
-    **Your task:**
-    1. Identify **multiple** relevant RBICS L6 categories (not just one).
-    2. Format them as: `L6_1 | L6_2 | L6_3`
-    3. Provide reasoning for why they are suitable matches.
-    4. If additional levels (Level 5, Level 6) are needed, suggest them.
+{taxonomy_block}
 
-    Below is a list of possible RBICS L6 categories:
+Respond in the following format:
+- Mapping 1: L1: ___ | L2: ___ | L3: ___
+- Mapping 2: ...
+Reasoning: Briefly explain why each mapping fits.
+    """.strip()
 
-    {rbics_df[["RBICS_L6_Name", "RBICS_L6_Description"]].to_string(index=False)}
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-    **Ensure the response follows the structure:**
-    **Matches:** L6_1 | L6_2 | L6_3
-    **Reasoning:** Explanation of why these match.
-    **Additional Levels (if needed):** Level 5: ... | Level 6: ...
-    """
+    payload = {
+        "model": MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3,
+        "max_tokens": 400
+    }
 
-    # Get response from GPT-4
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": "You are an expert in sustainability and climate finance."},
-                  {"role": "user", "content": prompt}]
-    )
+    try:
+        response = requests.post(OPENAI_API_URL, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        content = response.json()
+        return content["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-    output_text = response["choices"][0]["message"]["content"]
-
-    # Extract matches and reasoning
-    match_section = output_text.split("**Matches:** ")[1].split("\n")[0].strip() if "**Matches:**" in output_text else "No match found"
-    reasoning_section = output_text.split("**Reasoning:** ")[1].split("**Additional Levels**")[0].strip() if "**Reasoning:**" in output_text else "No reasoning provided"
-    additional_levels = output_text.split("**Additional Levels:** ")[1].strip() if "**Additional Levels:**" in output_text else "No additional levels needed"
-
-    # Store results
-    matched_results.append({
-        "theme": row["theme"],
-        "level_1": row["level_1"],
-        "level_2": row["level_2"],
-        "level_3": level3_text,
-        "Expanded Level 4": match_section,  # Concatenated matches
-        "Reasoning": reasoning_section,
-        "Additional Levels": additional_levels
-    })
-
-# Convert to DataFrame and merge back
-matched_df = pd.DataFrame(matched_results)
-
-# Merge with original dataframe and update Level 4
-rbics_sub_new = rbics_sub_new.merge(matched_df, on=["theme", "level_1", "level_2", "level_3"], how="left")
-rbics_sub_new["level_4"] = rbics_sub_new["Expanded Level 4"].combine_first(rbics_sub_new["level_4"])
-
-# Save updated data
-output_file = "updated_climate_hierarchy.xlsx"
-rbics_sub_new.to_excel(output_file, index=False)
-
-print(f"Level 4 expansion completed and saved as {output_file}.")
+# Apply to each L6 entry
+l6_df['Taxonomy Mapping'] = l6_df.apply(
+    lambda row: map_l6_to_taxonomy(row['L6_NAME'], row['L6_DESCRIPTION']),
+    axis=1
+)
