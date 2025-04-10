@@ -146,3 +146,84 @@ fig = px.treemap(
 fig.update_traces(root_color="lightgrey")
 fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))
 fig.show()
+
+
+
+
+
+
+
+import plotly.graph_objects as go
+from anytree import LevelOrderIter
+
+# Traverse the anytree to collect nodes and edges
+nodes = []
+edges = []
+
+# Assign unique IDs to nodes
+node_ids = {}
+for i, node in enumerate(LevelOrderIter(root)):
+    node_ids[node] = f"id_{i}"
+    nodes.append(node)
+
+    if node.parent:
+        edges.append((node_ids[node.parent], node_ids[node]))
+
+# Assign x, y coordinates based on depth and order
+positions = {}
+level_counts = {}
+
+for node in LevelOrderIter(root):
+    level = node.depth
+    count = level_counts.get(level, 0)
+    positions[node_ids[node]] = (count, -level)
+    level_counts[level] = count + 1
+
+# Create node traces
+node_x, node_y, node_text = [], [], []
+for node in nodes:
+    nid = node_ids[node]
+    x, y = positions[nid]
+    node_x.append(x)
+    node_y.append(y)
+    node_text.append(node.name)
+
+# Create edge traces
+edge_x, edge_y = [], []
+for parent_id, child_id in edges:
+    x0, y0 = positions[parent_id]
+    x1, y1 = positions[child_id]
+    edge_x += [x0, x1, None]
+    edge_y += [y0, y1, None]
+
+# Plot with Plotly
+fig = go.Figure()
+
+# Edges
+fig.add_trace(go.Scatter(
+    x=edge_x, y=edge_y,
+    mode='lines',
+    line=dict(width=1, color='gray'),
+    hoverinfo='none'
+))
+
+# Nodes
+fig.add_trace(go.Scatter(
+    x=node_x, y=node_y,
+    mode='markers+text',
+    marker=dict(size=40, color='lightblue'),
+    text=node_text,
+    textposition="middle center",
+    hoverinfo='text'
+))
+
+fig.update_layout(
+    title="Circular Economy - Decision Tree Style (Plotly)",
+    showlegend=False,
+    xaxis=dict(showticklabels=False, zeroline=False),
+    yaxis=dict(showticklabels=False, zeroline=False),
+    margin=dict(l=20, r=20, t=50, b=20),
+    height=800
+)
+
+fig.show()
