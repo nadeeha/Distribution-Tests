@@ -1,137 +1,40 @@
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer, util
+from anytree import Node, RenderTree
+from anytree.exporter import DotExporter
 
-# Assuming 'df' is your DataFrame with 'activity_description' and 'rbics_description' columns
-# Example:
-# df = pd.DataFrame({
-#     'activity_description': [...],
-#     'rbics_description': [...]
-# })
+# Root of the tree
+root = Node("Circular Economy")
 
-# Prepare lists of descriptions
-activity_descriptions = df['activity_description'].fillna('').tolist()
-rbics_descriptions = df['rbics_description'].fillna('').tolist()
+# Dictionary to track created nodes
+node_lookup = {}
 
-# Method 1: TF-IDF with Cosine Similarity
-vectorizer = TfidfVectorizer()
-activity_vectors = vectorizer.fit_transform(activity_descriptions)
-rbics_vectors = vectorizer.transform(rbics_descriptions)
+# Iterate through each row
+for _, row in df_CE_Final.iterrows():
+    l1 = row['L1']
+    l2 = row['L2']
+    l3 = row['L3']
+    l6 = row['L6_NAME']
 
-# Compute TF-IDF Cosine Similarity scores
-tfidf_similarity_scores = cosine_similarity(activity_vectors, rbics_vectors).diagonal()
+    # Create or fetch L1 node
+    if l1 not in node_lookup:
+        node_lookup[l1] = Node(l1, parent=root)
 
-# Method 2: Sentence-BERT for Semantic Similarity
-model = SentenceTransformer('all-MiniLM-L6-v2')
+    # Create or fetch L2 node
+    l2_key = (l1, l2)
+    if l2_key not in node_lookup:
+        node_lookup[l2_key] = Node(l2, parent=node_lookup[l1])
 
-# Encode descriptions using Sentence-BERT
-activity_embeddings = model.encode(activity_descriptions, convert_to_tensor=True)
-rbics_embeddings = model.encode(rbics_descriptions, convert_to_tensor=True)
-
-# Compute cosine similarity with Sentence-BERT embeddings
-semantic_similarity_scores = util.pytorch_cos_sim(activity_embeddings, rbics_embeddings).diagonal()
-
-# Combine scores into the DataFrame
-df['tfidf_similarity_score'] = tfidf_similarity_scores
-df['semantic_similarity_score'] = semantic_similarity_scores.numpy()  # Convert to numpy array if needed
-
-# Define function to categorize similarity
-def categorize_score(score):
-    if score > 0.8:
-        return 'High'
-    elif score > 0.5:
-        return 'Moderate'
+    # Handle L3 (if absent, treat L6_NAME as L3)
+    if pd.notna(l3):
+        l3_key = (l1, l2, l3)
+        if l3_key not in node_lookup:
+            node_lookup[l3_key] = Node(l3, parent=node_lookup[l2_key])
+        Node(l6, parent=node_lookup[l3_key])
     else:
-        return 'Low'
+        # Use L6_NAME as L3
+        l3_key = (l1, l2, l6)
+        if l3_key not in node_lookup:
+            node_lookup[l3_key] = Node(l6, parent=node_lookup[l2_key])
 
-# Apply categorization
-df['tfidf_match_level'] = df['tfidf_similarity_score'].apply(categorize_score)
-df['semantic_match_level'] = df['semantic_similarity_score'].apply(categorize_score)
-
-# Display the DataFrame with scores and match levels
-print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'semantic_similarity_score', 
-          'tfidf_match_level', 'semantic_match_level']])
-
-
-
-
-
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from transformers import AutoTokenizer, AutoModel
-import torch
-
-# Assuming 'df' is your DataFrame with 'activity_description' and 'rbics_description' columns
-# Example:
-# df = pd.DataFrame({
-#     'activity_description': [...],
-#     'rbics_description': [...]
-# })
-
-# Prepare lists of descriptions
-activity_descriptions = df['activity_description'].fillna('').tolist()
-rbics_descriptions = df['rbics_description'].fillna('').tolist()
-
-# Method 1: TF-IDF with Cosine Similarity
-vectorizer = TfidfVectorizer()
-activity_vectors = vectorizer.fit_transform(activity_descriptions)
-rbics_vectors = vectorizer.transform(rbics_descriptions)
-
-# Compute TF-IDF Cosine Similarity scores
-tfidf_similarity_scores = cosine_similarity(activity_vectors, rbics_vectors).diagonal()
-
-# Method 2: ESG BERT for Semantic Similarity
-# Load an ESG-specific BERT model and tokenizer (replace 'esg-bert' with the actual model name)
-model_name = "username/esg-bert"  # Replace with the actual ESG BERT model name
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
-
-# Define a function to compute embeddings for a list of descriptions
-def compute_embeddings(descriptions):
-    inputs = tokenizer(descriptions, padding=True, truncation=True, return_tensors="pt")
-    with torch.no_grad():
-        embeddings = model(**inputs).last_hidden_state.mean(dim=1)  # Mean pooling
-    return embeddings
-
-# Compute ESG BERT embeddings for both activity and RBICS descriptions
-activity_embeddings = compute_embeddings(activity_descriptions)
-rbics_embeddings = compute_embeddings(rbics_descriptions)
-
-# Compute cosine similarity with ESG BERT embeddings
-cosine_similarities = torch.nn.functional.cosine_similarity(activity_embeddings, rbics_embeddings)
-
-# Combine scores into the DataFrame
-df['tfidf_similarity_score'] = tfidf_similarity_scores
-df['esg_bert_similarity_score'] = cosine_similarities.numpy()  # Convert to numpy array if needed
-
-# Define function to categorize similarity
-def categorize_score(score):
-    if score > 0.8:
-        return 'High'
-    elif score > 0.5:
-        return 'Moderate'
-    else:
-        return 'Low'
-
-# Apply categorization
-df['tfidf_match_level'] = df['tfidf_similarity_score'].apply(categorize_score)
-df['esg_bert_match_level'] = df['esg_bert_similarity_score'].apply(categorize_score)
-
-# Display the DataFrame with scores and match levels
-print(df[['activity_description', 'rbics_description', 'tfidf_similarity_score', 'esg_bert_similarity_score', 
-          'tfidf_match_level', 'esg_bert_match_level']])
-
-
-
-
-def compute_embeddings(descriptions, batch_size=8):
-    all_embeddings = []
-    for i in range(0, len(descriptions), batch_size):
-        batch = descriptions[i:i + batch_size]
-        inputs = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
-        with torch.no_grad():
-            embeddings = model(**inputs).last_hidden_state.mean(dim=1)  # Mean pooling
-        all_embeddings.append(embeddings)
-    return torch.cat(all_embeddings, dim=0)
+# Print the tree
+for pre, fill, node in RenderTree(root):
+    print(f"{pre}{node.name}")
