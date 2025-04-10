@@ -227,3 +227,82 @@ fig.update_layout(
 )
 
 fig.show()
+
+
+_______
+
+import plotly.graph_objects as go
+from anytree import LevelOrderIter
+from collections import defaultdict
+
+# Step 1: Build node list and edges from anytree
+nodes = []
+edges = []
+node_ids = {}
+for i, node in enumerate(LevelOrderIter(root)):
+    node_ids[node] = f"id_{i}"
+    nodes.append(node)
+    if node.parent:
+        edges.append((node_ids[node.parent], node_ids[node]))
+
+# Step 2: Group nodes by level (depth) to assign x-positions
+levels = defaultdict(list)
+for node in nodes:
+    levels[node.depth].append(node)
+
+# Step 3: Assign positions (x evenly spaced within each level, y by depth)
+positions = {}
+for depth, level_nodes in levels.items():
+    for i, node in enumerate(level_nodes):
+        x = i - len(level_nodes) / 2  # Center horizontally
+        y = -depth  # Top-down layout
+        positions[node_ids[node]] = (x, y)
+
+# Step 4: Plot with Plotly
+# Edges
+edge_x, edge_y = [], []
+for parent_id, child_id in edges:
+    x0, y0 = positions[parent_id]
+    x1, y1 = positions[child_id]
+    edge_x += [x0, x1, None]
+    edge_y += [y0, y1, None]
+
+# Nodes
+node_x, node_y, node_text = [], [], []
+for node in nodes:
+    nid = node_ids[node]
+    x, y = positions[nid]
+    node_x.append(x)
+    node_y.append(y)
+    node_text.append(node.name)
+
+fig = go.Figure()
+
+# Edge lines
+fig.add_trace(go.Scatter(
+    x=edge_x, y=edge_y,
+    mode='lines',
+    line=dict(width=1.5, color='gray'),
+    hoverinfo='none'
+))
+
+# Node markers and labels
+fig.add_trace(go.Scatter(
+    x=node_x, y=node_y,
+    mode='markers+text',
+    marker=dict(size=40, color='lightblue'),
+    text=node_text,
+    textposition="middle center",
+    hoverinfo='text'
+))
+
+fig.update_layout(
+    title="Circular Economy - Decision Tree Layout (Clean Spacing)",
+    showlegend=False,
+    xaxis=dict(showticklabels=False, zeroline=False),
+    yaxis=dict(showticklabels=False, zeroline=False),
+    margin=dict(l=20, r=20, t=50, b=20),
+    height=800
+)
+
+fig.show()
