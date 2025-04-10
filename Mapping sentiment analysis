@@ -117,3 +117,32 @@ nx.draw(G, pos, with_labels=True, arrows=False,
 plt.title("Circular Economy Taxonomy Tree (Hierarchical View)", fontsize=14)
 plt.axis('off')
 plt.show()
+
+
+
+
+
+
+
+
+
+import plotly.express as px
+
+# Create a copy to work on
+df_plot = df_CE_Final.copy()
+
+# If L3 is missing, use L6_NAME as L3
+df_plot['L3_clean'] = df_plot.apply(lambda row: row['L3'] if pd.notna(row['L3']) else row['L6_NAME'], axis=1)
+
+# Create a path for the hierarchy: Root → L1 → L2 → L3 (or L6)
+df_plot['Circular Economy'] = 'Circular Economy'  # Root
+fig = px.treemap(
+    df_plot,
+    path=['Circular Economy', 'L1', 'L2', 'L3_clean', 'L6_NAME'],
+    values=None,  # optional: you can use a count or relevance score if available
+    title='Circular Economy Taxonomy Tree (Interactive Treemap)',
+)
+
+fig.update_traces(root_color="lightgrey")
+fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))
+fig.show()
