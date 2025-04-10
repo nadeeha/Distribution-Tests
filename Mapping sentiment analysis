@@ -306,3 +306,95 @@ fig.update_layout(
 )
 
 fig.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import plotly.graph_objects as go
+from anytree import LevelOrderIter
+from collections import defaultdict
+
+# === Step 1: Extract nodes and edges from your anytree `root` ===
+nodes = []
+edges = []
+node_ids = {}
+
+for i, node in enumerate(LevelOrderIter(root)):
+    node_ids[node] = f"id_{i}"
+    nodes.append(node)
+    if node.parent:
+        edges.append((node_ids[node.parent], node_ids[node]))
+
+# === Step 2: Layout – Evenly space nodes level by level ===
+positions = {}
+level_nodes = defaultdict(list)
+for node in nodes:
+    level_nodes[node.depth].append(node)
+
+SPACING = 2.5      # Horizontal space between sibling nodes
+LEVEL_GAP = 2.0    # Vertical space between levels
+
+for depth, node_list in level_nodes.items():
+    for i, node in enumerate(node_list):
+        x = i * SPACING - len(node_list) * SPACING / 2
+        y = -depth * LEVEL_GAP
+        positions[node_ids[node]] = (x, y)
+
+# === Step 3: Create Plotly figure ===
+fig = go.Figure()
+
+# --- Draw edges ---
+for parent_id, child_id in edges:
+    x0, y0 = positions[parent_id]
+    x1, y1 = positions[child_id]
+    fig.add_trace(go.Scatter(
+        x=[x0, x1], y=[y0, y1],
+        mode='lines',
+        line=dict(color='gray', width=1.5),
+        hoverinfo='none',
+        showlegend=False
+    ))
+
+# --- Draw labeled square boxes using annotations ---
+for node in nodes:
+    nid = node_ids[node]
+    x, y = positions[nid]
+    label = node.name
+
+    fig.add_annotation(
+        x=x, y=y,
+        text=label,
+        showarrow=False,
+        font=dict(size=12, color="black"),
+        align="center",
+        bordercolor="black",
+        borderwidth=1,
+        borderpad=8,
+        bgcolor="lightblue",
+        opacity=1,
+        xanchor="center",
+        yanchor="middle",
+        width=140,  # Adjust box size as needed
+        height=50
+    )
+
+# === Step 4: Layout config ===
+fig.update_layout(
+    title="Circular Economy Taxonomy – Decision Tree Layout",
+    xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+    yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+    height=900,
+    margin=dict(l=20, r=20, t=60, b=20)
+)
+
+fig.show()
