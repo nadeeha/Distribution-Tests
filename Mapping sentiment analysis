@@ -65,3 +65,55 @@ pos = nx.spring_layout(G, k=0.5, iterations=100)
 nx.draw(G, pos, with_labels=True, arrows=False, node_size=1500, node_color="lightblue", font_size=10)
 plt.title("Circular Economy Taxonomy Tree")
 plt.show()
+
+
+
+
+
+
+
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def build_graph(node, graph=None, parent=None):
+    if graph is None:
+        graph = nx.DiGraph()
+    graph.add_node(node.name)
+    if parent:
+        graph.add_edge(parent.name, node.name)
+    for child in node.children:
+        build_graph(child, graph, node)
+    return graph
+
+def hierarchy_pos(G, root, width=1.0, vert_gap=0.3, vert_loc=0, xcenter=0.5, pos=None, parent=None):
+    """Recursively positions nodes in a hierarchy layout"""
+    if pos is None:
+        pos = {}
+    children = list(G.successors(root))
+    if not children:
+        pos[root] = (xcenter, vert_loc)
+    else:
+        dx = width / len(children)
+        next_x = xcenter - width/2 - dx/2
+        for child in children:
+            next_x += dx
+            pos = hierarchy_pos(G, child, width=dx, vert_gap=vert_gap,
+                                vert_loc=vert_loc - vert_gap, xcenter=next_x,
+                                pos=pos, parent=root)
+        pos[root] = (xcenter, vert_loc)
+    return pos
+
+# Build the graph from your anytree structure
+G = build_graph(root)
+
+# Create a hierarchical position layout
+pos = hierarchy_pos(G, "Circular Economy")
+
+# Plot using matplotlib
+plt.figure(figsize=(15, 12))
+nx.draw(G, pos, with_labels=True, arrows=False,
+        node_size=2000, node_color="lightblue", font_size=9)
+plt.title("Circular Economy Taxonomy Tree (Hierarchical View)", fontsize=14)
+plt.axis('off')
+plt.show()
