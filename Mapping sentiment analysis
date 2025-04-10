@@ -38,3 +38,30 @@ for _, row in df_CE_Final.iterrows():
 # Print the tree
 for pre, fill, node in RenderTree(root):
     print(f"{pre}{node.name}")
+
+
+
+
+
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def build_graph(node, graph=None, parent=None):
+    if graph is None:
+        graph = nx.DiGraph()
+    graph.add_node(node.name)
+    if parent:
+        graph.add_edge(parent.name, node.name)
+    for child in node.children:
+        build_graph(child, graph, node)
+    return graph
+
+# Build and plot the graph
+G = build_graph(root)
+
+plt.figure(figsize=(12, 10))
+pos = nx.spring_layout(G, k=0.5, iterations=100)
+nx.draw(G, pos, with_labels=True, arrows=False, node_size=1500, node_color="lightblue", font_size=10)
+plt.title("Circular Economy Taxonomy Tree")
+plt.show()
