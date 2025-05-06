@@ -1,0 +1,95 @@
+import fitz  # PyMuPDF
+from sentence_transformers import SentenceTransformer
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+import faiss
+import numpy as np
+
+# Step 1: Extract text with page numbers
+def extract_text_with_page_numbers(pdf_path):
+    doc = fitz.open(pdf_path)
+    pages = []
+    for i, page in enumerate(doc):
+        text = page.get_text()
+        pages.append({'page_number': i + 1, 'text': text})
+    return pages
+
+# Step 2: Chunk text with overlap, keep page numbers
+def chunk_pages(pages):
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    documents = []
+    for page in pages:
+        chunks = splitter.create_documents([page['text']])
+        for chunk in chunks:
+            documents.append({
+                'page_number': page['page_number'],
+                'text': chunk.page_content
+            })
+    return documents
+
+# Step 3: Generate sentence embeddings
+def create_embeddings(documents):
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    texts = [doc['text'] for doc in documents]
+    embeddings = model.encode(texts, show_progress_bar=True)
+    return embeddings, model
+
+# Step 4: FAISS index setup
+def build_vector_store(embeddings):
+    dim = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dim)
+    index.add(np.array(embeddings))
+    return index
+
+# Step 5: Semantic search
+def search(query, model, index, documents, top_k=5):
+    query_embedding = model.encode([query])
+    D, I = index.search(np.array(query_embedding), top_k)
+    results = []
+    for idx in I[0]:
+        results.append(documents[idx])
+    return results
+
+# Step 6: Generate GPT-4o prompt with context and page numbers
+def generate_prompt(query, context_chunks):
+    context_text = "\n\n".join(
+        [f"[Page {chunk['page_number']}]:\n{chunk['text'].strip()}" for chunk in context_chunks]
+    )
+    prompt = f"""You are an expert assistant. Based on the following context, answer the question below. Always cite page numbers from the context.
+
+Question: {query}
+
+Context:
+{context_text}
+
+Answer:"""
+    return prompt
+
+# MAIN FUNCTION
+def main_pipeline(pdf_path, user_query):
+    print("Extracting text from PDF...")
+    pages = extract_text_with_page_numbers(pdf_path)
+
+    print("Splitting and chunking pages...")
+    documents = chunk_pages(pages)
+
+    print("Generating embeddings...")
+    embeddings, model = create_embeddings(documents)
+
+    print("Indexing with FAISS...")
+    index = build_vector_store(embeddings)
+
+    print(f"Searching for: {user_query}")
+    top_chunks = search(user_query, model, index, documents)
+
+    print("Generating GPT-4o prompt...")
+    prompt = generate_prompt(user_query, top_chunks)
+    return prompt
+
+# Example usage
+if __name__ == "__main__":
+    pdf_path = "SSAB_Annual_Report_2024.pdf"  # change this to your file path
+    query = "What share of steel is produced from scrap?"
+    
+    prompt = main_pipeline(pdf_path, query)
+    print("\n==== PROMPT TO SEND TO GPT ====\n")
+    print(prompt)
