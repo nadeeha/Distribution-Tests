@@ -1,68 +1,9 @@
-import requests
-import pandas as pd
-import json
+Companies that operate within the health technology ecosystem, encompassing innovations in medical devices, diagnostics, digital health, and connected healthcare platforms. These firms are involved in areas such as the development or commercialization of medical and surgical instruments, next-generation sequencing (NGS), genetic testing, proteomics tools, and clinically actionable genomic platforms. They also build software-driven healthcare analytics systems, digital health applications, remote monitoring solutions, wearable fitness or diagnostic devices, and advanced imaging technologies. The scope includes participation in therapeutic devices, at-home wellness tech, telehealth, tech-enabled healthcare delivery, femtech, clinical trials, and digital platforms that enhance healthcare access and outcomes. Keywords include digital health, medtech, wearables, genomics, diagnostics, telemedicine, and health data analytics.
 
-# Constants
-OPENAI_API_KEY = "your-api-key-here"
-OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
-MODEL = "gpt-4"  # or "gpt-3.5-turbo"
 
-# Construct taxonomy block
-taxonomy_block = ""
-for _, row in taxonomy_df.iterrows():
-    l1 = str(row['level_1']).strip()
-    l2 = str(row['level_2']).strip()
-    l3 = str(row['level_3']).strip() if pd.notna(row['level_3']) else ""
-    ex = str(row['examples_for_level_4']).strip() if pd.notna(row['examples_for_level_4']) else ""
 
-    line = f"- L1: {l1} | L2: {l2}"
-    if l3:
-        line += f" | L3: {l3}"
-    if ex:
-        line += f" | Example: {ex}"
-    taxonomy_block += line + "\n"
 
-# Function to send API call using requests
-def map_l6_to_taxonomy(name, desc):
-    prompt = f"""
-You are helping map circular economy items to a taxonomy.
+Companies that develop and commercialize technologies at the forefront of artificial intelligence and data infrastructure, including those operating in AI, big data, cloud computing, and cybersecurity. These firms are engaged in sub-domains such as deep learning (using neural networks to replicate human cognition), image recognition (identifying faces, logos, and objects), natural language processing (understanding and generating human-like text), and speech technologies including recognition and chatbots for interactive automation. On the data infrastructure side, companies focus on big data analytics, scalable cloud-based computing and storage solutions, and cybersecurity platforms that defend systems, data, and networks from digital threats. These businesses are central to powering digital transformation across industries and enabling intelligent, secure, and scalable computing environments. Keywords include AI, NLP, deep learning, image recognition, chatbots, big data, cloud services, and cybersecurity.
 
-Given this L6 item:
-Name: {name}
-Description: {desc}
 
-Match it to the most relevant taxonomy paths (you may return more than one if applicable) from the list below:
-
-{taxonomy_block}
-
-Respond in the following format:
-- Mapping 1: L1: ___ | L2: ___ | L3: ___
-- Mapping 2: ...
-Reasoning: Briefly explain why each mapping fits.
-    """.strip()
-
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.3,
-        "max_tokens": 400
-    }
-
-    try:
-        response = requests.post(OPENAI_API_URL, headers=headers, data=json.dumps(payload))
-        response.raise_for_status()
-        content = response.json()
-        return content["choices"][0]["message"]["content"]
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# Apply to each L6 entry
-l6_df['Taxonomy Mapping'] = l6_df.apply(
-    lambda row: map_l6_to_taxonomy(row['L6_NAME'], row['L6_DESCRIPTION']),
-    axis=1
-)
+Companies that cater to lifestyle, leisure, and consumer-centric needs, including those engaged in health and fitness, travel, food, housing, finance, entertainment, and personal goods. These firms typically generate revenue from individual or household spending across categories such as wellness services, popular branded products, tourism and hospitality, home furnishings, financial services, dining, fashion, and digital platforms like social media or streaming. Their offerings often reflect consumer preferences, trends, and discretionary behavior, positioning them closely to evolving lifestyle demands. Keywords include fitness, travel, dining, apparel, entertainment, social media, home goods, financial wellness, and branded consumption.
