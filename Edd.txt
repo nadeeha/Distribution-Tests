@@ -156,3 +156,6 @@ r"^3\.\s*[^:\n]*:\s*((?:.*\n)*?)(?=^\d+\.\s|\Z)"
                 df.to_csv(csv_file, index=False)
 
                 st.success("Question and answer saved to CSV.")
+
+
+pattern = r"^[ \t]*(\d+)\.\s*.*?:\s*((?:.*\n)*?)(?=^[ \t]*\d+\.\s|\Z)"
