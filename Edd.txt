@@ -148,7 +148,7 @@ print("Done. Results saved to 'biodiversity_assessment_l2_grouped.csv'")text_are
 
                 # Add the question and answer to the DataFrame
                 new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context], 'question': [question], 'answer': [answer]})
-
+r"^3\.\s*[^:\n]*:\s*((?:.*\n)*?)(?=^\d+\.\s|\Z)"
                 # Concatenate the new row with the existing DataFrame
                 df = pd.concat([df, new_row], ignore_index=True)
 
