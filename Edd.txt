@@ -1,43 +1,119 @@
-import streamlit as st
 import pandas as pd
-from custom_functions import extract_context, summarize_context  # Assuming both functions are imported
+import ast
+import openai
+import time
+import re
 
-# Initialize or load CSV to store results
-csv_file = 'extracted_contexts.csv'
+# ==== CONFIG ====
+openai.api_key = "your-openai-api-key"  # Replace this
+file_path = "your_file.csv"             # Replace with your actual CSV
 
-# Check if the CSV exists, otherwise create it
-if not os.path.exists(csv_file):
-    df = pd.DataFrame(columns=['pdf_name', 'keyword', 'context', 'question', 'answer'])
-    df.to_csv(csv_file, index=False)
-else:
-    df = pd.read_csv(csv_file)
+# ==== LOAD DATA ====
+df = pd.read_csv(file_path)
 
-st.title("ESG Document Analyzer for EDD Scoring")
+# ==== PARSE FUNCTION ====
+def parse_internal_clusters(cluster_str):
+    try:
+        cluster_data = ast.literal_eval(cluster_str)
+        data = {k: v for k, v in cluster_data}
+        return {
+            "center": data.get("center", "N/A"),
+            "nodes": data.get("node", []),
+            "similarity": data.get("similarity", "N/A"),
+            "distance": data.get("distance", "N/A")
+        }
+    except Exception:
+        return {
+            "center": "ParseError",
+            "nodes": [],
+            "similarity": "N/A",
+            "distance": "N/A"
+        }
 
-# Step 1: Upload PDF file
-uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
+# ==== PROMPT BUILDER ====
+def create_grouped_prompt(cluster_id, label_group, group_df):
+    l2_sim = group_df["L2_Similarity"].iloc[0]
+    l2_ai = group_df["L2_AI"].iloc[0]
 
-if uploaded_pdf is not None:
-    pdf_name = uploaded_pdf.name
-    st.write(f"Uploaded file: {pdf_name}")
+    subcluster_blocks = []
+    for _, row in group_df.iterrows():
+        cluster_info = parse_internal_clusters(row["internal clusters"])
+        nodes_formatted = "\n    - " + "\n    - ".join(cluster_info["nodes"])
+        subcluster_blocks.append(
+            f"""Subcluster:
+    Center: {cluster_info["center"]}
+    Activities:{nodes_formatted}
+    Similarity Score: {cluster_info["similarity"]}
+    Distance: {cluster_info["distance"]}\n"""
+        )
 
-    # Step 2: Input keyword
-    keyword = st.text_input("Enter the keyword to extract context")
+    all_subclusters = "\n".join(subcluster_blocks)
 
-    if keyword:
-        # Step 3: Check if keyword already exists in the CSV for this PDF
-        existing_entry = df[(df['pdf_name'] == pdf_name) & (df['keyword'].str.lower() == keyword.lower())]
+    return f"""You are a biodiversity impact analyst. Below is a cluster of economic activities, represented by multiple subclusters. Each subcluster has a center activity and related economic actions. Two potential labels for the overall cluster are provided — one from a similarity-based method and one from an AI model.
 
-        if not existing_entry.empty:
-            # If found, return the context from the CSV
-            context = existing_entry['context'].values[0]
-            st.text_area("Context from CSV (Previously Extracted):", value=context, height=300)
-        else:
-            # If not found, process the uploaded PDF in-memory
-            context = extract_context(uploaded_pdf, keyword)
+Your task is to:
 
-            # Display extracted context in standardized font size
-            st.text_area("Extracted Context:", value=context, height=300)
+Biodiversity Assessment
+1. Summarize the core economic focus of this cluster.
+2. Relevance to Biodiversity: Is the theme relevant to biodiversity? Why or why not?
+3. Impact Type: If relevant, does it have a positive, negative, or mixed impact? Explain your reasoning.
+4. Confidence Score: From 1 (low) to 5 (very confident).
+
+L2 Label Evaluation
+5. Between the Similarity-Based Label and AI-Inferred Label, which better represents this cluster? Why?
+6. If both are poor, suggest a better short label for the theme.
+
+---
+Cluster ID: {cluster_id}
+Subgrouped Label: {label_group}
+Similarity-Based Label: {l2_sim}
+AI-Inferred Label: {l2_ai}
+
+Subclusters:
+{all_subclusters}
+"""
+
+# ==== GPT CALL ====
+def gpt_response(prompt):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# ==== MAIN PROCESSING LOOP ====
+results = []
+grouped = df.groupby(["Semantic Cluster ID", "L2_label & Similarity"])
+
+for (cluster_id, label_group), group_df in grouped:
+    prompt = create_grouped_prompt(cluster_id, label_group, group_df)
+    response_text = gpt_response(prompt)
+    time.sleep(1.5)
+
+    # Parse structured results
+    impact_type = re.search(r"3\. Impact: (.*?)\n", response_text)
+    confidence = re.search(r"4\. Confidence: (\d)", response_text)
+    preferred_label = re.search(r"5\. .*?Label.*?: (.*?)\n", response_text)
+    suggested_label = re.search(r"6\. .*?label.*?: (.*?)$", response_text)
+
+    results.append({
+        "Semantic Cluster ID": cluster_id,
+        "L2_label & Similarity": label_group,
+        "GPT_Response": response_text,
+        "Impact_Type": impact_type.group(1).strip() if impact_type else "",
+        "Confidence": int(confidence.group(1)) if confidence else "",
+        "Preferred_Label_Source": preferred_label.group(1).strip() if preferred_label else "",
+        "Suggested_L2_Label": suggested_label.group(1).strip() if suggested_label else ""
+    })
+
+# ==== SAVE OUTPUT ====
+output_df = pd.DataFrame(results)
+output_df.to_csv("biodiversity_assessment_l2_grouped.csv", index=False)
+print("Done. Results saved to 'biodiversity_assessment_l2_grouped.csv'")text_area("Extracted Context:", value=context, height=300)
 
             # Create a new DataFrame with the new row
             new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context]})
