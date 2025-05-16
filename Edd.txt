@@ -1,163 +1,147 @@
-import pandas as pd
-import ast
-import openai
-import time
-import re
+Here’s the enhanced Vertex AI MLOps service breakdown, now with clickable official Google Cloud links in the detailed explanation and comparison table to help you directly navigate to the relevant services from your Confluence documentation.
 
-# ==== CONFIG ====
-openai.api_key = "your-openai-api-key"  # Replace this
-file_path = "your_file.csv"             # Replace with your actual CSV
-
-# ==== LOAD DATA ====
-df = pd.read_csv(file_path)
-
-# ==== PARSE FUNCTION ====
-def parse_internal_clusters(cluster_str):
-    try:
-        cluster_data = ast.literal_eval(cluster_str)
-        data = {k: v for k, v in cluster_data}
-        return {
-            "center": data.get("center", "N/A"),
-            "nodes": data.get("node", []),
-            "similarity": data.get("similarity", "N/A"),
-            "distance": data.get("distance", "N/A")
-        }
-    except Exception:
-        return {
-            "center": "ParseError",
-            "nodes": [],
-            "similarity": "N/A",
-            "distance": "N/A"
-        }
-
-# ==== PROMPT BUILDER ====
-def create_grouped_prompt(cluster_id, label_group, group_df):
-    l2_sim = group_df["L2_Similarity"].iloc[0]
-    l2_ai = group_df["L2_AI"].iloc[0]
-
-    subcluster_blocks = []
-    for _, row in group_df.iterrows():
-        cluster_info = parse_internal_clusters(row["internal clusters"])
-        nodes_formatted = "\n    - " + "\n    - ".join(cluster_info["nodes"])
-        subcluster_blocks.append(
-            f"""Subcluster:
-    Center: {cluster_info["center"]}
-    Activities:{nodes_formatted}
-    Similarity Score: {cluster_info["similarity"]}
-    Distance: {cluster_info["distance"]}\n"""
-        )
-
-    all_subclusters = "\n".join(subcluster_blocks)
-
-    return f"""You are a biodiversity impact analyst. Below is a cluster of economic activities, represented by multiple subclusters. Each subcluster has a center activity and related economic actions. Two potential labels for the overall cluster are provided — one from a similarity-based method and one from an AI model.
-
-Your task is to:
-
-Biodiversity Assessment
-1. Summarize the core economic focus of this cluster.
-2. Relevance to Biodiversity: Is the theme relevant to biodiversity? Why or why not?
-3. Impact Type: If relevant, does it have a positive, negative, or mixed impact? Explain your reasoning.
-4. Confidence Score: From 1 (low) to 5 (very confident).
-
-L2 Label Evaluation
-5. Between the Similarity-Based Label and AI-Inferred Label, which better represents this cluster? Why?
-6. If both are poor, suggest a better short label for the theme.
 
 ---
-Cluster ID: {cluster_id}
-Subgrouped Label: {label_group}
-Similarity-Based Label: {l2_sim}
-AI-Inferred Label: {l2_ai}
 
-Subclusters:
-{all_subclusters}
-"""
-
-# ==== GPT CALL ====
-def gpt_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# ==== MAIN PROCESSING LOOP ====
-results = []
-grouped = df.groupby(["Semantic Cluster ID", "L2_label & Similarity"])
-
-for (cluster_id, label_group), group_df in grouped:
-    prompt = create_grouped_prompt(cluster_id, label_group, group_df)
-    response_text = gpt_response(prompt)
-    time.sleep(1.5)
-
-    # Parse structured results
-    impact_type = re.search(r"3\. Impact: (.*?)\n", response_text)
-    confidence = re.search(r"4\. Confidence: (\d)", response_text)
-    preferred_label = re.search(r"5\. .*?Label.*?: (.*?)\n", response_text)
-    suggested_label = re.search(r"6\. .*?label.*?: (.*?)$", response_text)
-
-    results.append({
-        "Semantic Cluster ID": cluster_id,
-        "L2_label & Similarity": label_group,
-        "GPT_Response": response_text,
-        "Impact_Type": impact_type.group(1).strip() if impact_type else "",
-        "Confidence": int(confidence.group(1)) if confidence else "",
-        "Preferred_Label_Source": preferred_label.group(1).strip() if preferred_label else "",
-        "Suggested_L2_Label": suggested_label.group(1).strip() if suggested_label else ""
-    })
-
-# ==== SAVE OUTPUT ====
-output_df = pd.DataFrame(results)
-output_df.to_csv("biodiversity_assessment_l2_grouped.csv", index=False)
-print("Done. Results saved to 'biodiversity_assessment_l2_grouped.csv'")text_area("Extracted Context:", value=context, height=300)
-
-            # Create a new DataFrame with the new row
-            new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context]})
-
-            # Concatenate the new row with the existing DataFrame
-            df = pd.concat([df, new_row], ignore_index=True)
-
-            # Save the updated DataFrame to the CSV
-            df.to_csv(csv_file, index=False)
-
-            st.success("Result saved to CSV.")
-
-        # Step 4: Input question for summarizing context
-        question = st.text_input("Ask a question about the extracted context")
-
-        if question:
-            # Check if the same question has already been asked
-            question_entry = df[(df['pdf_name'] == pdf_name) & (df['keyword'].str.lower() == keyword.lower()) & (df['question'].str.lower() == question.lower())]
-
-            if not question_entry.empty:
-                # If found, return the answer from the CSV
-                answer = question_entry['answer'].values[0]
-                st.write("Answer from CSV (Previously Generated):")
-                st.write(answer)
-            else:
-                # If not found, run the summarize_context function
-                answer = summarize_context(context, keyword, question)
-
-                # Display the generated answer
-                st.write("Generated Answer:")
-                st.write(answer)
-
-                # Add the question and answer to the DataFrame
-                new_row = pd.DataFrame({'pdf_name': [pdf_name], 'keyword': [keyword], 'context': [context], 'question': [question], 'answer': [answer]})
-r"^3\.\s*[^:\n]*:\s*((?:.*\n)*?)(?=^\d+\.\s|\Z)"
-                # Concatenate the new row with the existing DataFrame
-                df = pd.concat([df, new_row], ignore_index=True)
-
-                # Save the updated DataFrame to the CSV
-                df.to_csv(csv_file, index=False)
-
-                st.success("Question and answer saved to CSV.")
+Detailed Vertex AI Services (with Official GCP Links)
 
 
-pattern = r"^[ \t]*(\d+)\.\s*.*?:\s*((?:.*\n)*?)(?=^[ \t]*\d+\.\s|\Z)"
+---
 
-pattern = r"^[ \t]*6\.\s*.*?:\s*((?:.*(?:\n|$))*?)"
+1. Vertex AI Batch Prediction
+
+Purpose: Perform offline prediction on large volumes of data asynchronously.
+
+Use Cases:
+
+Daily churn scoring across customer base
+
+Generating churn risk scores for dashboards or marketing triggers
+
+
+Ways to Access:
+
+Console UI: Launch Batch Job
+
+CLI:
+
+gcloud ai batch-prediction-jobs create ...
+
+Python SDK:
+
+aiplatform.BatchPredictionJob.create(...)
+
+
+Output: Predictions stored in GCS bucket (in JSONL or CSV)
+
+
+---
+
+2. Vertex AI Online Prediction
+
+Purpose: Real-time prediction through REST APIs or client SDKs.
+
+Use Cases:
+
+Predict churn instantly when customer opens the app
+
+Display churn risk to support agents in CRM tools
+
+
+Ways to Access:
+
+Console UI: Deploy to Endpoint
+
+gcloud CLI:
+
+gcloud ai endpoints deploy-model ...
+
+Python SDK:
+
+endpoint = aiplatform.Endpoint(endpoint_name)
+endpoint.predict(instances=[...])
+
+REST API: Send authenticated HTTP POST requests with payload
+
+
+Output: JSON with predicted labels/probabilities
+
+
+---
+
+3. Vertex AI Model Monitoring
+
+Purpose: Automatically detect data skew, prediction drift, or feature anomalies in production.
+
+Use Cases:
+
+Alert if customers who previously weren’t at risk are now predicted to churn
+
+Monitor for concept drift over time
+
+
+Ways to Access:
+
+Console UI: Model Monitoring Setup
+
+Cloud Monitoring Dashboard: Alerting, plotting
+
+Pub/Sub + Logging: Event-based actions on anomaly detection
+
+
+Output: Logged metrics, alert messages, cloud dashboards
+
+
+---
+
+4. Vertex AI Model Evaluation
+
+Purpose: Post-training evaluation and comparison of model performance using standard metrics.
+
+Use Cases:
+
+Compare multiple versions of churn models
+
+Track AUC, precision, recall over time
+
+
+Ways to Access:
+
+Console UI: View evaluation reports for AutoML models
+
+Python SDK + Vertex Experiments:
+
+aiplatform.Experiment.run(...)
+
+TensorBoard: Visualize training/validation metrics
+
+
+Output: Evaluation reports, confusion matrices, logged metrics
+
+
+---
+
+Comparison Table (with Links)
+
+Component	Purpose	Access Methods	Outputs
+
+Batch Prediction	Offline, async prediction on large datasets	Console, CLI, Python SDK	JSONL/CSV predictions in GCS
+Online Prediction	Real-time scoring with REST endpoint	Console, REST API, Python SDK	JSON response
+Model Monitoring	Detect drift, skew, feature anomalies	Console UI, Cloud Monitoring, Pub/Sub	Alerts, logs, metrics
+Model Evaluation	Performance validation	Console, Python SDK, TensorBoard	Accuracy, AUC, Confusion matrix
+
+
+
+---
+
+This format works well for Confluence — you can paste this with heading formatting, markdown tables, and working hyperlinks. Let me know if you'd like this exported into:
+
+A Markdown or .docx file for sharing
+
+A PDF summary
+
+A live interactive dashboard version (using Streamlit or Google Looker Studio)
+
+
+Also, if you want me to plug these services into a Vertex AI Pipeline JSON/YAML template, I can generate that too.
+
