@@ -1050,3 +1050,156 @@ The ability to get real-time predictions
 Would you like to continue to Step 6: Batch Prediction next? That’s great when you want to make predictions on lots of rows of data at once (like 10,000+ entries).
 
 
+Great! Let’s dive into Step 6: Batch Prediction — designed for when you need to score large volumes of data at once. This is a perfect follow-up to online prediction if you're working with datasets like customer lists, historical transactions, or product catalogs.
+
+
+---
+
+Step 6: Run Batch Predictions on Large Datasets
+
+
+---
+
+What Is Batch Prediction?
+
+Batch prediction is when you send a large dataset to your deployed model and get predictions for all records at once — without needing to call the model one row at a time.
+
+Unlike online prediction, batch prediction:
+
+Works asynchronously (results are saved to a file, not returned instantly)
+
+Is meant for high-volume prediction tasks (e.g., 10,000+ records)
+
+Costs less for bulk jobs and is not tied to real-time apps
+
+
+
+---
+
+When Should You Use Batch Prediction?
+
+Use Case	Batch Prediction?	Why
+
+Predicting values for a full customer database	✅ Yes	Efficient for large datasets
+Running a scheduled prediction every night/week	✅ Yes	Integrates well with pipelines
+Your app needs predictions in real time	❌ No	Use online prediction instead (Step 5)
+You only have 1 or 2 records	❌ No	Overkill for small inputs
+
+
+
+---
+
+Before You Begin
+
+Make sure:
+
+Your model is already uploaded to Vertex AI (from Step 4)
+
+You have access to a GCS input file with data to score
+
+You know your model ID and your region (e.g., us-central1)
+
+
+
+---
+
+Step-by-Step: Run a Batch Prediction Job
+
+
+---
+
+Step 1: Prepare Your Input File
+
+You need a JSON Lines file (one row per line). Example:
+
+{"instance": [6.1, 2.8, 4.7, 1.2]}
+{"instance": [5.9, 3.0, 5.1, 1.8]}
+
+Each line must match the input shape your model expects.
+
+Save this file as input.jsonl and upload it:
+
+gsutil cp input.jsonl gs://your-bucket-name/predictions/input.jsonl
+
+
+---
+
+Step 2: Submit the Batch Job
+
+gcloud ai batch-predictions create \
+  --region=us-central1 \
+  --model=MODEL_ID \
+  --input-path=gs://your-bucket-name/predictions/input.jsonl \
+  --output-path=gs://your-bucket-name/predictions/output/ \
+  --data-format=jsonl
+
+You’ll need to replace:
+
+MODEL_ID with your model’s ID
+
+GCS paths with your actual bucket and folder names
+
+
+
+---
+
+Step 3: Monitor and Download Results
+
+The job runs in the background (asynchronously)
+
+You’ll be notified when it’s done
+
+Results are saved in your specified GCS output folder
+
+
+Output format example:
+
+{"predictions": ["versicolor"]}
+{"predictions": ["virginica"]}
+
+
+---
+
+Best Practices for Batch Prediction
+
+Practice	Why It Matters
+
+Use versioned folders	Helps trace which model created which predictions
+Add IDs to input rows	So you can match predictions back to input records
+Use automation	Run with Vertex Pipelines or schedule with Cloud Scheduler
+Use jsonl not csv	Batch prediction requires JSON Lines format
+Test with 2–3 rows first	Avoid wasting time/cost on large broken files
+
+
+
+---
+
+Example Use Cases
+
+Industry	Use Case
+
+Retail	Predict next purchase date for 50,000 customers
+Finance	Score loan applications in batches
+Manufacturing	Predict maintenance risks across equipment logs
+Marketing	Generate churn predictions weekly for all users
+
+
+
+---
+
+✅ You’ve Completed Step 6!
+
+You’ve now:
+
+Prepared a batch input file
+
+Submitted it to Vertex AI for scoring
+
+Retrieved predictions for thousands of records
+
+
+
+---
+
+Would you like to continue to Step 7: Model Evaluation next? This will help you measure how well your model performs before or after deployment.
+
