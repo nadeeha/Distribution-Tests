@@ -493,3 +493,216 @@ One-click deployment option
 
 Would you like me to proceed to Step 3: Train a model with your own custom code next — with the same level of detail and best-practice framing?
 
+------------
+
+Absolutely! Let’s simplify Step 3: Custom Training and walk through it in the clearest, most beginner-friendly way — even if this is your first time writing ML code in the cloud.
+
+
+---
+
+Step 3: Train a Machine Learning Model Using Your Own Code (Custom Training)
+
+
+---
+
+What Does “Custom Training” Mean?
+
+Custom training means you write your own Python code to train a model, and Vertex AI runs it for you on Google Cloud.
+
+Instead of just uploading a dataset (like with AutoML), you:
+
+Choose how the model is built (e.g., use scikit-learn or TensorFlow)
+
+Write the code yourself
+
+Tell Vertex AI where to find the code and run it on powerful machines
+
+
+
+---
+
+Why Would You Use Custom Training?
+
+Situation	Use Custom Training?	Why
+
+You want to learn by coding	✅ Yes	Great way to understand model logic
+You want full control over the training process	✅ Yes	You choose the model type, parameters, and saving logic
+Your use case is complex or unusual	✅ Yes	Custom training gives you flexibility
+You don’t know Python yet	❌ No	Use AutoML instead (Step 2)
+
+
+
+---
+
+What You’ll Do in This Step:
+
+1. Write Python code to load your data and train a model
+
+
+2. Save your code to a folder
+
+
+3. Upload it to Google Cloud
+
+
+4. Let Vertex AI run it for you (like pressing “Run” in the cloud)
+
+
+
+
+---
+
+Step-by-Step: Train a Model with Your Own Code
+
+
+---
+
+Step 1: Write the Code to Train a Model
+
+You’ll write a simple script that:
+
+Loads your dataset
+
+Trains a model
+
+Saves it to a folder
+
+
+Here’s an example using scikit-learn:
+
+# Save this file as trainer/task.py
+
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+import os
+
+# Load the dataset from Cloud Storage
+df = pd.read_csv("gs://your-bucket-name/data/cleaned_data.csv")
+
+# Separate input features and target
+X = df.drop(columns=["target"])  # replace "target" with your column name
+y = df["target"]
+
+# Train the model
+model = RandomForestClassifier()
+model.fit(X, y)
+
+# Save the model
+os.makedirs("model", exist_ok=True)
+joblib.dump(model, "model/model.joblib")
+
+What this code does:
+
+Loads your CSV from Cloud Storage
+
+Trains a model using your code
+
+Saves the trained model in a folder called model/
+
+
+
+---
+
+Step 2: Package Your Code
+
+You need to tell Vertex AI where your code is and what to run.
+
+1. Create a folder called trainer
+
+
+2. Put task.py inside it
+
+
+3. Create an empty file called __init__.py in the same folder
+
+
+4. Compress the folder:
+
+
+
+tar -czf trainer.tar.gz trainer/
+
+
+---
+
+Step 3: Upload to Google Cloud
+
+Upload the zipped file to your Cloud Storage bucket:
+
+gsutil cp trainer.tar.gz gs://your-bucket-name/code/trainer.tar.gz
+
+Now Vertex AI can find and run your training script.
+
+
+---
+
+Step 4: Start the Training Job
+
+Run this command from Cloud Shell or your terminal:
+
+gcloud ai custom-jobs create \
+  --region=us-central1 \
+  --display-name=my-first-custom-job \
+  --python-package-uris=gs://your-bucket-name/code/trainer.tar.gz \
+  --python-module=trainer.task \
+  --machine-type=n1-standard-4
+
+This will:
+
+Start a machine in the cloud
+
+Run your training script
+
+Log everything you print
+
+Save your model files
+
+
+
+---
+
+How Do You Know It Worked?
+
+You’ll see logs in the console — if something breaks, the error will show there
+
+If successful, your model will be saved to the model/ folder you created
+
+You can now upload this model to Vertex AI for predictions (in the next step!)
+
+
+
+---
+
+Best Practices (Beginner Edition)
+
+Tip	Why It Helps
+
+Test your code locally first	It’s easier to debug on your laptop
+Use small sample data when testing	Saves time and cost
+Print logs (e.g., “training started…”)	Helps you see what your code is doing
+Keep file/folder names simple	Avoid uppercase or spaces in paths
+Always save your model to a known folder (like model/)	Vertex AI expects this for easy deployment later
+
+
+
+---
+
+✅ You Finished Step 3!
+
+You now know how to:
+
+Write training code
+
+Package and upload it
+
+Run it in Vertex AI
+
+
+This means you can train any model you want — tree-based, linear regression, deep learning, even PyTorch or TensorFlow.
+
+
+---
+
+Would you like to move on to Step 4: Upload and register your model so it’s ready for deployment?
+
