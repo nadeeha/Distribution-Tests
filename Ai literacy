@@ -78,3 +78,128 @@ Closing Line for This Slide (Optional):
 
 Would you like this formatted as a speaker notes version, or included in a formatted table/slide for pasting into your deck?
 
+
+Great idea — this Zoom poll will help reinforce your Slide 3 (AI vs ML vs DL vs GenAI) in a fun, engaging way. Here's a multiple-question Zoom poll you can launch after the explanation slide to test understanding of which use case fits which AI type.
+
+
+---
+
+Poll Title:
+
+“Which AI Type Is This?”
+
+Poll Format: Multiple-choice (single answer per question)
+
+
+---
+
+Q1. A system predicts which clients are likely to churn based on drop in AUM and behavior patterns.
+
+> What powers this?
+
+
+
+A) AI (rules-based)
+
+B) Traditional Machine Learning
+
+C) Deep Learning
+
+D) Generative AI
+Correct Answer: B) Traditional Machine Learning
+
+
+
+---
+
+Q2. An automated assistant writes a draft of a quarterly fund commentary using internal notes and performance data.
+
+> What is this powered by?
+
+
+
+A) Traditional ML
+
+B) Deep Learning
+
+C) Generative AI
+
+D) Rule-based AI
+Correct Answer: C) Generative AI
+
+
+
+---
+
+Q3. An email monitoring system detects insider trading risk by analyzing sentiment and tone in unstructured communications.
+
+> What type of model likely powers this?
+
+
+
+A) AI
+
+B) ML
+
+C) Deep Learning
+
+D) GenAI
+Correct Answer: C) Deep Learning
+
+
+
+---
+
+Q4. A rules engine blocks a transaction if it’s above a certain threshold and from a flagged geography.
+
+> What’s this an example of?
+
+
+
+A) AI (rules-based)
+
+B) Machine Learning
+
+C) Generative AI
+
+D) Deep Learning
+Correct Answer: A) AI (rules-based)
+
+
+
+---
+
+Q5. You upload an ESG policy and ask a chatbot to summarize the top 3 governance risks.
+
+> What powers this?
+
+
+
+A) Traditional ML
+
+B) GenAI (LLM)
+
+C) Deep Learning
+
+D) Rules-based AI
+Correct Answer: B) GenAI (LLM)
+
+
+
+---
+
+How to Use:
+
+Run this poll after Slide 3 or 4
+
+Show the correct answers live
+
+Use it to reinforce understanding or clear up confusion
+
+
+
+---
+
+Would you like this exported in Zoom CSV format, or want a visual quiz slide version (with emojis or icons) to run as a backup if polls don't work?
+
+
