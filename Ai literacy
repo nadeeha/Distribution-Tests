@@ -1,0 +1,80 @@
+Great! Now that you’ve locked in the visual, here’s a clear, well-worded explanation for each term (AI, ML, Deep Learning, GenAI), each paired with a finance-specific use case that’s simple, relatable, and non-technical — ideal for your mixed audience at HSBC Asset Management.
+
+
+---
+
+1. Artificial Intelligence (AI)
+
+> Definition: AI is the broad field of creating systems that mimic human intelligence to perform tasks like reasoning, learning, and decision-making.
+
+
+
+> Use Case:
+Automated fraud detection using business rules
+Example: If a transaction exceeds $10,000 and originates from a flagged country, the system triggers a hold and escalates to compliance.
+This is traditional, rule-based AI — no learning involved, just logic programmed by humans.
+
+
+
+
+---
+
+2. Machine Learning (ML)
+
+> Definition: ML is a subset of AI that learns patterns from historical data to make predictions or decisions without being explicitly programmed.
+
+
+
+> Use Case:
+Predicting client churn
+Example: A model learns from past client behavior — AUM drop, fewer logins, support requests — and predicts which clients are at risk of leaving.
+The system learns from patterns, and improves as it gets more data.
+
+
+
+
+---
+
+3. Deep Learning (DL)
+
+> Definition: DL is a more advanced form of ML that uses neural networks to find complex patterns in large or unstructured data (like text, images, or audio).
+
+
+
+> Use Case:
+Detecting insider risk from emails or chat logs
+Example: A neural network analyzes employee communications to identify subtle language patterns that suggest misconduct or policy violations.
+These patterns are too complex for humans or simple models to catch — deep learning finds them.
+
+
+
+
+---
+
+4. Generative AI (GenAI)
+
+> Definition: GenAI is a type of deep learning that doesn’t just predict — it creates. It generates new content like text, summaries, code, or even images based on its training.
+
+
+
+> Use Case:
+Auto-generating quarterly fund commentaries
+Example: An LLM reads through fund performance data, market events, and internal notes, then drafts a complete commentary in seconds.
+Analysts then review and customize it, saving hours of work while maintaining compliance.
+
+
+
+
+---
+
+Closing Line for This Slide (Optional):
+
+> “These technologies build on each other — from simple logic to pattern recognition to full-scale content creation. In finance, they help us move faster, be more precise, and focus on judgment, not just processing.”
+
+
+
+
+---
+
+Would you like this formatted as a speaker notes version, or included in a formatted table/slide for pasting into your deck?
+
