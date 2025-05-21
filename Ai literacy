@@ -316,3 +316,96 @@ Mentimeter / Slido template for interactive use?
 Would you like this exported in Zoom CSV format, or want a visual quiz slide version (with emojis or icons) to run as a backup if polls don't work?
 
 
+Absolutely! Let’s go deeper and cover two powerful prompt engineering techniques, each with a clear structure, detailed finance-relevant examples, and why they work. These are techniques that even non-technical users can apply to dramatically improve the quality of GenAI outputs.
+
+
+---
+
+Technique 1: Role + Task + Context + Format Prompting
+
+Structure:
+
+> “You are a [role]. Your task is to [do something]. Use the following context: [data, content, or document]. Output in [specific format].”
+
+
+
+Example (Finance – Fund Performance Summary):
+
+> “You are a fund manager. Your task is to summarize Q2 2025 performance of our multi-asset income fund. Use the following context: global equities underperformed, fixed income provided downside protection, and USD strength impacted EM exposure. Provide 3 bullet points followed by a 1-paragraph summary in a professional tone.”
+
+
+
+Why It Works:
+
+Role sets tone and expertise
+
+Task sets output expectation
+
+Context ensures relevance
+
+Format controls structure and readability
+
+
+
+---
+
+Technique 2: Step-by-Step Decomposition (Chain-of-Thought Prompting)
+
+Structure:
+
+> Ask the model to break down the problem step by step before providing an answer.
+
+
+
+Example (Finance – Analyzing Underperformance):
+
+> “The equity portfolio underperformed its benchmark in Q3. First, identify potential macroeconomic drivers. Next, analyze sector-level allocation differences. Then, summarize how these factors contributed to underperformance. Provide your analysis step-by-step, then give a final summary.”
+
+
+
+Why It Works:
+
+Encourages structured reasoning
+
+Reduces hallucination
+
+Mimics how a human analyst would think aloud
+
+
+
+---
+
+Optional Add-on: Format Enhancer Prompts
+
+You can attach these to any prompt for extra polish:
+
+“Use a professional tone, suitable for clients.”
+
+“Limit to 100 words.”
+
+“Respond as a numbered list with headers.”
+
+“Use bold to highlight key metrics.”
+
+
+
+---
+
+Visual Slide Suggestion (if you’re adding to your deck):
+
+Make a 2x2 card layout:
+
+Top-left: Role + Task + Context + Format (structure + finance example)
+
+Top-right: Step-by-step prompting (structure + example)
+
+Bottom-left: Why these work
+
+Bottom-right: Bonus format cues to copy/paste
+
+
+
+---
+
+Would you like me to format this into a cheat sheet slide or printable reference page for your audience? Or add 1–2 techniques that work well in Excel, policy review, or client emails?
+
