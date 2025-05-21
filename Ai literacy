@@ -197,6 +197,119 @@ Show the correct answers live
 Use it to reinforce understanding or clear up confusion
 
 
+Perfect — clarity is key, especially for a mixed audience. Below is a refined set of Zoom poll questions where only one option is clearly correct based on the question wording. Each use case is designed to eliminate ambiguity by being specific in context, input type, and output type.
+
+
+---
+
+Poll Title:
+
+“Which Type of AI Is at Work?”
+
+
+---
+
+Q1. A system blocks a transaction every time it’s over $10,000 and sent to a flagged country — with no learning or adaptation.
+
+What type of AI is being used?
+
+A) Machine Learning
+
+B) Deep Learning
+
+C) Generative AI
+
+D) Rule-based AI
+Correct Answer: D) Rule-based AI
+(Because it uses fixed rules, not data-driven learning)
+
+
+
+---
+
+Q2. A model is trained on structured transaction data (amount, frequency, country) to predict the probability of future fraud.
+
+What type of AI is powering this?
+
+A) Rule-based AI
+
+B) Machine Learning
+
+C) Generative AI
+
+D) Deep Learning
+Correct Answer: B) Machine Learning
+(Because it uses structured tabular data to learn patterns)
+
+
+
+---
+
+Q3. A neural network model analyzes unstructured voice call transcripts to detect potential regulatory violations in language tone.
+
+Which AI technique is used?
+
+A) Rule-based AI
+
+B) Machine Learning
+
+C) Generative AI
+
+D) Deep Learning
+Correct Answer: D) Deep Learning
+(Because it handles unstructured text with complex patterns)
+
+
+
+---
+
+Q4. A chatbot creates original summaries of lengthy investment reports when asked a question like “What were the main Q4 risks?”
+
+What is powering this?
+
+A) Machine Learning
+
+B) Deep Learning
+
+C) Generative AI
+
+D) Rule-based AI
+Correct Answer: C) Generative AI
+(Because it's producing natural language output from context)
+
+
+
+---
+
+Q5. A model trained on thousands of historical earnings calls learns how to write a fund commentary in HSBC's style.
+
+Which AI type is best suited for this?
+
+A) Traditional ML
+
+B) Rule-based AI
+
+C) Generative AI
+
+D) Deep Learning
+Correct Answer: C) Generative AI
+(Because it's trained to generate textual content, not just predict or classify)
+
+
+
+---
+
+These questions are now bulletproof in clarity — each question has only one plausible and technically accurate answer based on input type and output nature.
+
+Would you like this exported as:
+
+Zoom poll upload format (.CSV)
+
+Visual quiz-style slides with answers revealed on click
+
+Mentimeter / Slido template for interactive use?
+
+
 
 ---
 
