@@ -241,3 +241,113 @@ Box 5: Mapping to FactSet L6
 
 Would you like a slide or visual generated for this too?
 
+
+
+__________
+
+Here’s a clean and structured flow + write-up for your next slide on automating information extraction from reports using GenAI (API-based approach):
+
+
+---
+
+Slide Title: Automating ESG Report Information Retrieval with GenAI APIs
+
+
+---
+
+Context:
+
+Manual Effort Limitation: A sample extraction was previously done using a UI-based GenAI tool.
+
+Objective: Test a scalable, API-driven approach to extract key insights across multiple sustainability reports.
+
+
+
+---
+
+Step-by-Step Process: API-Based Extraction Pipeline
+
+1. Input Collection
+
+Documents: Company ESG or sustainability reports (PDFs)
+
+Task: Extract specific KPIs (e.g., renewable energy use, green steel %)
+
+
+
+---
+
+2. Preprocessing
+
+Page Parsing: Extract text and page numbers from each PDF
+
+Chunking: Use RecursiveCharacterTextSplitter to break long text into overlapping, meaningful chunks for embedding
+
+
+
+---
+
+3. Embedding Creation
+
+Model: MiniLM (Lightweight transformer model)
+
+Output: Embeddings + metadata (e.g., page number, source)
+
+Storage: Built a FAISS Vector Store to enable fast similarity search
+
+
+
+---
+
+4. Query and Retrieval
+
+Query Input: Human-defined or pre-coded prompt (e.g., "What is the % of green steel produced?")
+
+Similarity Search: Retrieve top-N relevant chunks from the FAISS store
+
+LLM Answering: Send query + top chunks to GPT-4o mini via API
+
+
+
+---
+
+5. Output Storage
+
+Result: Structured output with:
+
+Answer
+
+Confidence (optional)
+
+Source page
+
+
+Final Storage: Compiled into an Excel sheet for downstream analysis
+
+
+
+---
+
+Why This Approach Works
+
+Scalable: Works on 10s–100s of reports without UI/manual input
+
+Transparent: Traceable page-level outputs
+
+Efficient: Faster than fully manual GenAI UI workflows
+
+
+
+---
+
+Optional Visual Suggestion:
+
+Use a horizontal pipeline diagram with these labeled blocks:
+
+> PDF Reports → Page Extractor → Chunking → MiniLM Embedding → FAISS Index → GPT-4o Retrieval → Excel Output
+
+
+
+Would you like this turned into a diagram or slide visual too?
+
+
