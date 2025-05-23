@@ -141,3 +141,103 @@ Use a flowchart with vertical swimlanes:
 
 Would you like me to generate this flow as a diagram or slide visual?
 
+________
+
+Here’s a structured slide flow and write-up for “Validation of Economic Activity Clusters for Biodiversity” that aligns with your narrative:
+
+
+---
+
+Slide Title: Validating Biodiversity Economic Activity Clusters using GenAI
+
+
+---
+
+Step 1: Initial Extraction by Group Ventures & Innovation
+
+Input: ESG/Science/Policy documents related to biodiversity.
+
+Output: Over 10,000 unique economic activities extracted for potential biodiversity relevance.
+
+Challenge: Too voluminous for manual SME (Subject Matter Expert) review.
+
+
+
+---
+
+Step 2: Clustering for Manageability
+
+Action: Grouped 10,000+ economic activities into ~400 semantic clusters of similar activities using NLP techniques or vector-based similarity.
+
+Objective: Make SME validation more feasible.
+
+Challenge: Still too large and complex for exhaustive human evaluation.
+
+
+
+---
+
+Step 3: GenAI-Based Cluster Validation
+
+Tool: GPT-4 or fine-tuned LLMs guided by domain-specific prompts.
+
+Validation Criteria:
+
+Impact Type: What kind of biodiversity impact is associated? (e.g., positive, neutral, negative)
+
+Confidence Level: How certain is the model about this impact? (e.g., High/Medium/Low)
+
+Preferred Label: A concise, human-readable label for the cluster
+
+Suggested Alternative Label: If preferred label is ambiguous or misleading
+
+
+
+
+---
+
+Step 4: Shortlisting and Mapping
+
+Outcome: GenAI-validated shortlist of high-confidence clusters with:
+
+Clear biodiversity relevance
+
+Suitable for SME review
+
+Mapped to FactSet L6 revenue segments where possible
+
+
+
+
+---
+
+Key Benefits of GenAI in This Process
+
+Scalability: Reduced manual effort significantly
+
+Explainability: Generated rationales for impact type and label choices
+
+Efficiency: Prioritized meaningful clusters for deeper human validation
+
+
+
+---
+
+Optional Visual:
+
+Funnel Diagram or Layered Box Flowchart:
+
+Box 1: 10K+ Economic Activities →
+
+Box 2: ~400 Clusters (Semantic Grouping) →
+
+Box 3: GenAI Review (Impact Type, Confidence, Labels) →
+
+Box 4: Final Validated Clusters →
+
+Box 5: Mapping to FactSet L6
+
+
+
+Would you like a slide or visual generated for this too?
+
