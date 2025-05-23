@@ -1,0 +1,143 @@
+Here's a clear and structured flow for your presentation slide with step-wise write-ups. This will help narrate the journey from raw FactSet revenue data to thematic tagging and green share calculation using GenAI and taxonomy mapping:
+
+
+---
+
+Slide Title: From FactSet Revenue Data to Thematic Green Share Tagging
+
+
+---
+
+Step 1: FactSet Revenue Data (L1 to L6)
+
+Input: Structured revenue segmentation from FactSet at multiple levels (L1 → L6).
+
+Purpose: Provides granular business activity data for ~40,000+ companies.
+
+Example:
+
+L1: Industrials
+
+L6: Waste Recycling Services
+
+
+
+
+---
+
+Step 2: Master File Creation — Inclusion/Exclusion Decision
+
+Objective: Classify L6 revenue items as “Include” or “Exclude” for green tagging.
+
+Basis of Decision:
+
+ESG frameworks (e.g., EU Taxonomy, GFANZ)
+
+Thematic reference documents (e.g., Ellen MacArthur Foundation for Circular Economy)
+
+Existing off-the-shelf mappings from data providers or domain experts.
+
+
+Themes Considered:
+
+Circular Economy
+
+Climate Adaptation
+
+Climate Mitigation
+
+
+
+
+---
+
+Step 3: Thematic Taxonomy Development
+
+Process:
+
+Build multi-level taxonomies for each theme (e.g., Circular Economy → Material Efficiency → Recycling).
+
+Structure the taxonomy with L1 → L2 → L3 layers (not all branches may have L3).
+
+
+Source: Human + AI-assisted curation using policy papers, frameworks, and GenAI insights.
+
+
+
+---
+
+Step 4: GenAI-Assisted Mapping (Taxonomy → L6 Revenue Items)
+
+Tool: GPT-4 or domain-tuned LLMs
+
+Function: Map each L6 to relevant taxonomy paths for each theme based on semantic understanding.
+
+Outcome: Every L6 (if “included”) is assigned a hierarchical tag (e.g., Circular Economy > Recycling > Industrial Waste).
+
+
+
+---
+
+Step 5: Tagging Companies Using FactSet Revenue Data
+
+Action: Match L6s from the master file to each company’s revenue profile.
+
+If L6 is “Include”:
+
+Tag it to the correct theme and hierarchy path.
+
+Use this for green share calculation — % of revenue from green-aligned activities.
+
+
+
+
+---
+
+Step 6: Green Share Calculation
+
+Formula:
+
+
+\text{Green Share} = \frac{\sum \text{Revenue from Included L6s}}{\sum \text{Total Revenue}}
+
+
+---
+
+Step 7: Biodiversity Theme (Ongoing Work by Group Ventures & Innovation)
+
+Status: Early-stage — Limited public documentation
+
+Challenge: Lack of structured external frameworks to anchor inclusion/exclusion decisions.
+
+Approach: Collaborative research, possibly domain-expert interviews, and exploratory GenAI applications.
+
+
+
+---
+
+Optional Visual:
+
+Use a flowchart with vertical swimlanes:
+
+1. Data Input (FactSet L1–L6)
+
+
+2. Filtering (Master File Inclusion/Exclusion)
+
+
+3. Taxonomy Creation
+
+
+4. AI Mapping (L6 → Themes)
+
+
+5. Company Tagging
+
+
+6. Green Share Output
+
+
+
+
+Would you like me to generate this flow as a diagram or slide visual?
+
