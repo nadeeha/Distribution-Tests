@@ -1,58 +1,50 @@
-import os
-from openpyxl import load_workbook
-from openpyxl.drawing.image import Image
-from PIL import Image as PILImage  # To get the size of the image
+def build_validation_prompt(row, theme_definitions):
+    theme = row['Assigned_Theme']
+    theme_def = theme_definitions.get(theme, "No definition provided")
 
-# Step 1: Load the Excel file and access the "Outlier Details" sheet
-excel_file_path = 'example.xlsx'  # Path to your Excel file
-graphs_folder = 'Graphs'  # Path to the folder where graph images are stored
-workbook = load_workbook(excel_file_path)
-sheet = workbook['Outlier Details']  # Access the 'Outlier Details' sheet
+    prompt = f"""
+You are a domain expert in ESG and thematic investing. Your task is to validate whether a revenue stream reasonably fits into a given investment theme.
 
-# Step 2: Find the 'Column' column in the "Outlier Details" sheet
-column_index = None
-for col in sheet.iter_cols(1, sheet.max_column):
-    if col[0].value == "Column":  # Locate the column named 'Column'
-        column_index = col[0].column
-        break
+Even if the connection is loose, conceptual, or economic, that’s acceptable. Be generous in interpretation.
 
-if column_index is None:
-    raise ValueError("Column 'Column' not found in the 'Outlier Details' sheet.")
+Theme: {theme}
+Definition: {theme_def}
 
-# Step 3: Add a new header for the 'Graph' column if it doesn't already exist
-graph_column_index = sheet.max_column + 1
-sheet.cell(row=1, column=graph_column_index, value='Graph')  # Add 'Graph' header
+Revenue Stream Info:
+L1: {row['L1']}
+L2: {row['L2']}
+L3: {row['L3']}
+L4: {row['L4']}
+L5: {row['L5']}
+L6: {row['L6']}
+Description: {row['Description']}
 
-# Step 4: Function to adjust the row height based on image size
-def adjust_row_height(sheet, row, img_path):
-    img = PILImage.open(img_path)
-    width, height = img.size
-    img.close()
+Return only one of the following:
+- "Valid Theme Match"
+- "Possibly Related – Needs Review"
+- "Invalid Match"
+""".strip()
 
-    # Excel row height is measured in points, where 1 point = 1/72 inch
-    # Assuming 96 DPI (dots per inch), we calculate the height in points
-    row_height = height * (72 / 96)  # Convert image height (px) to points
-    sheet.row_dimensions[row].height = row_height
+    return prompt
 
-# Step 5: Loop through the rows of the 'Column' column, and insert the corresponding graph image
-for row in range(2, sheet.max_row + 1):  # Start from row 2 to skip the header
-    column_value = sheet.cell(row=row, column=column_index).value
-    graph_image_path = os.path.join(graphs_folder, f'image_name_{column_value}.png')
 
-    # Check if the corresponding graph image exists
-    if os.path.exists(graph_image_path):
-        # Load the image
-        img = Image(graph_image_path)
 
-        # Adjust the row height to fit the image
-        adjust_row_height(sheet, row, graph_image_path)
+from tqdm import tqdm
+import openai
 
-        # Insert the image into the corresponding row of the new 'Graph' column
-        img.anchor = sheet.cell(row=row, column=graph_column_index).coordinate
-        sheet.add_image(img)
-    else:
-        print(f"Graph image not found for column value {column_value}")
+openai.api_key = "YOUR_OPENAI_KEY"
 
-# Step 6: Save the modified Excel file
-workbook.save(excel_file_path)
-print("Graphs successfully inserted into the 'Outlier Details' sheet with adjusted row heights.")
+def validate_theme(row, theme_definitions):
+    prompt = build_validation_prompt(row, theme_definitions)
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
+    )
+    
+    return response.choices[0].message["content"].strip()
+
+# Add progress bar and apply
+tqdm.pandas()
+df['Validation_Result'] = df.progress_apply(lambda row: validate_theme(row, theme_definitions), axis=1)
