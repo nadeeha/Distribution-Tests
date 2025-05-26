@@ -48,3 +48,42 @@ def validate_theme(row, theme_definitions):
 # Add progress bar and apply
 tqdm.pandas()
 df['Validation_Result'] = df.progress_apply(lambda row: validate_theme(row, theme_definitions), axis=1)
+
+
+
+
+
+
+
+import openai
+import pandas as pd
+from tqdm import tqdm
+
+openai.api_key = "YOUR_OPENAI_KEY"
+
+def validate_theme(row, theme_definitions):
+    prompt = build_validation_prompt(row, theme_definitions)
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
+    )
+    
+    content = response.choices[0].message["content"].strip()
+    
+    # Extract answer and reason
+    try:
+        validation = content.split("Validation:")[1].split("Reason:")[0].strip().strip('"')
+        reason = content.split("Reason:")[1].strip()
+    except Exception:
+        validation, reason = "ParseError", content
+
+    return pd.Series([validation, reason], index=["Validation_Result", "Validation_Reason"])
+
+# Run with progress bar
+tqdm.pandas()
+df[["Validation_Result", "Validation_Reason"]] = df.progress_apply(
+    lambda row: validate_theme(row, theme_definitions),
+    axis=1
+)
