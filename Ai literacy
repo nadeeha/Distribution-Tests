@@ -1,411 +1,500 @@
-Great! Now that you’ve locked in the visual, here’s a clear, well-worded explanation for each term (AI, ML, Deep Learning, GenAI), each paired with a finance-specific use case that’s simple, relatable, and non-technical — ideal for your mixed audience at HSBC Asset Management.
+Speaker Notes for Slide 1 – “AI Literacy”
 
-
----
-
-1. Artificial Intelligence (AI)
-
-> Definition: AI is the broad field of creating systems that mimic human intelligence to perform tasks like reasoning, learning, and decision-making.
+> "Hi everyone! Thanks so much for joining this Lunch & Learn. I know your calendars are full, and I really appreciate you making time for this session.
 
 
 
-> Use Case:
-Automated fraud detection using business rules
-Example: If a transaction exceeds $10,000 and originates from a flagged country, the system triggers a hold and escalates to compliance.
-This is traditional, rule-based AI — no learning involved, just logic programmed by humans.
+> Today, we're diving into something that’s already reshaping our work, whether we realize it or not — Artificial Intelligence. This isn’t just about ChatGPT or automation buzzwords — it’s about how AI is becoming a true partner in decision-making, analysis, and even creativity.
 
 
 
-
----
-
-2. Machine Learning (ML)
-
-> Definition: ML is a subset of AI that learns patterns from historical data to make predictions or decisions without being explicitly programmed.
+> This session is for all of us — whether you’re already using AI in your day-to-day or still unsure what all the hype is about. My goal is to demystify AI in a way that’s real, relevant, and tailored for us in finance.
 
 
 
-> Use Case:
-Predicting client churn
-Example: A model learns from past client behavior — AUM drop, fewer logins, support requests — and predicts which clients are at risk of leaving.
-The system learns from patterns, and improves as it gets more data.
+> So let’s make this interactive, keep it informal, and hopefully, you’ll walk out with a few practical takeaways — and maybe even a bit of excitement for what’s possible."
+
+Speaker Notes for Slide 2 – Agenda
+
+> “So here’s a quick look at what we’re going to cover today.
 
 
 
-
----
-
-3. Deep Learning (DL)
-
-> Definition: DL is a more advanced form of ML that uses neural networks to find complex patterns in large or unstructured data (like text, images, or audio).
+> We’ll start with why AI matters — not just in the tech world, but specifically in our world of finance and asset management.
 
 
 
-> Use Case:
-Detecting insider risk from emails or chat logs
-Example: A neural network analyzes employee communications to identify subtle language patterns that suggest misconduct or policy violations.
-These patterns are too complex for humans or simple models to catch — deep learning finds them.
+> Then, we’ll demystify some of the most common buzzwords — AI, ML, Deep Learning, Generative AI — not just what they mean, but when they matter and how they connect.
 
 
 
-
----
-
-4. Generative AI (GenAI)
-
-> Definition: GenAI is a type of deep learning that doesn’t just predict — it creates. It generates new content like text, summaries, code, or even images based on its training.
+> From there, we’ll shift into something a lot more hands-on: prompt engineering. It sounds technical, but it’s really just about learning how to talk to AI — and get the best out of it.
 
 
 
-> Use Case:
-Auto-generating quarterly fund commentaries
-Example: An LLM reads through fund performance data, market events, and internal notes, then drafts a complete commentary in seconds.
-Analysts then review and customize it, saving hours of work while maintaining compliance.
+> I’ll walk you through some simple techniques that anyone can use — whether you're drafting reports, analyzing data, or exploring new investment ideas.
 
 
 
-
----
-
-Closing Line for This Slide (Optional):
-
-> “These technologies build on each other — from simple logic to pattern recognition to full-scale content creation. In finance, they help us move faster, be more precise, and focus on judgment, not just processing.”
+> Finally, we’ll wrap up with learning pathways and resources — where to go next if you want to keep building your AI fluency.
 
 
 
+> My goal today isn’t to turn anyone into an AI expert — it’s to help you feel more confident, curious, and maybe even a little excited about how AI can support what you already do best.”
 
----
+Speaker Notes for Slide 3 – Zoom Poll: “Your AI Exposure”
 
-Would you like this formatted as a speaker notes version, or included in a formatted table/slide for pasting into your deck?
-
-
-Great idea — this Zoom poll will help reinforce your Slide 3 (AI vs ML vs DL vs GenAI) in a fun, engaging way. Here's a multiple-question Zoom poll you can launch after the explanation slide to test understanding of which use case fits which AI type.
-
-
----
-
-Poll Title:
-
-“Which AI Type Is This?”
-
-Poll Format: Multiple-choice (single answer per question)
-
-
----
-
-Q1. A system predicts which clients are likely to churn based on drop in AUM and behavior patterns.
-
-> What powers this?
+> “Before we dive in, I’d love to get a sense of where everyone is coming from — because the beauty of this topic is that we’re all at different points on the journey.
 
 
 
-A) AI (rules-based)
+> This poll is anonymous, so feel free to answer honestly.
 
-B) Traditional Machine Learning
 
-C) Deep Learning
 
-D) Generative AI
-Correct Answer: B) Traditional Machine Learning
+> Whether you’re playing around with ChatGPT at home, using tools like Lydia or Alfred at work, or you’ve never touched any of this — it’s all valid.
+
+
+
+> We’ve designed today’s session to meet you wherever you are — so whether you’re hands-on with AI tools or still just AI-curious, you’ll hopefully walk away with something useful.”
+
+
+
+> (After a few seconds)
+“Okay, let’s see where we land as a group… I love this because it reminds us that we’re not alone in figuring all this out — and that AI isn’t just for data scientists or tech teams anymore.”
+
+
+Speaker Notes for Slide 4 – The State of AI in 2025
+
+> “We’ve now reached a point where AI is no longer optional — it’s operational. According to McKinsey, over 70% of global enterprises are using AI in production today, compared to just 50% two years ago. That’s a huge shift — and it shows that AI has moved from hype to business-critical.”
+
+
+
+> “What’s really driving this momentum is Generative AI — tools like ChatGPT, Gemini, and BloombergGPT — which are now integrated into everyday workflows: emails, spreadsheets, coding tools, research platforms. They're helping us generate content, uncover insights, and automate repetitive work.”
+
+
+
+> “And right here in finance and asset management, we’re not behind — we’re leading. BCG and Deloitte report that our sector is already applying GenAI in earnings summarization, ESG signal extraction, and even writing portfolio commentaries.”
+
+
+
+> “Of course, with that growth comes responsibility. Regulators are now catching up — 2025 is seeing an acceleration of AI governance efforts like the EU AI Act, SEC disclosures, and MAS guidelines. Compliance, transparency, and explainability are no longer optional in AI either.”
+
+
+
+> “Interestingly, this shift isn’t just about tech teams. We’re seeing an AI-native mindset becoming the norm — analysts and PMs are using AI copilots for analysis, writing, and communication. It's part of how work gets done now.”
+
+
+
+> “And at HSBC, we're not just consuming GenAI — we're building it. From Lydia to ESG-specific copilots, our internal AI tools are being tailored for our own use cases — from sales to reporting to risk.”
+
+“And just to give you a sense of how fast things are moving — these are all headlines from just the last few weeks.”
+
+
+
+> “Google’s AI Mode is literally changing how we interact with search. We’re not just getting links anymore — we’re getting AI summaries directly. That changes research workflows overnight.”
+
+
+
+> “Meanwhile, Microsoft is embedding AI agents directly into its ecosystem — imagine Excel explaining trends in plain English or Outlook writing client updates for you.”
+
+
+
+> “And closer to home, the finance sector — especially in the UK — is leading global AI adoption. Asset managers are building their own copilots, experimenting with GenAI in reporting, client engagement, and ESG disclosures.”
+
+“Let’s unpack some of the most used — and often confused — terms when we talk about AI. You’ll hear them used interchangeably, but they each represent a different layer of capability.”
+
 
 
 
 ---
 
-Q2. An automated assistant writes a draft of a quarterly fund commentary using internal notes and performance data.
+🔹 Artificial Intelligence (AI)
 
-> What is this powered by?
+> “This is the umbrella term. AI refers to any system that can perform tasks that would typically require human intelligence — things like reasoning, learning, pattern recognition, or decision-making.”
 
 
 
-A) Traditional ML
+> “In finance, that could be a basic rules-based fraud system — for example, flagging a transaction if it’s over $10,000 and from a flagged country. It’s not learning from data — it's just following logic we’ve hardcoded. But that’s still AI.”
 
-B) Deep Learning
-
-C) Generative AI
-
-D) Rule-based AI
-Correct Answer: C) Generative AI
 
 
 
 ---
 
-Q3. An email monitoring system detects insider trading risk by analyzing sentiment and tone in unstructured communications.
+🔹 Machine Learning (ML)
 
-> What type of model likely powers this?
+> “Now, within AI, we have Machine Learning — this is when we move from programming logic to letting the system learn from data.”
 
 
 
-A) AI
+> “Think of it like this: instead of saying ‘If X happens, do Y,’ we feed the model data about what’s happened in the past, and it figures out patterns. In asset management, one classic use case is predicting client churn. The model looks at past behavior — like AUM drops, fewer logins, and service requests — and learns what patterns typically lead to a client leaving.”
 
-B) ML
 
-C) Deep Learning
 
-D) GenAI
-Correct Answer: C) Deep Learning
+> “It doesn’t need rules. It learns the risk indicators from the data itself.”
+
 
 
 
 ---
 
-Q4. A rules engine blocks a transaction if it’s above a certain threshold and from a flagged geography.
+🔹 Deep Learning (DL)
 
-> What’s this an example of?
+> “Deep Learning is a more advanced form of ML. It uses what’s called neural networks, which are designed to mimic how the human brain processes information — but don’t worry, you don’t need to know the math.”
 
 
 
-A) AI (rules-based)
+> “Where ML works well with structured data like spreadsheets, deep learning is great for unstructured data — like emails, documents, audio, even images.”
 
-B) Machine Learning
 
-C) Generative AI
 
-D) Deep Learning
-Correct Answer: A) AI (rules-based)
+> “A finance use case here could be detecting insider risk. A deep learning model could analyze large volumes of internal emails and pick up subtle language patterns — like tone, urgency, sentiment — that might indicate misconduct.”
+
 
 
 
 ---
 
-Q5. You upload an ESG policy and ask a chatbot to summarize the top 3 governance risks.
+🔹 Generative AI (GenAI)
 
-> What powers this?
-
-
-
-A) Traditional ML
-
-B) GenAI (LLM)
-
-C) Deep Learning
-
-D) Rules-based AI
-Correct Answer: B) GenAI (LLM)
+> “And finally, we come to the one that’s dominating headlines — Generative AI.”
 
 
 
----
-
-How to Use:
-
-Run this poll after Slide 3 or 4
-
-Show the correct answers live
-
-Use it to reinforce understanding or clear up confusion
+> “Unlike traditional ML or DL models that classify or predict, GenAI creates. It generates completely new content — text, code, images — based on what it’s learned during training.”
 
 
-Perfect — clarity is key, especially for a mixed audience. Below is a refined set of Zoom poll questions where only one option is clearly correct based on the question wording. Each use case is designed to eliminate ambiguity by being specific in context, input type, and output type.
+
+> “In our world, this might look like:
 
 
----
 
-Poll Title:
+Auto-generating fund commentaries from raw performance data
 
-“Which Type of AI Is at Work?”
+Summarizing ESG reports
+
+Drafting client-facing insights based on internal research notes.”
 
 
----
+> “You feed it context — and it produces high-quality drafts in seconds. That’s the power of GenAI.”
 
-Q1. A system blocks a transaction every time it’s over $10,000 and sent to a flagged country — with no learning or adaptation.
-
-What type of AI is being used?
-
-A) Machine Learning
-
-B) Deep Learning
-
-C) Generative AI
-
-D) Rule-based AI
-Correct Answer: D) Rule-based AI
-(Because it uses fixed rules, not data-driven learning)
 
 
 
 ---
 
-Q2. A model is trained on structured transaction data (amount, frequency, country) to predict the probability of future fraud.
+🧠 How to Remember the Difference
 
-What type of AI is powering this?
+> “So the progression looks like this:
 
-A) Rule-based AI
+Speaker Notes – Slide 6: Zoom Poll (Use Case Classification)
 
-B) Machine Learning
-
-C) Generative AI
-
-D) Deep Learning
-Correct Answer: B) Machine Learning
-(Because it uses structured tabular data to learn patterns)
+> “Let’s pause here for a quick poll. I want to see how confidently we can connect AI buzzwords to actual use cases — especially the kinds we deal with in finance and asset management.”
 
 
 
----
+> “On the left, you’ll see a chatbot summarizing lengthy investment reports when asked something like, ‘What were the main Q4 risks?’ That’s a real-world scenario some of us are already starting to see.”
 
-Q3. A neural network model analyzes unstructured voice call transcripts to detect potential regulatory violations in language tone.
 
-Which AI technique is used?
 
-A) Rule-based AI
+> “And on the right, we’ve got another common use case: a system that automatically classifies transactions as fraudulent or not, based on past labeled data.”
 
-B) Machine Learning
 
-C) Generative AI
 
-D) Deep Learning
-Correct Answer: D) Deep Learning
-(Because it handles unstructured text with complex patterns)
+> “So for each case, choose the most accurate AI category you think powers it.”
+
+
+
+> [Pause for responses]
+
 
 
 
 ---
 
-Q4. A chatbot creates original summaries of lengthy investment reports when asked a question like “What were the main Q4 risks?”
+✅ Answer Key (for post-poll discussion)
 
-What is powering this?
+Left side:
 
-A) Machine Learning
-
-B) Deep Learning
-
-C) Generative AI
-
-D) Rule-based AI
-Correct Answer: C) Generative AI
-(Because it's producing natural language output from context)
+> Correct Answer: C) Generative AI
+Because the chatbot is not just retrieving or classifying — it’s creating original summaries based on context and natural language queries. This is the hallmark of GenAI.
 
 
 
----
+Right side:
 
-Q5. A model trained on thousands of historical earnings calls learns how to write a fund commentary in HSBC's style.
+> Correct Answer: B) Machine Learning
+This system is learning from historical labeled data (fraudulent vs. not), and predicting based on that — which is exactly what ML is designed to do.
 
-Which AI type is best suited for this?
-
-A) Traditional ML
-
-B) Rule-based AI
-
-C) Generative AI
-
-D) Deep Learning
-Correct Answer: C) Generative AI
-(Because it's trained to generate textual content, not just predict or classify)
 
 
 
 ---
 
-These questions are now bulletproof in clarity — each question has only one plausible and technically accurate answer based on input type and output nature.
+🧠 Wrap-up Talking Point:
 
-Would you like this exported as:
+> “These examples highlight why it's important to understand how different types of AI show up in our workflows. GenAI gets the spotlight, but traditional ML is doing a lot of the heavy lifting behind the scenes — especially in compliance, fraud, and portfolio modeling.”
 
-Zoom poll upload format (.CSV)
+Speaker Notes – Slide 7 (with Animation Reveal)
 
-Visual quiz-style slides with answers revealed on click
-
-Mentimeter / Slido template for interactive use?
+> “Let’s talk about prompts — arguably the most powerful skill you can build right now for working with AI.”
 
 
 
----
-
-Would you like this exported in Zoom CSV format, or want a visual quiz slide version (with emojis or icons) to run as a backup if polls don't work?
-
-
-Absolutely! Let’s go deeper and cover two powerful prompt engineering techniques, each with a clear structure, detailed finance-relevant examples, and why they work. These are techniques that even non-technical users can apply to dramatically improve the quality of GenAI outputs.
-
-
----
-
-Technique 1: Role + Task + Context + Format Prompting
-
-Structure:
-
-> “You are a [role]. Your task is to [do something]. Use the following context: [data, content, or document]. Output in [specific format].”
+> “A prompt is how you talk to a language model. It’s your instruction, your question, or your context. But just like with a junior analyst — vague requests lead to vague results.”
 
 
 
-Example (Finance – Fund Performance Summary):
-
-> “You are a fund manager. Your task is to summarize Q2 2025 performance of our multi-asset income fund. Use the following context: global equities underperformed, fixed income provided downside protection, and USD strength impacted EM exposure. Provide 3 bullet points followed by a 1-paragraph summary in a professional tone.”
-
-
-
-Why It Works:
-
-Role sets tone and expertise
-
-Task sets output expectation
-
-Context ensures relevance
-
-Format controls structure and readability
+> “Take these examples on the left.
+‘Write a fund commentary.’
+‘Summarize this PDF.’
+‘Explain portfolio performance.’
+They’re simple, but also a bit too open-ended. There’s no timeframe, no focus, no clarity.”
 
 
 
----
-
-Technique 2: Step-by-Step Decomposition (Chain-of-Thought Prompting)
-
-Structure:
-
-> Ask the model to break down the problem step by step before providing an answer.
+> [Now click to reveal the right-hand side]
 
 
 
-Example (Finance – Analyzing Underperformance):
-
-> “The equity portfolio underperformed its benchmark in Q3. First, identify potential macroeconomic drivers. Next, analyze sector-level allocation differences. Then, summarize how these factors contributed to underperformance. Provide your analysis step-by-step, then give a final summary.”
+> “Now compare those to this.”
 
 
 
-Why It Works:
+> “Instead of just ‘write a fund commentary’, we say:
+‘Write a Q1 2024 fund commentary for a UK equity fund, focusing on sector rotation.’
+That gives the AI clear context, a defined scope, and a focus area.”
 
-Encourages structured reasoning
 
-Reduces hallucination
 
-Mimics how a human analyst would think aloud
+> “We’ve essentially turned a vague request into a strong brief — the kind that actually saves time rather than creating more edits later.”
+
+
+
+> “If you’re writing prompts — or even asking AI follow-up questions — keep this checklist in mind: ✔️ Be clear
+✔️ Provide context
+✔️ Define the output format
+✔️ Choose a role or tone
+✔️ Add constraints or detail”
+
+
+
+> “That’s how you go from generic AI output to high-quality, finance-relevant results — fast.”
+
 
 
 
 ---
 
-Optional Add-on: Format Enhancer Prompts
+Speaker Notes – Slide 8: Prompt Engineering Techniques (Detailed Version)
 
-You can attach these to any prompt for extra polish:
+> “So now that we’ve seen what makes a good prompt versus a vague one, let’s go one step further and look at two powerful prompt engineering techniques you can apply — both designed to help you get much more accurate, structured, and relevant outputs from GenAI tools.”
 
-“Use a professional tone, suitable for clients.”
-
-“Limit to 100 words.”
-
-“Respond as a numbered list with headers.”
-
-“Use bold to highlight key metrics.”
 
 
 
 ---
 
-Visual Slide Suggestion (if you’re adding to your deck):
+🔶 Technique 1: Role + Task + Context + Format
 
-Make a 2x2 card layout:
+> “This technique is great when you want GenAI to generate something for you — like a fund commentary, a summary, or a write-up. Think of it like briefing an intern or a junior analyst.”
 
-Top-left: Role + Task + Context + Format (structure + finance example)
 
-Top-right: Step-by-step prompting (structure + example)
 
-Bottom-left: Why these work
+> “You start by assigning a role — this sets the tone. For example: ‘You are a fund manager.’ That already tells the AI how it should ‘think’ and write.”
 
-Bottom-right: Bonus format cues to copy/paste
+
+
+> “Then you give a task — what exactly do you want it to do? In this case: ‘Summarize the Q2 2025 performance of our multi-asset income fund.’”
+
+
+
+> “Now, add context — so it knows what matters: ‘Global equities underperformed, fixed income provided downside protection, USD strength impacted EM exposure.’ This helps avoid generic answers.”
+
+
+
+> “And finally, you specify the output format: ‘3 bullet points followed by a 1-paragraph summary in a professional tone.’ This ensures the result is structured, concise, and usable — not a blob of AI ramble.”
+
 
 
 
 ---
 
-Would you like me to format this into a cheat sheet slide or printable reference page for your audience? Or add 1–2 techniques that work well in Excel, policy review, or client emails?
+✅ Why this works:
+
+Role sets tone and voice (PM vs. analyst vs. client rep)
+
+Task focuses the model on exactly what you need
+
+Context ensures it's relevant to your data or situation
+
+Format gives you control over how it’s delivered (which matters a lot when you copy-paste into reports or client materials)
+
+
+> “I often say: if you wouldn’t brief a colleague by saying ‘Write a commentary’, don’t brief an AI model that way either.”
+
+
+
+
+---
+
+🔷 Technique 2: Step-by-Step Decomposition (Chain-of-Thought Prompting)
+
+> “Now this second technique is more about analysis than generation — it’s for when you want the AI to reason through something in stages, rather than guessing at a complete answer.”
+
+
+
+> “Let’s say you’re asking: ‘Why did our equity fund underperform in Q3?’ That’s a tricky one, even for a human.”
+
+
+
+> “So instead of just asking the AI for a direct answer, you break it down like this:
+
+
+
+First, identify macroeconomic drivers
+
+Then, analyze sector-level allocation differences
+
+Then, summarize how these contributed to underperformance
+
+Finally, give a short concluding summary”
+
+
+
+---
+
+✅ Why this works:
+
+It encourages structured thinking, like a checklist
+
+It reduces hallucination because the model isn't trying to shortcut to a vague answer
+
+And it mimics how we naturally reason through problems — especially in finance
+
+
+> “This is particularly useful for things like:
+
+
+
+ESG signal interpretation
+
+Root-cause analysis
+
+Stress test commentary
+
+Or summarizing multiple drivers behind performance variance”
+
+
+
+---
+
+📊 Which one should you use?
+
+> “If you need a polished, well-written answer — use Role + Task + Context + Format. It’s your go-to for writing tasks, summaries, insights, and communication.”
+
+
+
+> “If you need thoughtful breakdowns or critical thinking — go for step-by-step prompting. It’s your go-to when you’d otherwise build a bullet framework in your head or on paper.”
+
+
+
+
+---
+
+> “Together, these two techniques cover most use cases you’ll encounter in your day-to-day — whether you're drafting content, extracting insights from reports, or building commentary with internal data.”
+
+Speaker Notes – Slide 9: Learning Pathways & Next Steps
+
+> “Before we close, I want to leave you with a few clear and practical next steps.”
+
+
+
+> “If today sparked your curiosity, and you're wondering where do I go from here?, here are some great options already available internally at HSBC.”
+
+
+
+
+---
+
+🔹 Join the AI Academy
+
+> “Start with the AI Academy — it's a self-paced learning space with curated content, from beginner to advanced. Whether you want to get familiar with GenAI or learn how models work behind the scenes, it’s a great launchpad.”
+
+
+
+
+---
+
+🔹 Become an AI Ambassador
+
+> “If you're interested in championing AI use cases or supporting your team with adoption, you can join the AI Ambassador Network. It’s a cross-functional group sharing tips, ideas, and success stories across the business.”
+
+
+
+
+---
+
+🔹 Explore Tools Already Available
+
+> “We already have some tools in place — like GitHub Copilot for programming support, and other copilots in our AI Productivity Suite being tested or rolled out. These aren’t just experiments — they’re here to help streamline our daily work.”
+
+
+
+
+---
+
+🔹 Stay Updated on the HSBC AI Productivity Suite
+
+> “If you’re in a non-technical role, don’t worry — AI tools are coming your way too. Keep an eye out for updates and new features that may roll out in Excel, Outlook, and internal tools — designed to save time and boost quality.”
+
+
+
+
+---
+
+🔹 Get in Touch for Use Case Help
+
+> “And finally, if you’re working on a use case and wondering how AI can help — or you just want a sounding board — reach out to the AM Data Science Team. That’s us — we’re here to help connect the dots and collaborate on smart solutions.”
+
+
+
+
+---
+
+🎯 Closing Message
+
+> “AI isn’t something we need to fear or ignore. It’s something we need to understand — so we can use it confidently, creatively, and responsibly.”
+
+
+
+> “You don’t have to become an AI expert — you just need to become an expert at using AI to do what you already do best.”
+
+
+
+> “Thank you so much for your time — and please feel free to reach out if you'd like to explore more.”
+
+> “And just before we wrap up — there’s a good chance we’ll be doing a Part 2 of this session soon. That one will be a bit more hands-on — diving into live use cases, workflows, and maybe even letting you experiment with AI tools yourselves.”
+
+
+
+> “So if today felt like a solid foundation, Part 2 will be about building on it — and applying it directly to the work we do across Asset Management.”
+
+
+
+> “We’ll share more details soon, so keep an eye on internal comms — or feel free to drop us a note if you’re interested in being part of that!”
+
+
+AI makes machines behave smartly.
+
+ML helps them learn from data.
+
+DL makes that learning powerful with unstructured data.
+
+GenAI takes it a step further — it learns and creates.”
+
+
+> “Each step adds more capability — and also more responsibility in how we use it.”
+
 
