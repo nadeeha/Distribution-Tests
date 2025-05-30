@@ -1,147 +1,310 @@
-Here’s the enhanced Vertex AI MLOps service breakdown, now with clickable official Google Cloud links in the detailed explanation and comparison table to help you directly navigate to the relevant services from your Confluence documentation.
+Perfect, thanks for clarifying! I’ve now updated the phrasing accordingly to reflect “At Our Best (AOB)” as the formal recognition platform.
+
+Here’s the polished version:
 
 
 ---
 
-Detailed Vertex AI Services (with Official GCP Links)
+Project: Large Outflow Report Automation (2023)
+
+1. Business Impact
+Successfully automated the generation of weekly and daily large outflow reports across file types (ICAV, cashflows, etc.) for the Operations team. This led to quicker identification of threshold breaches, strengthening oversight and reducing manual oversight errors in high-value fund movements.
+
+2. Contribution to New Business / Operational Efficiency
+The solution eliminated repetitive manual processes, saving significant analyst hours and enabling faster response times. This enhanced the operational bandwidth and serves as a reusable framework for scaling automation across other reporting functions.
+
+3. Innovation / Strategic Alignment
+Designed and implemented a rule-based, scalable automation system that aligns with HSBC AM’s strategic focus on digital transformation and operational resilience through intelligent automation.
+
+4. Recognition / Awards
+Received formal appreciation on the At Our Best (AOB) platform from Bhargav and positive feedback from Nandkishore, acknowledging the value delivered in improving controls and enabling faster, insight-driven action.
+
+
+-----------
+
+
+Thanks! Based on the description and your feedback, here’s the structured entry for the Benchmark Cost Allocation project:
 
 
 ---
 
-1. Vertex AI Batch Prediction
+Project: Benchmark Cost Allocation (2023)
 
-Purpose: Perform offline prediction on large volumes of data asynchronously.
+1. Business Impact
+Automated the benchmark cost allocation process by establishing rules to associate costs with specific benchmarks and standardizing inputs across MDM and CAM extracts. This enabled precise per-unit cost distribution back to funds, improving financial accuracy and transparency.
 
-Use Cases:
+2. Contribution to New Business / Operational Efficiency
+Streamlined a previously manual and error-prone allocation task, ensuring repeatability and scalability across fund operations. This significantly reduced manual intervention and laid the groundwork for consistent cost attribution going forward.
 
-Daily churn scoring across customer base
+3. Innovation / Strategic Alignment
+Developed a rules-based allocation engine by extracting logic from MDM and CAM systems, supporting the firm's broader objective of enhancing data integrity and automating cost control mechanisms.
 
-Generating churn risk scores for dashboards or marketing triggers
-
-
-Ways to Access:
-
-Console UI: Launch Batch Job
-
-CLI:
-
-gcloud ai batch-prediction-jobs create ...
-
-Python SDK:
-
-aiplatform.BatchPredictionJob.create(...)
+4. Recognition / Awards
+Received positive feedback from Bhargav, reflecting senior stakeholder confidence in the solution’s accuracy and business value.
 
 
-Output: Predictions stored in GCS bucket (in JSONL or CSV)
+----------
+
+Thanks! Based on your detailed description and the feedback from Augusto Trevisani, here is the structured entry for the Policy Dashboard & ESMA Dashboard project:
 
 
 ---
 
-2. Vertex AI Online Prediction
+Project: Policy Dashboard & ESMA Dashboard (2023 – Present)
 
-Purpose: Real-time prediction through REST APIs or client SDKs.
+1. Business Impact
+Delivered two critical dashboards that provide stakeholders with deep visibility into fund exposures across sensitive ESG themes like Oil & Gas, Tobacco, and Thermal Coal. These dashboards support risk assessment, regulatory reporting, and investment decision-making by surfacing granular data at both fund and instrument levels.
 
-Use Cases:
+2. Contribution to New Business / Operational Efficiency
+The Policy Dashboard introduced a reusable, scalable view which was extended to build the ESMA Dashboard, reducing redundant development and enhancing consistency across regulatory reports. Improvements in query optimization and data quality directly increased reporting accuracy and reduced operational workload.
 
-Predict churn instantly when customer opens the app
+3. Innovation / Strategic Alignment
+Enabled a centralized and user-friendly interface to monitor exposure across SFDR classifications and ESG risk indicators, aligning with HSBC AM’s sustainability goals and regulatory commitments. Introduced modular themes, filters, and conditions to allow flexible stakeholder use and scalable theme additions.
 
-Display churn risk to support agents in CRM tools
-
-
-Ways to Access:
-
-Console UI: Deploy to Endpoint
-
-gcloud CLI:
-
-gcloud ai endpoints deploy-model ...
-
-Python SDK:
-
-endpoint = aiplatform.Endpoint(endpoint_name)
-endpoint.predict(instances=[...])
-
-REST API: Send authenticated HTTP POST requests with payload
-
-
-Output: JSON with predicted labels/probabilities
+4. Recognition / Awards
+The dashboards received direct appreciation and recognition via At Our Best (AOB) from Augusto Trevisani, who commended the work for its impact, robustness, and role in ESG data oversight.
 
 
 ---
 
-3. Vertex AI Model Monitoring
-
-Purpose: Automatically detect data skew, prediction drift, or feature anomalies in production.
-
-Use Cases:
-
-Alert if customers who previously weren’t at risk are now predicted to churn
-
-Monitor for concept drift over time
-
-
-Ways to Access:
-
-Console UI: Model Monitoring Setup
-
-Cloud Monitoring Dashboard: Alerting, plotting
-
-Pub/Sub + Logging: Event-based actions on anomaly detection
-
-
-Output: Logged metrics, alert messages, cloud dashboards
+Thanks, Nadeeha — based on your images, here’s the structured and polished entry for your NZAM Financed Emissions Automation project, including subcomponents like the EVIC Table and Climate Engine Holdings Comparison.
 
 
 ---
 
-4. Vertex AI Model Evaluation
+Project: NZAM – Financed Carbon Emissions Automation (2023 – Present)
 
-Purpose: Post-training evaluation and comparison of model performance using standard metrics.
+1. Business Impact
+Enabled automation of financed emissions calculations aligned with HSBC AM’s Net Zero commitments by 2030. The solution drastically reduced manual effort, ensured auditability, and supported regulatory reporting through timely, accurate valuation-date-based emissions data generation.
 
-Use Cases:
+2. Contribution to New Business / Operational Efficiency
+Developed a Python-based workflow and SQL integrations across GCP tables (CAM, IADS, IPAS, ESG) to automate holdings extraction and emissions computation per valuation date. This framework eliminated manual data sourcing by the Reporting team and ensured traceability, repeatability, and compliance-readiness for future NZAM engagements.
 
-Compare multiple versions of churn models
+3. Innovation / Strategic Alignment
+Built a modular data pipeline and scripting logic that filters and calculates financed emissions using Enterprise Value Including Cash (EVIC) and ESG indicators. Contributed to the development of a visualisation layer ("Financed Emissions Visualizer") for enhanced portfolio-level insight—demonstrating alignment with HSBC AM’s ESG, data governance, and decarbonisation goals.
 
-Track AUC, precision, recall over time
+> Subcomponents:
 
+EVIC Table Creation: Designed the GCP-based master table to extract and align EVIC metrics across entities, improving the precision of financed emissions.
 
-Ways to Access:
-
-Console UI: View evaluation reports for AutoML models
-
-Python SDK + Vertex Experiments:
-
-aiplatform.Experiment.run(...)
-
-TensorBoard: Visualize training/validation metrics
+Climate Engine Holdings Comparison: Supported benchmark alignment by comparing internal holdings against Climate Engine feeds for deeper ESG impact attribution.
 
 
-Output: Evaluation reports, confusion matrices, logged metrics
 
 
----
+4. Recognition / Awards
+Received appreciation from Sander Cohen for the delivery and impact of this work, especially its automation value and alignment with the firm’s sustainability strategy.
 
-Comparison Table (with Links)
 
-Component	Purpose	Access Methods	Outputs
+---------
 
-Batch Prediction	Offline, async prediction on large datasets	Console, CLI, Python SDK	JSONL/CSV predictions in GCS
-Online Prediction	Real-time scoring with REST endpoint	Console, REST API, Python SDK	JSON response
-Model Monitoring	Detect drift, skew, feature anomalies	Console UI, Cloud Monitoring, Pub/Sub	Alerts, logs, metrics
-Model Evaluation	Performance validation	Console, Python SDK, TensorBoard	Accuracy, AUC, Confusion matrix
 
+Thanks for the update! Here's the refined and structured entry for your ESG Score Project, based on the details you’ve shared and the positive feedback from the Responsible Investment (RI) team:
 
 
 ---
 
-This format works well for Confluence — you can paste this with heading formatting, markdown tables, and working hyperlinks. Let me know if you'd like this exported into:
+Project: ESG Score Project – Correlation & Distribution Analysis (2023 – Present)
 
-A Markdown or .docx file for sharing
+1. Business Impact
+Delivered high-quality analytics—including correlation and distribution analysis—for HSBC AM’s proprietary ESG Score framework. This work supported the validation of ESG metrics and increased stakeholder trust in the internal scoring model used for fund evaluation and reporting.
 
-A PDF summary
+2. Contribution to New Business / Operational Efficiency
+Provided critical insights that guided ESG strategy refinement and scoring methodology improvements. The results were leveraged by key decision-makers and showcased at a strategic offsite event in France, enhancing the score’s credibility and influence across teams.
 
-A live interactive dashboard version (using Streamlit or Google Looker Studio)
+3. Innovation / Strategic Alignment
+Ensured robust code management practices and adopted rigorous quality assurance steps in collaboration with SISL. The work aligned with HSBC AM’s strategic goal of strengthening in-house ESG capabilities and data-driven sustainable investing.
+
+4. Recognition / Awards
+Received strong appreciation from the Responsible Investment (RI) Team, and the work was highlighted in a cross-team forum at a high-profile offsite—reinforcing the project’s importance and the positive reception across senior stakeholders.
 
 
-Also, if you want me to plug these services into a Vertex AI Pipeline JSON/YAML template, I can generate that too.
+---
+
+Excellent, thank you! Based on your update, here’s the fully updated and structured entry for the ESG Thematic Portfolio (GenAI Initiative) project:
+
+
+---
+
+Project: ESG Thematic Portfolio (GenAI Initiative) (2024 – Present)
+
+1. Business Impact
+Drove a foundational transformation in thematic investing through the creation of a GenAI-powered ESG Thematic Portfolio framework. This enabled granular mapping of company activities to investment themes, calculation of green share, and the construction of a robust thematic taxonomy hierarchy—all contributing to enhanced ESG portfolio construction strategies.
+
+2. Contribution to New Business / Operational Efficiency
+Delivered a scalable and replicable methodology for aligning company revenues with sustainable investment themes, directly supporting thematic fund creation and investor reporting. Reduced manual taxonomy review effort through automation and improved validation accuracy through GenAI-based models.
+
+3. Innovation / Strategic Alignment
+Pioneered the use of GenAI and NLP to automate complex taxonomy mapping across L6 revenue streams, EU Sustainable Taxonomy, and internal ESG themes. Developed multiple validation models to ensure consistency and compliance, aligning with HSBC AM’s innovation agenda and strategic sustainability goals.
+
+4. Recognition / Awards
+The project has been showcased in several cross-functional workshops and internal showcases, receiving high praise from senior stakeholders—most notably Galina from the IQL team—for its transformative potential and execution excellence within the GenAI innovation stream.
+
+
+---
+
+Let me know when you’re ready to move on to Project 8 (EDD Scoring Template), or if you’d like a compiled view of all completed entries.
+
+---------
+
+
+Excellent — thanks again. Based on your description and the image, here’s the refined and structured entry for the ESG Sustainability Report Analyzer for EDD Scoring (AI Initiative):
+
+
+---
+
+Project: ESG Sustainability Report Analyzer for EDD Scoring (AI Initiative) (2024 – Present)
+
+1. Business Impact
+Developed a proof-of-concept GenAI solution to extract sector-specific ESG disclosures from sustainability reports to populate the Policy and EDD Scoring Templates. This solution laid the foundation for enhanced due diligence in ESG research and helped improve the consistency and traceability of policy-aligned inputs.
+
+2. Contribution to New Business / Operational Efficiency
+Reduced the manual workload for ESG research analysts by automating information extraction from unstructured ESG documents. The initiative accelerated turnaround time for scoring and reporting, while improving the repeatability and auditability of the process.
+
+3. Innovation / Strategic Alignment
+Pioneered the use of GenAI to interpret and extract complex sustainability-related narratives across diverse documentation styles. The project showcased HSBC AM’s readiness to adopt next-generation AI in regulatory and ESG workflows—aligning with the firm’s broader AI strategy.
+
+4. Recognition / Awards
+Presented to key stakeholders including Augusto, who shared highly positive feedback. The project became a strong internal use case demonstrating the team’s AI capabilities and helped build trust in deploying LLM-based automation across ESG research domains.
+
+
+---
+
+You’ve now got 7 fully documented strategic deliverables. Would you like me to compile them into a single polished document format for submission or internal sharing?
+
+------------
+
+Perfect — here’s the polished and structured entry for the NOVA Hackathon (TCFD Reporting Tool – GenAI) project:
+
+
+---
+
+Project: NOVA Hackathon – TCFD Reporting Tool (GenAI) (2025)
+
+1. Business Impact
+Co-developed a GenAI-powered TCFD Reporting Tool as part of the group-wide NOVA Hackathon, enhancing automation and interpretability in climate-related financial disclosures. The solution supports forward-looking risk assessments aligned with TCFD standards.
+
+2. Contribution to New Business / Operational Efficiency
+The project explored the potential of GenAI to automate complex ESG reporting workflows, such as narrative generation and document interpretation, laying the groundwork for future scalable applications in sustainability reporting.
+
+3. Innovation / Strategic Alignment
+Hands-on development of a GenAI solution enabled deep learning in model usage, prompting, and stakeholder expectation alignment. The project reflected HSBC AM’s forward-looking innovation culture and strategic exploration of AI applications in ESG reporting.
+
+4. Recognition / Awards
+Selected as one of the 27 finalist teams across the entire group. Recognized by Fatima, a key business stakeholder and team member, for the solution’s creativity, business relevance, and technical execution.
+
+
+---
+
+Let me know if you'd like me to now compile all 9 structured entries into a single document (Word/PDF-ready), or review/edit anything further!
+
+--------------
+
+Great — here’s your updated Leadership section with your role as project lead for the ESG Thematic Portfolio included, keeping the tone natural and well-structured:
+
+
+---
+
+Leadership
+
+Project Leadership – ESG Thematic Portfolio (GenAI):
+I led the end-to-end development of the ESG Thematic Portfolio project, which involved using GenAI and NLP techniques to map company activities to sustainable investment themes. I was responsible for driving the overall solution design, coordinating across teams, building validation models, and presenting the work at internal showcases. The project received strong recognition from senior stakeholders including Galina (IQL).
+
+Intern Management:
+I currently manage a new intern in our team. I created a detailed learning and evaluation plan, hold 1:1 sessions twice a week, and run weekly catch-ups involving both interns. I actively guide their work, provide feedback, and help structure their development throughout the internship.
+
+Coaching Circle (Captain):
+I served as a captain in the Coaching Circle initiative within Asset Management, where I led peer learning sessions and helped foster knowledge exchange across teams. It was a great opportunity to develop soft leadership and facilitation skills.
+
+AM Mentoring Programme (Mentee):
+As a mentee in the AM Mentoring Programme, I received very positive feedback from Nik for my curiosity, consistency, and willingness to learn. This experience gave me valuable insights into leadership from a senior perspective.
+
+Recruitment Involvement:
+I’ve been active in recruitment activities, especially in intern onboarding and selection, supporting talent decisions and contributing to team-building efforts.
+
+
+
+---
+
+Let me know if you'd like help drafting the Data Strategy & Data Culture section next or want to start compiling everything into one document!
+
+------------
+
+
+Perfect — based on your project work and the sessions you facilitated, here’s a well-structured and concise draft for the Data Strategy & Data Culture section. It weaves in your impact from multiple angles while keeping the tone natural and not overly formal:
+
+
+---
+
+Data Strategy & Data Culture
+
+I’ve contributed to multiple initiatives that support the AM DAO Data Strategy by bringing advanced data science techniques and automation into ESG, regulatory, and operational workflows.
+
+In the ESG Thematic Portfolio (GenAI) project, I led the development of NLP-driven validation models and mapping logic that helped solve the complex problem of linking granular revenue streams to sustainability themes. This work directly supported thematic fund construction and provided deep insights for stakeholders across investment and ESG teams.
+
+Several other projects, such as the Financed Emissions Automation (NZAM) and Policy & ESMA Dashboards, have helped standardize and visualize complex datasets — enabling more reliable and scalable reporting aligned with regulatory requirements.
+
+I’ve also contributed to building data culture through training and knowledge-sharing. I facilitated a Data Science & AI Literacy session for the AM DAO Lunch & Learn and also led a WPB Data Lunch and Learn session on foundational concepts in AI and analytics. These sessions helped demystify data science for broader teams and encouraged uptake of data-driven practices.
+
+
+Great question. Here's a quick recommendation:
+
+If you want to highlight your external recognition as part of your thought leadership and technical credibility, it fits best in the Summary — as a testament to your innovation and skills being recognized beyond HSBC.
+
+If you want to emphasize how your skills contribute to internal data culture and awareness, and tie it to your AI literacy efforts at HSBC, then it can go in the Data Strategy & Culture section as an example of capability building.
+
+
+✅ Recommendation: Include in both, but with a different emphasis.
+
+
+---
+
+🔹 In the Summary (positioned as recognition):
+
+> Additionally, I was selected as a finalist in the Global Prompt Engineering Championship in Dubai, representing HSBC and showcasing innovation in GenAI application on a global stage.
+
+
+
+
+---
+
+🔹 In Data Strategy & Data Culture (positioned as skill leadership):
+
+> I also bring external perspective into our data culture, having been selected as a finalist at the Prompt Engineering Championship in Dubai, which strengthened my hands-on expertise in GenAI—skills I’ve shared internally through AI literacy sessions and mentoring.
+
+
+
+
+---
+
+Let me know if you want both sections rewritten with this integrated!
+
+
+
+---
+
+Let me know if you’d like to now bring everything into a single document format (e.g., for Confluence, Word, or a PDF)!
+
+----------
+
+
+Certainly! Here’s a shorter, more concise version of the summary, still capturing the key impact:
+
+
+---
+
+Summary of Contributions: Business Impact & Innovation
+
+Over the past year, I’ve led and contributed to several strategic projects across ESG, regulatory reporting, and operational automation—each aligned with HSBC AM’s goals of innovation and sustainability. Key highlights include leading the ESG Thematic Portfolio (GenAI) project, automating Financed Emissions (NZAM) and Large Outflow Reporting, and delivering insights through NLP and dashboard solutions.
+
+These initiatives have improved reporting efficiency, enhanced ESG strategy, and reduced manual effort. I’ve also supported data culture through AI literacy sessions for AM DAO and WPB, and actively mentored interns and engaged in recruitment.
+
+Collectively, these contributions demonstrate strong alignment with the firm’s data-first and innovation-driven strategy.
+
+
+---
+
+
+
+
 
