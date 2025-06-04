@@ -1,70 +1,49 @@
 import pandas as pd
 import plotly.express as px
 
-# Simulated dfs_dict — replace with your actual data
+# Simulated dfs_dict — replace with your actual ETF data
 dfs_dict = {
     'xaix_gt': pd.DataFrame({
         'ISIN': ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-        'entity_proper_name': ['Apple', 'Microsoft', 'Nvidia', 'AMD', 'Intel', 'Broadcom'],
-        'weight': [0.3, 0.25, 0.2, 0.1, 0.1, 0.05],
         'ETF-Index Name': ['XAIX Global Tech'] * 6
     }),
     'lock_ln': pd.DataFrame({
         'ISIN': ['B1', 'B2', 'B3', 'B4', 'B5', 'B6'],
-        'entity_proper_name': ['Lockheed', 'Raytheon', 'Northrop', 'BAE Systems', 'Thales', 'General Dynamics'],
-        'weight': [0.4, 0.2, 0.15, 0.1, 0.1, 0.05],
         'ETF-Index Name': ['LOCK Defense Leaders'] * 6
     })
 }
 
-# Custom order for x-axis
+# Define custom display order
 custom_order = ['LOCK Defense Leaders', 'XAIX Global Tech']
 
-# Prepare data
-records = []
-etf_index_labels = []
-
+# Count unique ISINs (stocks) per ETF
+stock_counts = []
 for key, df in dfs_dict.items():
-    df = df.drop_duplicates(subset='ISIN')
-    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
+    etf_name = df['ETF-Index Name'].iloc[0]
+    unique_stocks = df['ISIN'].drop_duplicates().nunique()
+    stock_counts.append({'ETF-Index Name': etf_name, 'Number of Stocks': unique_stocks})
 
-    index_name = df['ETF-Index Name'].iloc[0]
-    stock_count = df['ISIN'].nunique()
-    etf_label = f"{index_name} (Stocks: {stock_count})"
-    etf_index_labels.append(etf_label)
+# Convert to DataFrame
+stock_df = pd.DataFrame(stock_counts)
 
-    top5 = df.nlargest(5, 'weight').copy()
-    top5['ETF_Label'] = etf_label
-    top5['label'] = top5['entity_proper_name'] + ' (' + (top5['weight'] * 100).round(1).astype(str) + '%)'
-    records.append(top5)
+# Apply custom order to ETF-Index Name
+stock_df['ETF-Index Name'] = pd.Categorical(stock_df['ETF-Index Name'], categories=custom_order, ordered=True)
 
-top5_df = pd.concat(records)
-
-# Apply custom order (with stock count in label)
-etf_label_order = [f"{name} (Stocks: {dfs_dict[k].drop_duplicates('ISIN')['ISIN'].nunique()})"
-                   for name in custom_order
-                   for k in dfs_dict
-                   if dfs_dict[k]['ETF-Index Name'].iloc[0] == name]
-
-top5_df['ETF_Label'] = pd.Categorical(top5_df['ETF_Label'], categories=etf_label_order, ordered=True)
-
-# Plot
-fig = px.scatter(
-    top5_df,
-    x='ETF_Label',
-    y='weight',
-    color='entity_proper_name',
-    text='label',
-    title='Top 5 Holdings per ETF with Total Stock Count',
-    labels={'weight': 'Weight (%)', 'entity_proper_name': 'Company'}
+# Create the bar chart
+fig = px.bar(
+    stock_df,
+    x='ETF-Index Name',
+    y='Number of Stocks',
+    text='Number of Stocks',
+    title='Total Number of Unique Stocks per ETF',
+    labels={'ETF-Index Name': 'ETF'}
 )
 
-fig.update_traces(marker=dict(size=12), textposition='top center')
+fig.update_traces(textposition='outside')
 fig.update_layout(
-    yaxis_tickformat=".0%",
-    xaxis_title='ETF-Index Name (with Stock Count)',
-    yaxis_title='Weight of Top Holdings',
-    showlegend=False
+    xaxis_title='ETF Name',
+    yaxis_title='Number of Stocks',
+    bargap=0.4
 )
 
 fig.show()
