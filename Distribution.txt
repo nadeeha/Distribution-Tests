@@ -1,106 +1,55 @@
 import pandas as pd
-import ast
-import openai
-import time
-import re
+import plotly.express as px
 
-# ====== STEP 1: Setup OpenAI Key ======
-openai.api_key = "your-openai-api-key"  # Replace with your actual key
-
-# ====== STEP 2: Load CSV ======
-file_path = "your_file.csv"  # Replace with your local file path
-df = pd.read_csv(file_path)
-df_unique = df.drop_duplicates(subset="Semantic Cluster ID")
-
-# ====== STEP 3: Parse internal cluster field ======
-def parse_internal_clusters(cluster_str):
-    try:
-        cluster_data = ast.literal_eval(cluster_str)
-        data = {k: v for k, v in cluster_data}
-        center = data.get("center", "N/A")
-        size = data.get("size", "N/A")
-        nodes = data.get("node", [])
-        similarity = data.get("similarity", "N/A")
-        distance = data.get("distance", "N/A")
-        return center, size, nodes, similarity, distance
-    except Exception as e:
-        return "ParseError", 0, [], "N/A", "N/A"
-
-# ====== STEP 4: Build GPT Prompt ======
-def create_prompt(row):
-    cluster_id = row["Semantic Cluster ID"]
-    l2_sim = row.get("L2_Similarity", "Not provided")
-    l2_ai = row.get("L2_AI", "Not provided")
-
-    center, size, nodes, similarity, distance = parse_internal_clusters(row["internal clusters"])
-    if not nodes:
-        return None
-
-    node_list = "\n- " + "\n- ".join(nodes)
-
-    return f"""You are a biodiversity impact analyst. Below is a cluster of economic activities, centered around a main theme and surrounded by related activities. You are also given two potential labels for this cluster — one derived from a similarity-based method and one from an AI model.
-
-Your task is to:
-
-Biodiversity Assessment
-1. Summarize the economic focus of the cluster in 1–2 lines.
-2. Relevance to Biodiversity: Is this theme relevant to biodiversity? Why or why not?
-3. Impact Type: If relevant, does it have a positive, negative, or mixed impact? Explain your reasoning.
-4. Confidence Score: From 1 (low) to 5 (very confident).
-
-L2 Label Evaluation
-5. Between the Similarity-Based Label and AI-Inferred Label, which better represents this cluster? Why?
-6. If both labels are inadequate, suggest a more suitable L2 label (short and clear, like a thematic taxonomy tag).
-
----
-Cluster ID: {cluster_id}
-Similarity-Based Label: {l2_sim}
-AI-Inferred Label: {l2_ai}
-Central Activity: {center}
-Representative Activities:{node_list}
-
-(Similarity Score: {similarity}, Distance: {distance})
-"""
-
-# ====== STEP 5: Call GPT and Parse Response ======
-def gpt_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# ====== STEP 6: Loop through clusters and store results ======
-results = []
-
-for _, row in df_unique.iterrows():
-    prompt = create_prompt(row)
-    if not prompt:
-        continue
-
-    response_text = gpt_response(prompt)
-    time.sleep(1.5)  # Respect rate limits
-
-    # Extract structured info
-    impact_type = re.search(r"3\. Impact: (.*?)\n", response_text)
-    confidence = re.search(r"4\. Confidence: (\d)", response_text)
-    preferred_label = re.search(r"5\. Preferred Label: (.*?)\n", response_text)
-    suggested_label = re.search(r"6\. Suggested Label: (.*?)$", response_text)
-
-    results.append({
-        "Semantic Cluster ID": row["Semantic Cluster ID"],
-        "GPT_Response": response_text,
-        "Impact_Type": impact_type.group(1).strip() if impact_type else "",
-        "Confidence": int(confidence.group(1)) if confidence else "",
-        "Preferred_Label_Source": preferred_label.group(1).strip() if preferred_label else "",
-        "Suggested_L2_Label": suggested_label.group(1).strip() if suggested_label else ""
+# Simulated dfs_dict with market cap info
+dfs_dict = {
+    'xaix_gt': pd.DataFrame({
+        'ISIN': ['A1', 'A2', 'A3', 'A4'],
+        'market_cap_desc': ['Large', 'Large', 'Mid', 'Small'],
+        'weight': [0.4, 0.35, 0.15, 0.1]
+    }),
+    'lock_ln': pd.DataFrame({
+        'ISIN': ['B1', 'B2', 'B3'],
+        'market_cap_desc': ['Large', 'Mid', 'Small'],
+        'weight': [0.5, 0.3, 0.2]
     })
+}
 
-# ====== STEP 7: Save final output ======
-output_df = pd.DataFrame(results)
-output_df.to_csv("biodiversity_cluster_assessment_results.csv", index=False)
-print("Done. Results saved to 'biodiversity_cluster_assessment_results.csv'")
+# Step 1: Group by market cap category for each ETF
+records = []
+
+for etf, df in dfs_dict.items():
+    df = df.dropna(subset=['market_cap_desc', 'weight'])
+    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
+    
+    grouped = df.groupby('market_cap_desc', as_index=False)['weight'].sum()
+    grouped['ETF'] = etf
+    records.append(grouped)
+
+# Step 2: Combine and normalize to make 100% stacked bars
+combined_df = pd.concat(records, ignore_index=True)
+combined_df['normalized_weight'] = combined_df.groupby('ETF')['weight'].transform(lambda x: x / x.sum())
+
+# Step 3: Add label for display
+combined_df['label'] = combined_df['market_cap_desc'] + ' (' + (combined_df['normalized_weight'] * 100).round(1).astype(str) + '%)'
+
+# Step 4: Plot
+fig = px.bar(
+    combined_df,
+    x='ETF',
+    y='normalized_weight',
+    color='market_cap_desc',
+    text='label',
+    title='Market Cap Composition of ETFs (100% Stacked)',
+    labels={'normalized_weight': 'Weight (%)', 'market_cap_desc': 'Market Cap'}
+)
+
+fig.update_traces(textposition='inside')
+fig.update_layout(
+    yaxis_tickformat=".0%",
+    bargap=0.3,
+    uniformtext_minsize=8,
+    uniformtext_mode='hide'
+)
+
+fig.show()
