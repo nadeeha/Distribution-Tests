@@ -1,58 +1,58 @@
-import pandas as pd
-import plotly.express as px
+import os
 
-# Example dfs_dict – replace this with your actual ETF data
-dfs_dict = {
-    'xaix_gt': pd.DataFrame({
-        'ISIN': ['A1', 'A1', 'A2'],
-        'l3_name': ['Software', 'Consumer Electronics', 'Software'],
-        'weight': [0.4, 0.4, 0.35],
-        'l6_revenue_pct': [0.6, 0.4, 1.0]
-    }),
-    'lock_ln': pd.DataFrame({
-        'ISIN': ['B1', 'B2', 'B2'],
-        'l3_name': ['Aerospace', 'Aerospace', 'Cybersecurity'],
-        'weight': [0.5, 0.3, 0.3],
-        'l6_revenue_pct': [1.0, 0.5, 0.5]
-    })
-}
+# Folder containing the HTML files
+folder_path = 'ETF Analysis New Viz'
 
-# Step 1: Calculate weighted exposure
-records = []
-for etf, df in dfs_dict.items():
-    df = df.dropna(subset=['l3_name', 'weight', 'l6_revenue_pct'])
-    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
-    df['l6_revenue_pct'] = pd.to_numeric(df['l6_revenue_pct'], errors='coerce')
-    df['exposure'] = df['weight'] * df['l6_revenue_pct']
-    
-    grouped = df.groupby('l3_name', as_index=False)['exposure'].sum()
-    grouped['ETF'] = etf
-    records.append(grouped)
+# Your desired display order of files
+ordered_files = [
+    'sector.html',
+    'market_cap.html',
+    'top10.html'
+]
 
-# Step 2: Combine and normalize
-combined_df = pd.concat(records, ignore_index=True)
-combined_df['normalized_exposure'] = combined_df.groupby('ETF')['exposure'].transform(lambda x: x / x.sum())
+# Full paths for ordered files
+ordered_paths = [os.path.join(folder_path, f) for f in ordered_files]
 
-# Step 3: Add text labels (e.g., "Software (25.3%)")
-combined_df['label'] = combined_df['l3_name'] + ' (' + (combined_df['normalized_exposure'] * 100).round(1).astype(str) + '%)'
+# Output file
+output_file = os.path.join(folder_path, 'combined_etf_analysis.html')
 
-# Step 4: Create the 100% stacked bar chart
-fig = px.bar(
-    combined_df,
-    x='ETF',
-    y='normalized_exposure',
-    color='l3_name',
-    text='label',
-    title='Sector Composition of ETFs (100% Stacked)',
-    labels={'normalized_exposure': 'Exposure (%)', 'l3_name': 'Sector'}
-)
+# HTML structure
+html_start = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Combined ETF Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+"""
 
-fig.update_traces(textposition='inside')
-fig.update_layout(
-    yaxis_tickformat=".0%",
-    bargap=0.2,
-    uniformtext_minsize=8,
-    uniformtext_mode='hide'
-)
+html_end = """
+</body>
+</html>
+"""
 
-fig.show()
+# Combine content
+with open(output_file, 'w', encoding='utf-8') as outfile:
+    outfile.write(html_start)
+
+    for file_path in ordered_paths:
+        with open(file_path, 'r', encoding='utf-8') as infile:
+            content = infile.read()
+
+            # Extract only the inner <body> contents
+            body_start = content.find('<body>')
+            body_end = content.find('</body>')
+
+            if body_start != -1 and body_end != -1:
+                inner_html = content[body_start + len('<body>'):body_end]
+            else:
+                inner_html = content  # fallback
+
+            outfile.write(inner_html)
+            outfile.write('\n<hr style="margin:40px 0;">\n')  # separator
+
+    outfile.write(html_end)
+
+print(f"✅ Combined file created: {output_file}")
