@@ -1,58 +1,125 @@
-import os
+import os, json, fitz, numpy as np, pandas as pd, requests
+from datetime import datetime
+from sentence_transformers import SentenceTransformer
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from sklearn.metrics.pairwise import cosine_similarity
+import streamlit as st
 
-# Folder containing the HTML files
-folder_path = 'ETF Analysis New Viz'
+# === Config ===
+STORAGE = "data/embeddings"
+LOG_PATH = "logs/gpt_outputs.xlsx"
+os.makedirs(STORAGE, exist_ok=True)
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 
-# Your desired display order of files
-ordered_files = [
-    'sector.html',
-    'market_cap.html',
-    'top10.html'
-]
+MODEL_PATH = "all-MiniLM-L6-v2"
+API_URL = "https://your-api-url.com"  # replace
+ACCESS_TOKEN = "your_token_here"      # replace
 
-# Full paths for ordered files
-ordered_paths = [os.path.join(folder_path, f) for f in ordered_files]
+# === Helper functions ===
+def extract_text_with_page_numbers(pdf_path):
+    doc = fitz.open(pdf_path)
+    return [{'page_number': i+1, 'text': page.get_text()} for i, page in enumerate(doc)]
 
-# Output file
-output_file = os.path.join(folder_path, 'combined_etf_analysis.html')
+def chunk_pages(pages):
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    documents = []
+    for page in pages:
+        chunks = splitter.create_documents([page['text']])
+        for chunk in chunks:
+            documents.append({'page_number': page['page_number'], 'text': chunk.page_content})
+    return documents
 
-# HTML structure
-html_start = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Combined ETF Analysis</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
-<body>
-"""
+def create_embeddings(documents, model_path):
+    model = SentenceTransformer(model_path)
+    texts = [doc['text'] for doc in documents]
+    embeddings = model.encode(texts, show_progress_bar=True)
+    return embeddings, model
 
-html_end = """
-</body>
-</html>
-"""
+def send_prompt_to_model(query, context_chunks, url, access_token):
+    context_text = "\n\n".join(
+        [f"[Page {chunk['page_number']}]:\n{chunk['text'].strip()}" for chunk in context_chunks])
+    
+    prompt = f"""You are an expert assistant. Based on the following context, answer the question below. Always cite page numbers.
 
-# Combine content
-with open(output_file, 'w', encoding='utf-8') as outfile:
-    outfile.write(html_start)
+Question: {query}
 
-    for file_path in ordered_paths:
-        with open(file_path, 'r', encoding='utf-8') as infile:
-            content = infile.read()
+Context:
+{context_text}
 
-            # Extract only the inner <body> contents
-            body_start = content.find('<body>')
-            body_end = content.find('</body>')
+Answer:"""
 
-            if body_start != -1 and body_end != -1:
-                inner_html = content[body_start + len('<body>'):body_end]
-            else:
-                inner_html = content  # fallback
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        'messages': [{'role': 'user', 'content': prompt}]
+    }
 
-            outfile.write(inner_html)
-            outfile.write('\n<hr style="margin:40px 0;">\n')  # separator
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code == 200:
+        return response.json()['choices'][0]['message']['content']
+    else:
+        return f"Error: {response.status_code} - {response.text}"
 
-    outfile.write(html_end)
+# === Streamlit UI ===
+st.set_page_config(page_title="PDF ➜ Chunk ➜ Embed ➜ Ask", layout="wide")
+st.title("📄 AI PDF Processor")
 
-print(f"✅ Combined file created: {output_file}")
+# Upload
+uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+query = st.text_input("🔍 Ask a question (optional):", "")
+
+if uploaded_file:
+    pdf_name = uploaded_file.name
+    with open(f"temp_{pdf_name}", "wb") as f:
+        f.write(uploaded_file.read())
+
+    # Extract → Chunk → Embed
+    pages = extract_text_with_page_numbers(f"temp_{pdf_name}")
+    docs = chunk_pages(pages)
+    embeddings, model = create_embeddings(docs, MODEL_PATH)
+
+    # Store metadata
+    np.save(os.path.join(STORAGE, f"{pdf_name}_embeddings.npy"), embeddings)
+    with open(os.path.join(STORAGE, f"{pdf_name}_metadata.json"), "w") as f:
+        json.dump(docs, f)
+
+    st.success(f"✅ {pdf_name} processed and embedded.")
+
+    # Answering query
+    if query:
+        # Basic similarity search
+        query_embedding = model.encode([query])[0]
+        scores = cosine_similarity([query_embedding], embeddings)[0]
+        top_idx = scores.argsort()[-3:][::-1]
+        top_chunks = [docs[i] for i in top_idx]
+
+        answer = send_prompt_to_model(query, top_chunks, API_URL, ACCESS_TOKEN)
+
+        # Append to log
+        if not os.path.exists(LOG_PATH):
+            df_log = pd.DataFrame(columns=["Timestamp", "Filename", "Query", "Answer"])
+        else:
+            df_log = pd.read_excel(LOG_PATH)
+
+        df_log = pd.concat([
+            df_log,
+            pd.DataFrame([{
+                "Timestamp": datetime.now(),
+                "Filename": pdf_name,
+                "Query": query,
+                "Answer": answer
+            }])
+        ], ignore_index=True)
+
+        df_log.to_excel(LOG_PATH, index=False)
+
+        st.subheader("🧠 Model Answer")
+        st.markdown(answer)
+
+# Show past queries
+if os.path.exists(LOG_PATH):
+    st.subheader("📘 Query Log")
+    df_log = pd.read_excel(LOG_PATH)
+    st.dataframe(df_log.tail(5))
