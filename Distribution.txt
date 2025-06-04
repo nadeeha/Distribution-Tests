@@ -1,56 +1,70 @@
 import pandas as pd
 import plotly.express as px
 
-# Simulated dfs_dict with market_cap info (multiple rows per ISIN)
+# Simulated dfs_dict — replace with your actual data
 dfs_dict = {
     'xaix_gt': pd.DataFrame({
-        'ISIN': ['A1', 'A1', 'A2', 'A2', 'A3'],
-        'market_cap_desc': ['Large', 'Large', 'Mid', 'Mid', 'Small'],
-        'weight': [0.4, 0.4, 0.35, 0.35, 0.25]
+        'ISIN': ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
+        'entity_proper_name': ['Apple', 'Microsoft', 'Nvidia', 'AMD', 'Intel', 'Broadcom'],
+        'weight': [0.3, 0.25, 0.2, 0.1, 0.1, 0.05],
+        'ETF-Index Name': ['XAIX Global Tech'] * 6
     }),
     'lock_ln': pd.DataFrame({
-        'ISIN': ['B1', 'B2', 'B2', 'B3'],
-        'market_cap_desc': ['Large', 'Mid', 'Mid', 'Small'],
-        'weight': [0.5, 0.3, 0.3, 0.2]
+        'ISIN': ['B1', 'B2', 'B3', 'B4', 'B5', 'B6'],
+        'entity_proper_name': ['Lockheed', 'Raytheon', 'Northrop', 'BAE Systems', 'Thales', 'General Dynamics'],
+        'weight': [0.4, 0.2, 0.15, 0.1, 0.1, 0.05],
+        'ETF-Index Name': ['LOCK Defense Leaders'] * 6
     })
 }
 
-# Step 1: Deduplicate by ISIN (assume same weight + market_cap_desc per ISIN)
+# Custom order for x-axis
+custom_order = ['LOCK Defense Leaders', 'XAIX Global Tech']
+
+# Prepare data
 records = []
+etf_index_labels = []
 
-for etf, df in dfs_dict.items():
-    df = df.dropna(subset=['market_cap_desc', 'weight', 'ISIN'])
-    df = df.drop_duplicates(subset='ISIN')  # Key step to avoid double counting
-    
+for key, df in dfs_dict.items():
+    df = df.drop_duplicates(subset='ISIN')
     df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
-    grouped = df.groupby('market_cap_desc', as_index=False)['weight'].sum()
-    grouped['ETF'] = etf
-    records.append(grouped)
 
-# Step 2: Normalize weights per ETF
-combined_df = pd.concat(records, ignore_index=True)
-combined_df['normalized_weight'] = combined_df.groupby('ETF')['weight'].transform(lambda x: x / x.sum())
+    index_name = df['ETF-Index Name'].iloc[0]
+    stock_count = df['ISIN'].nunique()
+    etf_label = f"{index_name} (Stocks: {stock_count})"
+    etf_index_labels.append(etf_label)
 
-# Step 3: Add labels
-combined_df['label'] = combined_df['market_cap_desc'] + ' (' + (combined_df['normalized_weight'] * 100).round(1).astype(str) + '%)'
+    top5 = df.nlargest(5, 'weight').copy()
+    top5['ETF_Label'] = etf_label
+    top5['label'] = top5['entity_proper_name'] + ' (' + (top5['weight'] * 100).round(1).astype(str) + '%)'
+    records.append(top5)
 
-# Step 4: Plot
-fig = px.bar(
-    combined_df,
-    x='ETF',
-    y='normalized_weight',
-    color='market_cap_desc',
+top5_df = pd.concat(records)
+
+# Apply custom order (with stock count in label)
+etf_label_order = [f"{name} (Stocks: {dfs_dict[k].drop_duplicates('ISIN')['ISIN'].nunique()})"
+                   for name in custom_order
+                   for k in dfs_dict
+                   if dfs_dict[k]['ETF-Index Name'].iloc[0] == name]
+
+top5_df['ETF_Label'] = pd.Categorical(top5_df['ETF_Label'], categories=etf_label_order, ordered=True)
+
+# Plot
+fig = px.scatter(
+    top5_df,
+    x='ETF_Label',
+    y='weight',
+    color='entity_proper_name',
     text='label',
-    title='Market Cap Composition of ETFs (Deduplicated & Normalized)',
-    labels={'normalized_weight': 'Weight (%)', 'market_cap_desc': 'Market Cap'}
+    title='Top 5 Holdings per ETF with Total Stock Count',
+    labels={'weight': 'Weight (%)', 'entity_proper_name': 'Company'}
 )
 
-fig.update_traces(textposition='inside')
+fig.update_traces(marker=dict(size=12), textposition='top center')
 fig.update_layout(
     yaxis_tickformat=".0%",
-    bargap=0.3,
-    uniformtext_minsize=8,
-    uniformtext_mode='hide'
+    xaxis_title='ETF-Index Name (with Stock Count)',
+    yaxis_title='Weight of Top Holdings',
+    showlegend=False
 )
 
 fig.show()
