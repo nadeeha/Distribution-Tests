@@ -1,36 +1,37 @@
 import pandas as pd
 import plotly.express as px
 
-# Simulated dfs_dict with market cap info
+# Simulated dfs_dict with market_cap info (multiple rows per ISIN)
 dfs_dict = {
     'xaix_gt': pd.DataFrame({
-        'ISIN': ['A1', 'A2', 'A3', 'A4'],
-        'market_cap_desc': ['Large', 'Large', 'Mid', 'Small'],
-        'weight': [0.4, 0.35, 0.15, 0.1]
+        'ISIN': ['A1', 'A1', 'A2', 'A2', 'A3'],
+        'market_cap_desc': ['Large', 'Large', 'Mid', 'Mid', 'Small'],
+        'weight': [0.4, 0.4, 0.35, 0.35, 0.25]
     }),
     'lock_ln': pd.DataFrame({
-        'ISIN': ['B1', 'B2', 'B3'],
-        'market_cap_desc': ['Large', 'Mid', 'Small'],
-        'weight': [0.5, 0.3, 0.2]
+        'ISIN': ['B1', 'B2', 'B2', 'B3'],
+        'market_cap_desc': ['Large', 'Mid', 'Mid', 'Small'],
+        'weight': [0.5, 0.3, 0.3, 0.2]
     })
 }
 
-# Step 1: Group by market cap category for each ETF
+# Step 1: Deduplicate by ISIN (assume same weight + market_cap_desc per ISIN)
 records = []
 
 for etf, df in dfs_dict.items():
-    df = df.dropna(subset=['market_cap_desc', 'weight'])
-    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
+    df = df.dropna(subset=['market_cap_desc', 'weight', 'ISIN'])
+    df = df.drop_duplicates(subset='ISIN')  # Key step to avoid double counting
     
+    df['weight'] = pd.to_numeric(df['weight'], errors='coerce')
     grouped = df.groupby('market_cap_desc', as_index=False)['weight'].sum()
     grouped['ETF'] = etf
     records.append(grouped)
 
-# Step 2: Combine and normalize to make 100% stacked bars
+# Step 2: Normalize weights per ETF
 combined_df = pd.concat(records, ignore_index=True)
 combined_df['normalized_weight'] = combined_df.groupby('ETF')['weight'].transform(lambda x: x / x.sum())
 
-# Step 3: Add label for display
+# Step 3: Add labels
 combined_df['label'] = combined_df['market_cap_desc'] + ' (' + (combined_df['normalized_weight'] * 100).round(1).astype(str) + '%)'
 
 # Step 4: Plot
@@ -40,7 +41,7 @@ fig = px.bar(
     y='normalized_weight',
     color='market_cap_desc',
     text='label',
-    title='Market Cap Composition of ETFs (100% Stacked)',
+    title='Market Cap Composition of ETFs (Deduplicated & Normalized)',
     labels={'normalized_weight': 'Weight (%)', 'market_cap_desc': 'Market Cap'}
 )
 
