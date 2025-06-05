@@ -1,500 +1,122 @@
-Speaker Notes for Slide 1 – “AI Literacy”
+Got it! Since you built the API-based GPT-4o pipeline, here’s a refined and confident set of speaker notes that positions your work as the more scalable, customizable, and production-ready solution:
 
-> "Hi everyone! Thanks so much for joining this Lunch & Learn. I know your calendars are full, and I really appreciate you making time for this session.
 
+---
 
+🎙️ Speaker Notes (highlighting API pipeline advantage):
 
-> Today, we're diving into something that’s already reshaping our work, whether we realize it or not — Artificial Intelligence. This isn’t just about ChatGPT or automation buzzwords — it’s about how AI is becoming a true partner in decision-making, analysis, and even creativity.
+> “What you’re seeing here is a comparison between a manual UI-based tool and the API-based GPT-4o pipeline that I built for extracting information from annual reports.
 
 
 
-> This session is for all of us — whether you’re already using AI in your day-to-day or still unsure what all the hype is about. My goal is to demystify AI in a way that’s real, relevant, and tailored for us in finance.
+While tools like Lydia on the left are useful for one-off queries and quick exploration, they’re limited in scope — you upload a single PDF, ask a question, and wait for a response. It’s great for demo purposes but not feasible at scale.
 
+What I implemented instead is the setup on the right — a fully programmatic solution using GPT-4o APIs.
+This allows us to:
 
+Ingest and process multiple documents in one go
 
-> So let’s make this interactive, keep it informal, and hopefully, you’ll walk out with a few practical takeaways — and maybe even a bit of excitement for what’s possible."
+Extract targeted answers linked to metadata like company names
 
-Speaker Notes for Slide 2 – Agenda
+Integrate into automated workflows or databases
 
-> “So here’s a quick look at what we’re going to cover today.
+Add layers like filtering, custom formatting, or validation rules
 
 
+It’s highly customizable, reusable across use cases, and importantly — removes the manual bottlenecks.
+This makes it production-ready, whether we’re analyzing ESG disclosures, sector reports, or extracting data for dashboards.
 
-> We’ll start with why AI matters — not just in the tech world, but specifically in our world of finance and asset management.
+In short, this isn’t just a smarter solution — it’s a scalable GenAI system that plugs directly into our existing workflows.”
 
 
+---
 
-> Then, we’ll demystify some of the most common buzzwords — AI, ML, Deep Learning, Generative AI — not just what they mean, but when they matter and how they connect.
+Let me know if you want a shorter version or a follow-up slide with technical highlights like “Prompt engineering”, “metadata linking”, or “validation layers”.
 
 
 
-> From there, we’ll shift into something a lot more hands-on: prompt engineering. It sounds technical, but it’s really just about learning how to talk to AI — and get the best out of it.
 
 
 
-> I’ll walk you through some simple techniques that anyone can use — whether you're drafting reports, analyzing data, or exploring new investment ideas.
 
 
+Got it! Here's a full, simple and clear speaker note for Slide 2 — explaining the entire pipeline including chunking and token limits, in a natural and beginner-friendly way:
 
-> Finally, we’ll wrap up with learning pathways and resources — where to go next if you want to keep building your AI fluency.
 
+---
 
+🎙️ Speaker Notes – Slide 2: Information Retrieval from Company Reports Using GenAI
 
-> My goal today isn’t to turn anyone into an AI expert — it’s to help you feel more confident, curious, and maybe even a little excited about how AI can support what you already do best.”
-
-Speaker Notes for Slide 3 – Zoom Poll: “Your AI Exposure”
-
-> “Before we dive in, I’d love to get a sense of where everyone is coming from — because the beauty of this topic is that we’re all at different points on the journey.
-
-
-
-> This poll is anonymous, so feel free to answer honestly.
-
-
-
-> Whether you’re playing around with ChatGPT at home, using tools like Lydia or Alfred at work, or you’ve never touched any of this — it’s all valid.
-
-
-
-> We’ve designed today’s session to meet you wherever you are — so whether you’re hands-on with AI tools or still just AI-curious, you’ll hopefully walk away with something useful.”
-
-
-
-> (After a few seconds)
-“Okay, let’s see where we land as a group… I love this because it reminds us that we’re not alone in figuring all this out — and that AI isn’t just for data scientists or tech teams anymore.”
-
-
-Speaker Notes for Slide 4 – The State of AI in 2025
-
-> “We’ve now reached a point where AI is no longer optional — it’s operational. According to McKinsey, over 70% of global enterprises are using AI in production today, compared to just 50% two years ago. That’s a huge shift — and it shows that AI has moved from hype to business-critical.”
-
-
-
-> “What’s really driving this momentum is Generative AI — tools like ChatGPT, Gemini, and BloombergGPT — which are now integrated into everyday workflows: emails, spreadsheets, coding tools, research platforms. They're helping us generate content, uncover insights, and automate repetitive work.”
-
-
-
-> “And right here in finance and asset management, we’re not behind — we’re leading. BCG and Deloitte report that our sector is already applying GenAI in earnings summarization, ESG signal extraction, and even writing portfolio commentaries.”
-
-
-
-> “Of course, with that growth comes responsibility. Regulators are now catching up — 2025 is seeing an acceleration of AI governance efforts like the EU AI Act, SEC disclosures, and MAS guidelines. Compliance, transparency, and explainability are no longer optional in AI either.”
-
-
-
-> “Interestingly, this shift isn’t just about tech teams. We’re seeing an AI-native mindset becoming the norm — analysts and PMs are using AI copilots for analysis, writing, and communication. It's part of how work gets done now.”
-
-
-
-> “And at HSBC, we're not just consuming GenAI — we're building it. From Lydia to ESG-specific copilots, our internal AI tools are being tailored for our own use cases — from sales to reporting to risk.”
-
-“And just to give you a sense of how fast things are moving — these are all headlines from just the last few weeks.”
-
-
-
-> “Google’s AI Mode is literally changing how we interact with search. We’re not just getting links anymore — we’re getting AI summaries directly. That changes research workflows overnight.”
-
-
-
-> “Meanwhile, Microsoft is embedding AI agents directly into its ecosystem — imagine Excel explaining trends in plain English or Outlook writing client updates for you.”
-
-
-
-> “And closer to home, the finance sector — especially in the UK — is leading global AI adoption. Asset managers are building their own copilots, experimenting with GenAI in reporting, client engagement, and ESG disclosures.”
-
-“Let’s unpack some of the most used — and often confused — terms when we talk about AI. You’ll hear them used interchangeably, but they each represent a different layer of capability.”
+> “This slide walks through the full process I used to extract useful information from long company ESG or sustainability reports using GenAI — specifically OpenAI’s GPT-4o.
 
 
 
 
 ---
 
-🔹 Artificial Intelligence (AI)
-
-> “This is the umbrella term. AI refers to any system that can perform tasks that would typically require human intelligence — things like reasoning, learning, pattern recognition, or decision-making.”
-
-
-
-> “In finance, that could be a basic rules-based fraud system — for example, flagging a transaction if it’s over $10,000 and from a flagged country. It’s not learning from data — it's just following logic we’ve hardcoded. But that’s still AI.”
-
-
+🟩 Step 1: Input Collection
+We start with a bunch of company PDF reports.
+The goal is to extract specific insights — like green steel percentage, or renewable energy usage.
+Instead of manually reading each report, we let AI handle it.
 
 
 ---
 
-🔹 Machine Learning (ML)
+🟨 Step 2: Preprocessing
+Here’s where it gets interesting.
+We first extract all the text and page numbers from each PDF.
 
-> “Now, within AI, we have Machine Learning — this is when we move from programming logic to letting the system learn from data.”
+But these documents are too long for AI models to process at once.
+This is because of something called a token limit — AI models can only read a limited amount of text in one go (like a person who can only remember one chapter at a time).
 
-
-
-> “Think of it like this: instead of saying ‘If X happens, do Y,’ we feed the model data about what’s happened in the past, and it figures out patterns. In asset management, one classic use case is predicting client churn. The model looks at past behavior — like AUM drops, fewer logins, and service requests — and learns what patterns typically lead to a client leaving.”
-
-
-
-> “It doesn’t need rules. It learns the risk indicators from the data itself.”
-
-
+To handle that, I used a method called chunking.
+Think of it like cutting the document into small, readable sections — like slicing a cake.
+These chunks slightly overlap to make sure nothing important is left out.
+This step is super important for accuracy and performance.
 
 
 ---
 
-🔹 Deep Learning (DL)
+🟦 Step 3: Embedding Creation
+Each chunk of text is then turned into something called an embedding — this is like a smart numerical fingerprint that helps the AI understand and compare meanings.
 
-> “Deep Learning is a more advanced form of ML. It uses what’s called neural networks, which are designed to mimic how the human brain processes information — but don’t worry, you don’t need to know the math.”
-
-
-
-> “Where ML works well with structured data like spreadsheets, deep learning is great for unstructured data — like emails, documents, audio, even images.”
-
-
-
-> “A finance use case here could be detecting insider risk. A deep learning model could analyze large volumes of internal emails and pick up subtle language patterns — like tone, urgency, sentiment — that might indicate misconduct.”
-
-
+I used a lightweight model called MiniLM to do this.
+And I also stored all the embeddings in a FAISS database, so we can quickly search through them later.
 
 
 ---
 
-🔹 Generative AI (GenAI)
+🧠 Step 4: Query and Retrieval
+Now when we want to ask a question — like “What’s the share of green steel?” —
+Here’s what happens:
 
-> “And finally, we come to the one that’s dominating headlines — Generative AI.”
-
-
-
-> “Unlike traditional ML or DL models that classify or predict, GenAI creates. It generates completely new content — text, code, images — based on what it’s learned during training.”
+1. The system searches the FAISS database to find the most relevant chunks
 
 
-
-> “In our world, this might look like:
-
+2. It sends those chunks along with the question to GPT-4o using an API
 
 
-Auto-generating fund commentaries from raw performance data
-
-Summarizing ESG reports
-
-Drafting client-facing insights based on internal research notes.”
+3. GPT-4o reads just those relevant parts and gives back a structured answer
 
 
-> “You feed it context — and it produces high-quality drafts in seconds. That’s the power of GenAI.”
 
-
+This saves time, avoids confusion, and gives targeted insights.
 
 
 ---
 
-🧠 How to Remember the Difference
-
-> “So the progression looks like this:
-
-Speaker Notes – Slide 6: Zoom Poll (Use Case Classification)
-
-> “Let’s pause here for a quick poll. I want to see how confidently we can connect AI buzzwords to actual use cases — especially the kinds we deal with in finance and asset management.”
-
-
-
-> “On the left, you’ll see a chatbot summarizing lengthy investment reports when asked something like, ‘What were the main Q4 risks?’ That’s a real-world scenario some of us are already starting to see.”
-
-
-
-> “And on the right, we’ve got another common use case: a system that automatically classifies transactions as fraudulent or not, based on past labeled data.”
-
-
-
-> “So for each case, choose the most accurate AI category you think powers it.”
-
-
-
-> [Pause for responses]
-
-
+📊 Step 5: Output
+The answer, along with source page and confidence (if needed), is saved neatly in Excel.
+This makes it easy for downstream analysis, dashboards, or reporting.
 
 
 ---
 
-✅ Answer Key (for post-poll discussion)
-
-Left side:
-
-> Correct Answer: C) Generative AI
-Because the chatbot is not just retrieving or classifying — it’s creating original summaries based on context and natural language queries. This is the hallmark of GenAI.
-
-
-
-Right side:
-
-> Correct Answer: B) Machine Learning
-This system is learning from historical labeled data (fraudulent vs. not), and predicting based on that — which is exactly what ML is designed to do.
-
-
+So in short:
+This system is fully automated, scalable, and customizable — it lets us go from raw PDFs to clear, structured answers using GenAI, without needing to manually read through every document.”
 
 
 ---
 
-🧠 Wrap-up Talking Point:
-
-> “These examples highlight why it's important to understand how different types of AI show up in our workflows. GenAI gets the spotlight, but traditional ML is doing a lot of the heavy lifting behind the scenes — especially in compliance, fraud, and portfolio modeling.”
-
-Speaker Notes – Slide 7 (with Animation Reveal)
-
-> “Let’s talk about prompts — arguably the most powerful skill you can build right now for working with AI.”
-
-
-
-> “A prompt is how you talk to a language model. It’s your instruction, your question, or your context. But just like with a junior analyst — vague requests lead to vague results.”
-
-
-
-> “Take these examples on the left.
-‘Write a fund commentary.’
-‘Summarize this PDF.’
-‘Explain portfolio performance.’
-They’re simple, but also a bit too open-ended. There’s no timeframe, no focus, no clarity.”
-
-
-
-> [Now click to reveal the right-hand side]
-
-
-
-> “Now compare those to this.”
-
-
-
-> “Instead of just ‘write a fund commentary’, we say:
-‘Write a Q1 2024 fund commentary for a UK equity fund, focusing on sector rotation.’
-That gives the AI clear context, a defined scope, and a focus area.”
-
-
-
-> “We’ve essentially turned a vague request into a strong brief — the kind that actually saves time rather than creating more edits later.”
-
-
-
-> “If you’re writing prompts — or even asking AI follow-up questions — keep this checklist in mind: ✔️ Be clear
-✔️ Provide context
-✔️ Define the output format
-✔️ Choose a role or tone
-✔️ Add constraints or detail”
-
-
-
-> “That’s how you go from generic AI output to high-quality, finance-relevant results — fast.”
-
-
-
-
----
-
-Speaker Notes – Slide 8: Prompt Engineering Techniques (Detailed Version)
-
-> “So now that we’ve seen what makes a good prompt versus a vague one, let’s go one step further and look at two powerful prompt engineering techniques you can apply — both designed to help you get much more accurate, structured, and relevant outputs from GenAI tools.”
-
-
-
-
----
-
-🔶 Technique 1: Role + Task + Context + Format
-
-> “This technique is great when you want GenAI to generate something for you — like a fund commentary, a summary, or a write-up. Think of it like briefing an intern or a junior analyst.”
-
-
-
-> “You start by assigning a role — this sets the tone. For example: ‘You are a fund manager.’ That already tells the AI how it should ‘think’ and write.”
-
-
-
-> “Then you give a task — what exactly do you want it to do? In this case: ‘Summarize the Q2 2025 performance of our multi-asset income fund.’”
-
-
-
-> “Now, add context — so it knows what matters: ‘Global equities underperformed, fixed income provided downside protection, USD strength impacted EM exposure.’ This helps avoid generic answers.”
-
-
-
-> “And finally, you specify the output format: ‘3 bullet points followed by a 1-paragraph summary in a professional tone.’ This ensures the result is structured, concise, and usable — not a blob of AI ramble.”
-
-
-
-
----
-
-✅ Why this works:
-
-Role sets tone and voice (PM vs. analyst vs. client rep)
-
-Task focuses the model on exactly what you need
-
-Context ensures it's relevant to your data or situation
-
-Format gives you control over how it’s delivered (which matters a lot when you copy-paste into reports or client materials)
-
-
-> “I often say: if you wouldn’t brief a colleague by saying ‘Write a commentary’, don’t brief an AI model that way either.”
-
-
-
-
----
-
-🔷 Technique 2: Step-by-Step Decomposition (Chain-of-Thought Prompting)
-
-> “Now this second technique is more about analysis than generation — it’s for when you want the AI to reason through something in stages, rather than guessing at a complete answer.”
-
-
-
-> “Let’s say you’re asking: ‘Why did our equity fund underperform in Q3?’ That’s a tricky one, even for a human.”
-
-
-
-> “So instead of just asking the AI for a direct answer, you break it down like this:
-
-
-
-First, identify macroeconomic drivers
-
-Then, analyze sector-level allocation differences
-
-Then, summarize how these contributed to underperformance
-
-Finally, give a short concluding summary”
-
-
-
----
-
-✅ Why this works:
-
-It encourages structured thinking, like a checklist
-
-It reduces hallucination because the model isn't trying to shortcut to a vague answer
-
-And it mimics how we naturally reason through problems — especially in finance
-
-
-> “This is particularly useful for things like:
-
-
-
-ESG signal interpretation
-
-Root-cause analysis
-
-Stress test commentary
-
-Or summarizing multiple drivers behind performance variance”
-
-
-
----
-
-📊 Which one should you use?
-
-> “If you need a polished, well-written answer — use Role + Task + Context + Format. It’s your go-to for writing tasks, summaries, insights, and communication.”
-
-
-
-> “If you need thoughtful breakdowns or critical thinking — go for step-by-step prompting. It’s your go-to when you’d otherwise build a bullet framework in your head or on paper.”
-
-
-
-
----
-
-> “Together, these two techniques cover most use cases you’ll encounter in your day-to-day — whether you're drafting content, extracting insights from reports, or building commentary with internal data.”
-
-Speaker Notes – Slide 9: Learning Pathways & Next Steps
-
-> “Before we close, I want to leave you with a few clear and practical next steps.”
-
-
-
-> “If today sparked your curiosity, and you're wondering where do I go from here?, here are some great options already available internally at HSBC.”
-
-
-
-
----
-
-🔹 Join the AI Academy
-
-> “Start with the AI Academy — it's a self-paced learning space with curated content, from beginner to advanced. Whether you want to get familiar with GenAI or learn how models work behind the scenes, it’s a great launchpad.”
-
-
-
-
----
-
-🔹 Become an AI Ambassador
-
-> “If you're interested in championing AI use cases or supporting your team with adoption, you can join the AI Ambassador Network. It’s a cross-functional group sharing tips, ideas, and success stories across the business.”
-
-
-
-
----
-
-🔹 Explore Tools Already Available
-
-> “We already have some tools in place — like GitHub Copilot for programming support, and other copilots in our AI Productivity Suite being tested or rolled out. These aren’t just experiments — they’re here to help streamline our daily work.”
-
-
-
-
----
-
-🔹 Stay Updated on the HSBC AI Productivity Suite
-
-> “If you’re in a non-technical role, don’t worry — AI tools are coming your way too. Keep an eye out for updates and new features that may roll out in Excel, Outlook, and internal tools — designed to save time and boost quality.”
-
-
-
-
----
-
-🔹 Get in Touch for Use Case Help
-
-> “And finally, if you’re working on a use case and wondering how AI can help — or you just want a sounding board — reach out to the AM Data Science Team. That’s us — we’re here to help connect the dots and collaborate on smart solutions.”
-
-
-
-
----
-
-🎯 Closing Message
-
-> “AI isn’t something we need to fear or ignore. It’s something we need to understand — so we can use it confidently, creatively, and responsibly.”
-
-
-
-> “You don’t have to become an AI expert — you just need to become an expert at using AI to do what you already do best.”
-
-
-
-> “Thank you so much for your time — and please feel free to reach out if you'd like to explore more.”
-
-> “And just before we wrap up — there’s a good chance we’ll be doing a Part 2 of this session soon. That one will be a bit more hands-on — diving into live use cases, workflows, and maybe even letting you experiment with AI tools yourselves.”
-
-
-
-> “So if today felt like a solid foundation, Part 2 will be about building on it — and applying it directly to the work we do across Asset Management.”
-
-
-
-> “We’ll share more details soon, so keep an eye on internal comms — or feel free to drop us a note if you’re interested in being part of that!”
-
-
-AI makes machines behave smartly.
-
-ML helps them learn from data.
-
-DL makes that learning powerful with unstructured data.
-
-GenAI takes it a step further — it learns and creates.”
-
-
-> “Each step adds more capability — and also more responsibility in how we use it.”
-
+Let me know if you want to add a use case or analogy — like “It’s like asking an expert to skim 100 reports and just give you the key points”!
 
