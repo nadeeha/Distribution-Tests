@@ -1,89 +1,38 @@
-def build_validation_prompt(row, theme_definitions):
-    theme = row['Assigned_Theme']
-    theme_def = theme_definitions.get(theme, "No definition provided")
+Perfect — let’s turn that flow into a task assignment table for your team based on the customer churn use case using Vertex AI (MLOps Level 1).
 
-    prompt = f"""
-You are a domain expert in ESG and thematic investing. Your task is to validate whether a revenue stream reasonably fits into a given investment theme.
+Please confirm how many team members you’re assigning (and their names/roles if you'd like them included). For now, I’ll assume 4 members and assign sample roles. You can update this later.
 
-Even if the connection is loose, conceptual, or economic, that’s acceptable. Be generous in interpretation.
 
-Theme: {theme}
-Definition: {theme_def}
+---
 
-Revenue Stream Info:
-L1: {row['L1']}
-L2: {row['L2']}
-L3: {row['L3']}
-L4: {row['L4']}
-L5: {row['L5']}
-L6: {row['L6']}
-Description: {row['Description']}
+🔧 Team Task Allocation Table – Vertex AI MLOps Level 1 (Customer Churn Use Case)
 
-Return only one of the following:
-- "Valid Theme Match"
-- "Possibly Related – Needs Review"
-- "Invalid Match"
-""".strip()
+Step	Vertex AI Component	Key Task	Owner / Role	Deliverable
 
-    return prompt
+1. Data Ingestion & EDA	Vertex AI Notebooks	Upload churn dataset, perform EDA, identify missing values, clean data	Data Engineer – Priya	Cleaned dataset, EDA summary
+2. Feature Engineering	Feature Store	Define key features, ingest to offline store, setup online serving	ML Engineer – Rahul	Feature registry config, feature ingestion script
+3. Dataset Creation	Dataset Service (Optional)	Create managed dataset if using AutoML, else prepare train/test splits	ML Engineer – Rahul	Vertex AI dataset or split data in GCS
+4A. Model Dev – AutoML	AutoML Tabular	Configure AutoML training job, monitor logs	ML Engineer – Rahul	AutoML model, logs, metrics
+4B. Model Dev – Custom	Custom Training	Prepare training script (e.g., XGBoost), configure training job	ML Researcher – Ayesha	Custom-trained model, training logs
+5. Model Registry	Model Registry	Register model, update metadata (accuracy, version, notes)	MLOps Lead – Nadeeha	Model version in registry with tags
+6. Model Evaluation	Notebooks / Scripts	Evaluate model (AUC, recall, confusion matrix), document results	ML Researcher – Ayesha	Evaluation notebook, ROC/PR plots
+7A. Deployment – Online	Vertex AI Endpoint	Deploy model, test with sample inputs	MLOps Lead – Nadeeha	Live endpoint, test results
+7B. Deployment – Batch	Batch Prediction	Run batch job on unseen customers, store predictions	Data Engineer – Priya	Batch prediction output in GCS
+8. Monitoring	Model Monitoring	Configure drift detection, alerting thresholds, setup dashboards	MLOps Lead – Nadeeha	Monitoring dashboard, alert setup
+9. Pipelines (Optional)	Vertex Pipelines	Build training → eval → deployment pipeline using SDK	ML Engineer – Rahul	Working pipeline script, run logs
 
 
 
-from tqdm import tqdm
-import openai
+---
 
-openai.api_key = "YOUR_OPENAI_KEY"
+Let me know if you'd like:
 
-def validate_theme(row, theme_definitions):
-    prompt = build_validation_prompt(row, theme_definitions)
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
-    
-    return response.choices[0].message["content"].strip()
+Real names and roles of your team inserted
 
-# Add progress bar and apply
-tqdm.pandas()
-df['Validation_Result'] = df.progress_apply(lambda row: validate_theme(row, theme_definitions), axis=1)
+A version for Confluence / slide decks
+
+Export to Excel / CSV / Markdown
 
 
+Want to tackle the notebook templates or infra setup next?
 
-
-
-
-
-import openai
-import pandas as pd
-from tqdm import tqdm
-
-openai.api_key = "YOUR_OPENAI_KEY"
-
-def validate_theme(row, theme_definitions):
-    prompt = build_validation_prompt(row, theme_definitions)
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
-    
-    content = response.choices[0].message["content"].strip()
-    
-    # Extract answer and reason
-    try:
-        validation = content.split("Validation:")[1].split("Reason:")[0].strip().strip('"')
-        reason = content.split("Reason:")[1].strip()
-    except Exception:
-        validation, reason = "ParseError", content
-
-    return pd.Series([validation, reason], index=["Validation_Result", "Validation_Reason"])
-
-# Run with progress bar
-tqdm.pandas()
-df[["Validation_Result", "Validation_Reason"]] = df.progress_apply(
-    lambda row: validate_theme(row, theme_definitions),
-    axis=1
-)
