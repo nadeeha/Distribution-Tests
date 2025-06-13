@@ -1,32 +1,58 @@
-Perfect! With your ongoing work on the thematic portfolio project, your experience with ESG, taxonomy mapping, and integration of GenAI for theme classification—I'll enrich the milestones with relevant internal context, technical scope, and anticipated next steps.
-
-Here's an expanded and insight-rich milestone table tailored for your Confluence page:
+Thanks, Nadeeha — that helps! Based on your stakeholders (Data Science, IT, Business Owners, IQ Lab, Innovation & Ventures), I’ll build a RACI matrix grouped by focus area (e.g., Data, Modeling, Deployment, Reporting, etc.) and then list specific service tasks within each focus.
 
 
 ---
 
-📅 Thematic Portfolio – Detailed Milestones & Deliverables
+📘 RACI Matrix – Pilot & Production (Structured by Focus Area)
 
-Milestone	Key Deliverables
+Focus Area	Service Task	Data Science	IT	Business Owners	IQ Lab	Innovation & Ventures
 
-Preparation Phase (Jan 2025)	- Trial Analysis: Evaluated FactSet trial dataset to determine coverage and granularity of revenue segments, entity mappings, and thematic signals. <br> - GenAI Fitment Check: Assessed feasibility of using GenAI (e.g., GPT-4o) for mapping business activities (L6 descriptions) to themes using a 3-level taxonomy. <br> - Governance & Access: Secured GenAI governance approvals and aligned on model usage restrictions. <br> - Data Licensing: Licensed full FactSet dataset, enabling scaled coverage across active equities, ETFs, and custom indices.
-Proof of Concept (Jan–May 2025)	- Biodiversity Theme: Mapped companies contributing to biodiversity using ESG-BERT + GPT validation, in partnership with Group Innovation & Ventures. Included both positive contribution and potential controversies. <br> - Climate & Circular Economy: Built thematic logic trees for Climate Mitigation, Adaptation, and Circular Economy. Aligned with internal sustainable investment criteria. <br> - Natural Resources Themes: Developed taxonomy-driven classifications (e.g., clean water, forestry, sustainable mining) across 3 natural resource areas. <br> - ETF & Index Testing (MA): Applied thematic classification to 30+ ETFs and indices. Analyzed coverage, concentration, and overlaps using entity-weighted holdings and ISIN-level mapping. Early insights helped refine L6 → L1 taxonomy structure.
-Pilot & Production (H2 2025)	- Rulebook Development: Drafted formal inclusion/exclusion criteria and revenue thresholds for MA (Model Alignment) and PB (Private Banking) use cases. <br> - Model Portfolio Construction: Created model portfolios with defined theme purity, diversified exposure, and ESG score optimization. Incorporated fallback logic for missing L6 values. <br> - Productionization: Integrated outputs into investment tooling and dashboards; pipelines operationalized for regular refresh. <br> - Environmental Themes v1 Enhancements: Improved the logic behind classifications by including emission scope tagging and regional alignment for better comparability.
-SDG Solution (Post-Pilot)	- SDG Alignment: Used piloted themes to design an SDG tagging model aligning revenue activities to the 17 UN SDGs. Focused on transparent logic for auditability. <br> - Solution Build: Developed front-end or Power BI dashboards to display SDG alignment per portfolio, ISIN, or theme cluster. Enabled drilldowns and KPI metrics (e.g., % aligned revenue).
-FactSet Data Enablement (Sep 2025–2026)	- Centralized Onboarding: Data Team to formalize onboarding of licensed FactSet datasets into cloud environment (GCP/BQ), ensuring compatibility with AI pipelines. <br> - Ongoing Enhancements: Plan for delta updates, better entity resolution, and inclusion of private company data where feasible. Will also support quarterly thematic refresh cycles.
+1. Data Enablement	Ingest and clean FactSet data into BQ	C	R/A	I	I	I
+	Maintain entity & ISIN mapping	R	C	I	I	I
+	Enable versioning and delta loads	C	R	I	I	I
+2. Theme Classification Engine	Build L6 → Theme mapping logic using GenAI + rules	R/A	C	C	C	C
+	Validate edge cases with GPT or domain input	R		C	A	C
+	Finalize inclusion/exclusion rules per theme	R		A	C	C
+3. Model Portfolio Construction	Apply rules to create portfolios (MA & PB use cases)	R/A	C	C	C	I
+	Define backtesting or performance metrics	R		A	C	C
+4. Automation & Deployment	Set up Airflow/Composer jobs for pipeline	C	R/A	I	I	I
+	Build modular config-driven scripts	R	C	I	I	I
+	Ensure compliance logging (GenAI use, overrides)	R	C	I	A	I
+5. Reporting & Consumption	Export portfolio outputs to dashboards (Power BI, etc.)	R	C	I	I	I
+	Create downloadable outputs (Excel/PDF)	R	C	I		
+	Build SDG-aligned theme overlays	R	C	C	I	A
+6. Governance & Oversight	Ensure explainability of model outputs	R		A	C	C
+	Conduct regular stakeholder reviews	A	I	R	C	C
 
 
 
 ---
 
-Would you like:
+📌 Legend
 
-A JIRA-style breakdown for these deliverables?
+R: Responsible — does the work
 
-A visual timeline for Confluence (e.g., Gantt or swimlane)?
+A: Accountable — owns the outcome
 
-A “What's Next” block for the team?
+C: Consulted — provides input
+
+I: Informed — kept in the loop
 
 
-Happy to build those as well.
+
+---
+
+📎 How to Present in Confluence
+
+1. Create collapsible sections per focus area
+
+
+2. Use tables like above within each section
+
+
+3. Add stakeholder personas (e.g., “IT = Cloud Engineering team”) for clarity
+
+
+
+Would you like a downloadable version (Excel, PNG table, or Lucidchart) or a visual matrix showing it as a grid with stakeholders on columns and tasks as rows?
 
