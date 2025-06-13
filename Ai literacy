@@ -1,122 +1,32 @@
-Got it! Since you built the API-based GPT-4o pipeline, here’s a refined and confident set of speaker notes that positions your work as the more scalable, customizable, and production-ready solution:
+Perfect! With your ongoing work on the thematic portfolio project, your experience with ESG, taxonomy mapping, and integration of GenAI for theme classification—I'll enrich the milestones with relevant internal context, technical scope, and anticipated next steps.
+
+Here's an expanded and insight-rich milestone table tailored for your Confluence page:
 
 
 ---
 
-🎙️ Speaker Notes (highlighting API pipeline advantage):
+📅 Thematic Portfolio – Detailed Milestones & Deliverables
 
-> “What you’re seeing here is a comparison between a manual UI-based tool and the API-based GPT-4o pipeline that I built for extracting information from annual reports.
+Milestone	Key Deliverables
 
-
-
-While tools like Lydia on the left are useful for one-off queries and quick exploration, they’re limited in scope — you upload a single PDF, ask a question, and wait for a response. It’s great for demo purposes but not feasible at scale.
-
-What I implemented instead is the setup on the right — a fully programmatic solution using GPT-4o APIs.
-This allows us to:
-
-Ingest and process multiple documents in one go
-
-Extract targeted answers linked to metadata like company names
-
-Integrate into automated workflows or databases
-
-Add layers like filtering, custom formatting, or validation rules
-
-
-It’s highly customizable, reusable across use cases, and importantly — removes the manual bottlenecks.
-This makes it production-ready, whether we’re analyzing ESG disclosures, sector reports, or extracting data for dashboards.
-
-In short, this isn’t just a smarter solution — it’s a scalable GenAI system that plugs directly into our existing workflows.”
-
-
----
-
-Let me know if you want a shorter version or a follow-up slide with technical highlights like “Prompt engineering”, “metadata linking”, or “validation layers”.
-
-
-
-
-
-
-
-
-Got it! Here's a full, simple and clear speaker note for Slide 2 — explaining the entire pipeline including chunking and token limits, in a natural and beginner-friendly way:
-
-
----
-
-🎙️ Speaker Notes – Slide 2: Information Retrieval from Company Reports Using GenAI
-
-> “This slide walks through the full process I used to extract useful information from long company ESG or sustainability reports using GenAI — specifically OpenAI’s GPT-4o.
-
+Preparation Phase (Jan 2025)	- Trial Analysis: Evaluated FactSet trial dataset to determine coverage and granularity of revenue segments, entity mappings, and thematic signals. <br> - GenAI Fitment Check: Assessed feasibility of using GenAI (e.g., GPT-4o) for mapping business activities (L6 descriptions) to themes using a 3-level taxonomy. <br> - Governance & Access: Secured GenAI governance approvals and aligned on model usage restrictions. <br> - Data Licensing: Licensed full FactSet dataset, enabling scaled coverage across active equities, ETFs, and custom indices.
+Proof of Concept (Jan–May 2025)	- Biodiversity Theme: Mapped companies contributing to biodiversity using ESG-BERT + GPT validation, in partnership with Group Innovation & Ventures. Included both positive contribution and potential controversies. <br> - Climate & Circular Economy: Built thematic logic trees for Climate Mitigation, Adaptation, and Circular Economy. Aligned with internal sustainable investment criteria. <br> - Natural Resources Themes: Developed taxonomy-driven classifications (e.g., clean water, forestry, sustainable mining) across 3 natural resource areas. <br> - ETF & Index Testing (MA): Applied thematic classification to 30+ ETFs and indices. Analyzed coverage, concentration, and overlaps using entity-weighted holdings and ISIN-level mapping. Early insights helped refine L6 → L1 taxonomy structure.
+Pilot & Production (H2 2025)	- Rulebook Development: Drafted formal inclusion/exclusion criteria and revenue thresholds for MA (Model Alignment) and PB (Private Banking) use cases. <br> - Model Portfolio Construction: Created model portfolios with defined theme purity, diversified exposure, and ESG score optimization. Incorporated fallback logic for missing L6 values. <br> - Productionization: Integrated outputs into investment tooling and dashboards; pipelines operationalized for regular refresh. <br> - Environmental Themes v1 Enhancements: Improved the logic behind classifications by including emission scope tagging and regional alignment for better comparability.
+SDG Solution (Post-Pilot)	- SDG Alignment: Used piloted themes to design an SDG tagging model aligning revenue activities to the 17 UN SDGs. Focused on transparent logic for auditability. <br> - Solution Build: Developed front-end or Power BI dashboards to display SDG alignment per portfolio, ISIN, or theme cluster. Enabled drilldowns and KPI metrics (e.g., % aligned revenue).
+FactSet Data Enablement (Sep 2025–2026)	- Centralized Onboarding: Data Team to formalize onboarding of licensed FactSet datasets into cloud environment (GCP/BQ), ensuring compatibility with AI pipelines. <br> - Ongoing Enhancements: Plan for delta updates, better entity resolution, and inclusion of private company data where feasible. Will also support quarterly thematic refresh cycles.
 
 
 
 ---
 
-🟩 Step 1: Input Collection
-We start with a bunch of company PDF reports.
-The goal is to extract specific insights — like green steel percentage, or renewable energy usage.
-Instead of manually reading each report, we let AI handle it.
+Would you like:
+
+A JIRA-style breakdown for these deliverables?
+
+A visual timeline for Confluence (e.g., Gantt or swimlane)?
+
+A “What's Next” block for the team?
 
 
----
-
-🟨 Step 2: Preprocessing
-Here’s where it gets interesting.
-We first extract all the text and page numbers from each PDF.
-
-But these documents are too long for AI models to process at once.
-This is because of something called a token limit — AI models can only read a limited amount of text in one go (like a person who can only remember one chapter at a time).
-
-To handle that, I used a method called chunking.
-Think of it like cutting the document into small, readable sections — like slicing a cake.
-These chunks slightly overlap to make sure nothing important is left out.
-This step is super important for accuracy and performance.
-
-
----
-
-🟦 Step 3: Embedding Creation
-Each chunk of text is then turned into something called an embedding — this is like a smart numerical fingerprint that helps the AI understand and compare meanings.
-
-I used a lightweight model called MiniLM to do this.
-And I also stored all the embeddings in a FAISS database, so we can quickly search through them later.
-
-
----
-
-🧠 Step 4: Query and Retrieval
-Now when we want to ask a question — like “What’s the share of green steel?” —
-Here’s what happens:
-
-1. The system searches the FAISS database to find the most relevant chunks
-
-
-2. It sends those chunks along with the question to GPT-4o using an API
-
-
-3. GPT-4o reads just those relevant parts and gives back a structured answer
-
-
-
-This saves time, avoids confusion, and gives targeted insights.
-
-
----
-
-📊 Step 5: Output
-The answer, along with source page and confidence (if needed), is saved neatly in Excel.
-This makes it easy for downstream analysis, dashboards, or reporting.
-
-
----
-
-So in short:
-This system is fully automated, scalable, and customizable — it lets us go from raw PDFs to clear, structured answers using GenAI, without needing to manually read through every document.”
-
-
----
-
-Let me know if you want to add a use case or analogy — like “It’s like asking an expert to skim 100 reports and just give you the key points”!
+Happy to build those as well.
 
