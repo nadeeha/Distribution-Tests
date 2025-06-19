@@ -1,94 +1,133 @@
+Perfect! Keeping all the tasks based on one single DataFrame is a great idea — it's closer to real-world data exploration where analysts and developers iterate multiple operations on the same dataset.
+
+
+---
+
+🧩 Unified DataFrame for All Tasks
+
 import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
-# Simulated dfs_dict
-dfs_dict = {
-    'xaix_gt': pd.DataFrame({
-        'entity_proper_name': ['Apple', 'Microsoft', 'Nvidia', 'AMD', 'Intel', 'Broadcom', 'Cisco', 'Salesforce', 'Adobe', 'Oracle', 'HP'],
-        'weight': [0.3, 0.25, 0.2, 0.1, 0.05, 0.03, 0.02, 0.015, 0.01, 0.01, 0.01],
-        'ETF-Index Name': ['XAIX Global Tech'] * 11
-    }),
-    'lock_ln': pd.DataFrame({
-        'entity_proper_name': ['Lockheed', 'Raytheon', 'Northrop', 'BAE Systems', 'Thales', 'General Dynamics', 'L3 Harris', 'Leonardo', 'Elbit', 'Saab', 'Kongsberg'],
-        'weight': [0.4, 0.2, 0.15, 0.1, 0.05, 0.03, 0.025, 0.015, 0.01, 0.01, 0.01],
-        'ETF-Index Name': ['LOCK Defense Leaders'] * 11
-    })
-}
+df = pd.DataFrame({
+    'Customer': ['Alice', 'Bob', 'Charlie', 'Alice', 'Charlie', 'David', 'Eve', 'Bob'],
+    'OrderID': [101, 102, 103, 104, 105, 106, 107, 108],
+    'Region': ['East', 'West', 'East', 'South', 'South', 'East', 'West', 'South'],
+    'Amount': [250, 400, 180, 300, 520, 190, 270, 380],
+    'Product': ['Laptop', 'Phone', 'Tablet', 'Laptop', 'Phone', 'Tablet', 'Laptop', 'Phone'],
+    'Quantity': [1, 2, 1, 1, 3, 1, 1, 2],
+    'Profit': [50, 60, 30, 55, 80, 35, 40, 70]
+})
 
-# Create subplot figure
-fig = make_subplots(
-    rows=2, cols=1,
-    subplot_titles=["Top 10 Holdings by Weight", "Weight Distribution"],
-    vertical_spacing=0.2
-)
+This dataset includes:
 
-# Traces and buttons
-buttons = []
-for i, (etf_key, df) in enumerate(dfs_dict.items()):
-    df = df.drop_duplicates(subset='entity_proper_name')
-    df_sorted = df.sort_values('weight', ascending=False)
-    top10 = df_sorted.head(10)
-    index_name = df['ETF-Index Name'].iloc[0]
+Customer orders
 
-    # Top 10 bar (row 1)
-    bar = go.Bar(
-        x=top10['entity_proper_name'],
-        y=top10['weight'],
-        text=(top10['weight'] * 100).round(1).astype(str) + '%',
-        name=f'Top 10 - {index_name}',
-        textposition='outside',
-        visible=(i == 0),
-        xaxis='x1',
-        yaxis='y1'
-    )
+Product and sales info
 
-    # Histogram (row 2)
-    hist = go.Histogram(
-        x=df_sorted['weight'],
-        nbinsx=10,
-        name=f'Distribution - {index_name}',
-        visible=(i == 0),
-        xaxis='x2',
-        yaxis='y2'
-    )
+Region, quantity, and profit data
 
-    fig.add_trace(bar, row=1, col=1)
-    fig.add_trace(hist, row=2, col=1)
 
-    # Visibility toggles
-    visibility = [False] * (len(dfs_dict) * 2)
-    visibility[2 * i] = True
-    visibility[2 * i + 1] = True
 
-    buttons.append({
-        'label': index_name,
-        'method': 'update',
-        'args': [
-            {'visible': visibility},
-            {'title': f"ETF Analysis: {index_name}"}
-        ]
-    })
+---
 
-# Layout
-fig.update_layout(
-    height=700,
-    showlegend=False,
-    title=f"ETF Analysis: {list(dfs_dict.values())[0]['ETF-Index Name'].iloc[0]}",
-    updatemenus=[{
-        'buttons': buttons,
-        'direction': 'down',
-        'showactive': True,
-        'x': 0.5,
-        'xanchor': 'center',
-        'y': 1.15,
-        'yanchor': 'top'
-    }]
-)
+🧪 Tasks Based on This DataFrame
 
-fig.update_yaxes(title_text="Weight", row=1, col=1, tickformat=".0%")
-fig.update_yaxes(title_text="Count", row=2, col=1)
-fig.update_xaxes(title_text="Company", row=1, col=1)
-fig.update_xaxes(title_text="Weight", row=2, col=1, tickformat=".0%")
 
-fig.show()
+---
+
+🔍 Filtering Questions
+
+
+---
+
+✅ 1. Filter orders from the 'East' or 'South' region where Amount > 200
+
+df_filtered = df[(df['Region'].isin(['East', 'South'])) & (df['Amount'] > 200)]
+
+
+---
+
+✅ 2. Get all orders where the product is 'Phone' and quantity is greater than 1
+
+df_phone_multiple = df[(df['Product'] == 'Phone') & (df['Quantity'] > 1)]
+
+
+---
+
+✅ 3. Show customers who placed more than one order
+
+multi_order_customers = df[df['Customer'].duplicated(keep=False)]
+
+
+---
+
+📊 GroupBy and Aggregation Questions
+
+
+---
+
+✅ 4. Compute total Amount and average Profit per region
+
+region_summary = df.groupby('Region').agg({
+    'Amount': 'sum',
+    'Profit': 'mean'
+}).rename(columns={'Amount': 'TotalAmount', 'Profit': 'AvgProfit'})
+
+
+---
+
+✅ 5. For each customer, calculate total quantity purchased and max order amount
+
+customer_summary = df.groupby('Customer').agg({
+    'Quantity': 'sum',
+    'Amount': 'max'
+}).rename(columns={'Quantity': 'TotalQuantity', 'Amount': 'MaxOrderAmount'})
+
+
+---
+
+✅ 6. Filter groups: show only customers whose average order amount > 300
+
+high_spenders = df.groupby('Customer').filter(lambda x: x['Amount'].mean() > 300)
+
+
+---
+
+🔗 Merge-Style Tasks Using Only This DataFrame
+
+Instead of merging separate tables, simulate merge-like logic within the DataFrame.
+
+
+---
+
+✅ 7. Simulate a join: For each order, compute a UnitPrice = Amount / Quantity
+
+df['UnitPrice'] = df['Amount'] / df['Quantity']
+
+
+---
+
+✅ 8. Add a derived column TotalProfitPercent = (Profit / Amount) * 100
+
+df['TotalProfitPercent'] = (df['Profit'] / df['Amount']) * 100
+
+
+---
+
+✅ 9. Rank orders within each region by amount
+
+df['RegionRank'] = df.groupby('Region')['Amount'].rank(ascending=False, method='dense').astype(int)
+
+
+---
+
+Would you like me to bundle these into:
+
+a Jupyter Notebook template, or
+
+a take-home coding test format, or
+
+add "find the bug" variants to test deeper understanding?
+
+
+Let me know how you'd like to use them!
+
