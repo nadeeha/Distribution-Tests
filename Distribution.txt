@@ -2,63 +2,85 @@ import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 
-# Your ETF DataFrame
-# df = pd.read_csv("your_data.csv")
+# Unique ETFs based on your column
+etfs = df["ETF-Index Name"].dropna().unique()
 
-themes = df["Theme"].dropna().unique()
+# Deduplicated version for weight/market cap analysis
+df_unique = df.drop_duplicates(subset=["ETF-Index Name", "ISIN"])
+
+# HTML content per ETF
 html_sections = ""
 
-for theme in themes:
-    df_theme = df[df["Theme"] == theme].copy()
-    section_html = f"<h1 style='text-align:center;'>{theme}</h1>"
+for etf in etfs:
+    df_etf = df[df["ETF-Index Name"] == etf].copy()
+    df_etf_unique = df_unique[df_unique["ETF-Index Name"] == etf].copy()
+    section_html = f"<div id='{etf}' class='etf-section'><h2 style='text-align:center;'>{etf}</h2>"
 
-    # 1. Weight Distribution
-    fig1 = px.box(df_theme, x="weight", points="all", title=f"Weight Distribution - {theme}")
+    # 1. Weight Distribution (deduplicated)
+    fig1 = px.box(df_etf_unique, x="weight", points="all", title="Weight Distribution")
     section_html += pio.to_html(fig1, include_plotlyjs=False, full_html=False)
 
     # 2. L3 vs L6 ISIN Count
-    l3_l6 = df_theme.groupby(["l3_name", "l6_name"])["ISIN"].nunique().reset_index(name="isin_count")
-    fig2 = px.bar(l3_l6, x="isin_count", y="l3_name", color="l6_name", orientation="h",
-                  title=f"L3 vs L6 ISIN Count - {theme}")
+    l3_l6 = df_etf.groupby(["l3_name", "l6_name"])["ISIN"].nunique().reset_index(name="isin_count")
+    fig2 = px.bar(l3_l6, x="isin_count", y="l3_name", color="l6_name", orientation="h", title="L3 vs L6 ISIN Count")
     section_html += pio.to_html(fig2, include_plotlyjs=False, full_html=False)
 
     # 3. GICS Sector ISIN Count
-    gics = df_theme.groupby("gics_sector_name")["ISIN"].nunique().reset_index(name="isin_count")
-    fig3 = px.bar(gics, x="gics_sector_name", y="isin_count", title=f"GICS Sector ISIN Count - {theme}")
+    gics = df_etf.groupby("gics_sector_name")["ISIN"].nunique().reset_index(name="isin_count")
+    fig3 = px.bar(gics, x="gics_sector_name", y="isin_count", title="GICS Sector ISIN Count")
     section_html += pio.to_html(fig3, include_plotlyjs=False, full_html=False)
 
-    # 4. Market Cap by Sector
-    fig4 = px.box(df_theme, x="gics_sector_name", y="market_cap",
-                  title=f"Market Cap by Sector - {theme}")
+    # 4. Market Cap by Sector (deduplicated)
+    fig4 = px.box(df_etf_unique, x="gics_sector_name", y="market_cap", title="Market Cap by Sector")
     section_html += pio.to_html(fig4, include_plotlyjs=False, full_html=False)
 
     # 5. Sector Weight
-    sector_weight = df_theme.groupby("gics_sector_name")["weight"].sum().reset_index()
-    fig5 = px.bar(sector_weight, x="gics_sector_name", y="weight", title=f"Sector Weight - {theme}")
+    sector_weight = df_etf.groupby("gics_sector_name")["weight"].sum().reset_index()
+    fig5 = px.bar(sector_weight, x="gics_sector_name", y="weight", title="Sector Weight")
     section_html += pio.to_html(fig5, include_plotlyjs=False, full_html=False)
 
     # 6. Industry Weight
-    industry_weight = df_theme.groupby("gics_industry_group_name")["weight"].sum().reset_index()
-    fig6 = px.bar(industry_weight, x="gics_industry_group_name", y="weight",
-                  title=f"Industry Weight - {theme}")
+    industry_weight = df_etf.groupby("gics_industry_group_name")["weight"].sum().reset_index()
+    fig6 = px.bar(industry_weight, x="gics_industry_group_name", y="weight", title="Industry Weight")
     section_html += pio.to_html(fig6, include_plotlyjs=False, full_html=False)
 
+    section_html += "</div>"
     html_sections += section_html
 
-# Final HTML with header
+# Dropdown filter JS
+dropdown_script = """
+<script>
+function showETF(selected) {
+    const sections = document.querySelectorAll('.etf-section');
+    sections.forEach(div => {
+        div.style.display = div.id === selected ? 'block' : 'none';
+    });
+}
+</script>
+"""
+
+# HTML header with dropdown
+dropdown_menu = "<select onchange='showETF(this.value)' style='margin:20px;'>"
+dropdown_menu += "".join([f"<option value='{etf}'>{etf}</option>" for etf in etfs])
+dropdown_menu += "</select>"
+
+# Combine everything
 full_html = f"""
 <html>
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <title>ETF Theme Analysis</title>
+    <title>ETF Analysis Dashboard</title>
 </head>
 <body style='font-family:sans-serif;'>
-    <h1 style='text-align:center;'>ETF Theme Analysis Dashboard</h1>
+    <h1 style='text-align:center;'>ETF Dashboard - Filter by ETF-Index Name</h1>
+    <div style='text-align:center;'>{dropdown_menu}</div>
     {html_sections}
+    {dropdown_script}
+    <script>showETF('{etfs[0]}')</script>
 </body>
 </html>
 """
 
 # Save to file
-with open("etf_theme_analysis.html", "w", encoding="utf-8") as f:
+with open("etf_index_name_dropdown_dashboard.html", "w", encoding="utf-8") as f:
     f.write(full_html)
