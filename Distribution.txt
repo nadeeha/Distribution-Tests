@@ -1,133 +1,64 @@
-Perfect! Keeping all the tasks based on one single DataFrame is a great idea — it's closer to real-world data exploration where analysts and developers iterate multiple operations on the same dataset.
-
-
----
-
-🧩 Unified DataFrame for All Tasks
-
 import pandas as pd
-
-df = pd.DataFrame({
-    'Customer': ['Alice', 'Bob', 'Charlie', 'Alice', 'Charlie', 'David', 'Eve', 'Bob'],
-    'OrderID': [101, 102, 103, 104, 105, 106, 107, 108],
-    'Region': ['East', 'West', 'East', 'South', 'South', 'East', 'West', 'South'],
-    'Amount': [250, 400, 180, 300, 520, 190, 270, 380],
-    'Product': ['Laptop', 'Phone', 'Tablet', 'Laptop', 'Phone', 'Tablet', 'Laptop', 'Phone'],
-    'Quantity': [1, 2, 1, 1, 3, 1, 1, 2],
-    'Profit': [50, 60, 30, 55, 80, 35, 40, 70]
-})
-
-This dataset includes:
-
-Customer orders
-
-Product and sales info
-
-Region, quantity, and profit data
-
-
-
----
-
-🧪 Tasks Based on This DataFrame
-
-
----
-
-🔍 Filtering Questions
-
-
----
-
-✅ 1. Filter orders from the 'East' or 'South' region where Amount > 200
-
-df_filtered = df[(df['Region'].isin(['East', 'South'])) & (df['Amount'] > 200)]
-
-
----
-
-✅ 2. Get all orders where the product is 'Phone' and quantity is greater than 1
-
-df_phone_multiple = df[(df['Product'] == 'Phone') & (df['Quantity'] > 1)]
-
-
----
-
-✅ 3. Show customers who placed more than one order
-
-multi_order_customers = df[df['Customer'].duplicated(keep=False)]
-
-
----
-
-📊 GroupBy and Aggregation Questions
-
-
----
-
-✅ 4. Compute total Amount and average Profit per region
-
-region_summary = df.groupby('Region').agg({
-    'Amount': 'sum',
-    'Profit': 'mean'
-}).rename(columns={'Amount': 'TotalAmount', 'Profit': 'AvgProfit'})
-
-
----
-
-✅ 5. For each customer, calculate total quantity purchased and max order amount
-
-customer_summary = df.groupby('Customer').agg({
-    'Quantity': 'sum',
-    'Amount': 'max'
-}).rename(columns={'Quantity': 'TotalQuantity', 'Amount': 'MaxOrderAmount'})
-
-
----
-
-✅ 6. Filter groups: show only customers whose average order amount > 300
-
-high_spenders = df.groupby('Customer').filter(lambda x: x['Amount'].mean() > 300)
-
-
----
-
-🔗 Merge-Style Tasks Using Only This DataFrame
-
-Instead of merging separate tables, simulate merge-like logic within the DataFrame.
-
-
----
-
-✅ 7. Simulate a join: For each order, compute a UnitPrice = Amount / Quantity
-
-df['UnitPrice'] = df['Amount'] / df['Quantity']
-
-
----
-
-✅ 8. Add a derived column TotalProfitPercent = (Profit / Amount) * 100
-
-df['TotalProfitPercent'] = (df['Profit'] / df['Amount']) * 100
-
-
----
-
-✅ 9. Rank orders within each region by amount
-
-df['RegionRank'] = df.groupby('Region')['Amount'].rank(ascending=False, method='dense').astype(int)
-
-
----
-
-Would you like me to bundle these into:
-
-a Jupyter Notebook template, or
-
-a take-home coding test format, or
-
-add "find the bug" variants to test deeper understanding?
-
-
-Let me know how you'd like to use them!
-
+import plotly.express as px
+import plotly.io as pio
+
+# Your ETF DataFrame
+# df = pd.read_csv("your_data.csv")
+
+themes = df["Theme"].dropna().unique()
+html_sections = ""
+
+for theme in themes:
+    df_theme = df[df["Theme"] == theme].copy()
+    section_html = f"<h1 style='text-align:center;'>{theme}</h1>"
+
+    # 1. Weight Distribution
+    fig1 = px.box(df_theme, x="weight", points="all", title=f"Weight Distribution - {theme}")
+    section_html += pio.to_html(fig1, include_plotlyjs=False, full_html=False)
+
+    # 2. L3 vs L6 ISIN Count
+    l3_l6 = df_theme.groupby(["l3_name", "l6_name"])["ISIN"].nunique().reset_index(name="isin_count")
+    fig2 = px.bar(l3_l6, x="isin_count", y="l3_name", color="l6_name", orientation="h",
+                  title=f"L3 vs L6 ISIN Count - {theme}")
+    section_html += pio.to_html(fig2, include_plotlyjs=False, full_html=False)
+
+    # 3. GICS Sector ISIN Count
+    gics = df_theme.groupby("gics_sector_name")["ISIN"].nunique().reset_index(name="isin_count")
+    fig3 = px.bar(gics, x="gics_sector_name", y="isin_count", title=f"GICS Sector ISIN Count - {theme}")
+    section_html += pio.to_html(fig3, include_plotlyjs=False, full_html=False)
+
+    # 4. Market Cap by Sector
+    fig4 = px.box(df_theme, x="gics_sector_name", y="market_cap",
+                  title=f"Market Cap by Sector - {theme}")
+    section_html += pio.to_html(fig4, include_plotlyjs=False, full_html=False)
+
+    # 5. Sector Weight
+    sector_weight = df_theme.groupby("gics_sector_name")["weight"].sum().reset_index()
+    fig5 = px.bar(sector_weight, x="gics_sector_name", y="weight", title=f"Sector Weight - {theme}")
+    section_html += pio.to_html(fig5, include_plotlyjs=False, full_html=False)
+
+    # 6. Industry Weight
+    industry_weight = df_theme.groupby("gics_industry_group_name")["weight"].sum().reset_index()
+    fig6 = px.bar(industry_weight, x="gics_industry_group_name", y="weight",
+                  title=f"Industry Weight - {theme}")
+    section_html += pio.to_html(fig6, include_plotlyjs=False, full_html=False)
+
+    html_sections += section_html
+
+# Final HTML with header
+full_html = f"""
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>ETF Theme Analysis</title>
+</head>
+<body style='font-family:sans-serif;'>
+    <h1 style='text-align:center;'>ETF Theme Analysis Dashboard</h1>
+    {html_sections}
+</body>
+</html>
+"""
+
+# Save to file
+with open("etf_theme_analysis.html", "w", encoding="utf-8") as f:
+    f.write(full_html)
