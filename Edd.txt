@@ -1,45 +1,46 @@
-import plotly.graph_objects as go
 import pandas as pd
+import plotly.express as px
 
-# Prepare dropdown options
-etf_options = df["ETF-Index Name"].dropna().unique().tolist()
-etf_options.insert(0, "All ETFs")  # Add "All" option
+# Ensure df has relevant columns and drop missing
+df_filtered = df.dropna(subset=["gics_sector_name", "weight", "ETF-Index Name"]).copy()
 
-# Prepare box plot traces for each ETF
-traces = []
-buttons = []
+# Unique ETF list
+etfs = df_filtered["ETF-Index Name"].dropna().unique().tolist()
+etfs.insert(0, "All ETFs")
 
-# Generate trace for "All ETFs"
-df_all = df.dropna(subset=["gics_sector_name", "weight"])
-traces.append(go.Box(
-    x=df_all["gics_sector_name"],
-    y=df_all["weight"],
-    name="All ETFs",
-    boxpoints="all",
-    visible=True  # only this one visible initially
+# Create box plot with all ETFs
+fig = px.box(
+    df_filtered,
+    x="gics_sector_name",
+    y="weight",
+    color="ETF-Index Name",
+    points="outliers",  # ✅ only show outliers
+    title="Weight Distribution by GICS Sector Across ETFs"
+)
+
+# Create dropdown buttons
+dropdown_buttons = []
+
+# Button for "All ETFs"
+dropdown_buttons.append(dict(
+    label="All ETFs",
+    method="update",
+    args=[{"visible": [True] * len(fig.data)}]
 ))
-buttons.append(dict(label="All ETFs", method="update", args=[{"visible": [True] + [False]*(len(etf_options)-1)}]))
 
-# Generate traces for each individual ETF
-for etf in etf_options[1:]:
-    df_etf = df[df["ETF-Index Name"] == etf]
-    traces.append(go.Box(
-        x=df_etf["gics_sector_name"],
-        y=df_etf["weight"],
-        name=etf,
-        boxpoints="all",
-        visible=False
+# Buttons for individual ETFs
+for etf in etfs[1:]:
+    visibility = [(trace.name == etf) for trace in fig.data]
+    dropdown_buttons.append(dict(
+        label=etf,
+        method="update",
+        args=[{"visible": visibility}]
     ))
-    # Set visibility mask
-    visibility = [False] * len(etf_options)
-    visibility[etf_options.index(etf)] = True
-    buttons.append(dict(label=etf, method="update", args=[{"visible": visibility}]))
 
-# Create figure with dropdown menu
-fig = go.Figure(data=traces)
+# Add dropdown menu to layout
 fig.update_layout(
     updatemenus=[{
-        "buttons": buttons,
+        "buttons": dropdown_buttons,
         "direction": "down",
         "showactive": True,
         "x": 0.5,
@@ -47,10 +48,10 @@ fig.update_layout(
         "y": 1.15,
         "yanchor": "top"
     }],
-    title="Weight Distribution per GICS Sector by ETF",
     xaxis_title="GICS Sector",
     yaxis_title="Weight",
     height=700
 )
 
+# Show plot
 fig.show()
