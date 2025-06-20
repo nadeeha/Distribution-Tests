@@ -1,26 +1,15 @@
-# 7. Exposure Bucket Analysis
-    df_etf_dedup['exposure'] = df_etf_dedup['weight'] * df_etf_dedup['l6_revenue_pct'] / 100
+# Country exposure (use full df, but deduplicate ISIN-level)
+df_etf_country = df[df["ETF-Index Name"] == etf].copy()
+df_etf_country['exposure'] = (df_etf_country['weight'] * df_etf_country['l6_revenue_pct']) / 100
+country_exposure = df_etf_country.groupby('am_country_of_risk_code')['exposure'].sum().reset_index()
 
-    def bucket_exposure(val):
-        if val == 0:
-            return '0 (No Exposure)'
-        elif val <= 0.5:
-            return 'Low (0-0.5%)'
-        elif val <= 1.5:
-            return 'Mid (0.5-1.5%)'
-        else:
-            return 'High (>1.5%)'
+fig_country = px.bar(
+    country_exposure,
+    x='am_country_of_risk_code',
+    y='exposure',
+    title="Country of Risk Exposure",
+    labels={'am_country_of_risk_code': 'Country Code', 'exposure': 'Exposure (%)'},
+    color='am_country_of_risk_code'
+)
 
-    df_etf_dedup['exposure_bucket'] = df_etf_dedup['exposure'].apply(bucket_exposure)
-
-    # Sector Exposure Bucket
-    sector_bucket = df_etf_dedup.groupby(['gics_sector_name', 'exposure_bucket']).size().reset_index(name='count')
-    fig7 = px.bar(sector_bucket, x='gics_sector_name', y='count', color='exposure_bucket',
-                  barmode='stack', title="Sector-wise Exposure Bucket Distribution")
-    section_html += pio.to_html(fig7, include_plotlyjs=False, full_html=False)
-
-    # Industry Exposure Bucket
-    industry_bucket = df_etf_dedup.groupby(['gics_industry_group_name', 'exposure_bucket']).size().reset_index(name='count')
-    fig8 = px.bar(industry_bucket, x='gics_industry_group_name', y='count', color='exposure_bucket',
-                  barmode='stack', title="Industry-wise Exposure Bucket Distribution")
-    section_html += pio.to_html(fig8, include_plotlyjs=False, full_html=False)
+section_html += pio.to_html(fig_country, include_plotlyjs=False, full_html=False)
