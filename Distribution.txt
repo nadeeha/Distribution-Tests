@@ -1,85 +1,33 @@
-import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 
-# 1. Create ETF dropdown values
-etfs = df["ETF-Index Name"].dropna().unique()
+# Deduplicate to one row per ISIN per ETF
+df_box = df.drop_duplicates(subset=["ETF-Index Name", "ISIN"])
 
-# 2. Deduplicate only once for ISIN-level attributes
-df_dedup = df.drop_duplicates(subset=["ETF-Index Name", "ISIN"])
+# Count ISINs per ETF
+isin_counts = df_box.groupby("ETF-Index Name")["ISIN"].nunique().reset_index(name="ISIN Count")
 
-# 3. Build HTML section per ETF
-html_sections = ""
+# Merge count back to deduped df
+df_box = df_box.merge(isin_counts, on="ETF-Index Name", how="left")
 
-for etf in etfs:
-    df_etf = df[df["ETF-Index Name"] == etf].copy()
-    df_etf_dedup = df_dedup[df_dedup["ETF-Index Name"] == etf].copy()
-    section_html = f"<div id='{etf}' class='etf-section'><h2 style='text-align:center;'>{etf}</h2>"
+# Create box plot with additional hover data
+fig = px.box(
+    df_box,
+    x="ETF-Index Name",
+    y="weight",
+    color="ETF-Index Name",
+    points="all",
+    hover_data=["ISIN", "gics_sector_name", "ISIN Count"],
+    title="Weight Distribution Across ETFs with Sector & ISIN Info"
+)
 
-    # 1. Weight Distribution (use deduped)
-    fig1 = px.box(df_etf_dedup, x="weight", points="all", title="Weight Distribution")
-    section_html += pio.to_html(fig1, include_plotlyjs=False, full_html=False)
+fig.update_layout(
+    xaxis_title="ETF",
+    yaxis_title="Weight",
+    showlegend=False,
+    height=650
+)
 
-    # 2. L3 vs L6 ISIN Count (use full df)
-    l3_l6 = df_etf.groupby(["l3_name", "l6_name"])["ISIN"].nunique().reset_index(name="isin_count")
-    fig2 = px.bar(l3_l6, x="isin_count", y="l3_name", color="l6_name", orientation="h", title="L3 vs L6 ISIN Count")
-    section_html += pio.to_html(fig2, include_plotlyjs=False, full_html=False)
-
-    # 3. GICS Sector ISIN Count (deduped)
-    gics = df_etf_dedup.groupby("gics_sector_name")["ISIN"].nunique().reset_index(name="isin_count")
-    fig3 = px.bar(gics, x="gics_sector_name", y="isin_count", title="GICS Sector ISIN Count")
-    section_html += pio.to_html(fig3, include_plotlyjs=False, full_html=False)
-
-    # 4. Market Cap by Sector (deduped)
-    fig4 = px.box(df_etf_dedup, x="gics_sector_name", y="market_cap", title="Market Cap by Sector")
-    section_html += pio.to_html(fig4, include_plotlyjs=False, full_html=False)
-
-    # 5. Sector Weight (deduped)
-    sector_weight = df_etf_dedup.groupby("gics_sector_name")["weight"].sum().reset_index()
-    fig5 = px.bar(sector_weight, x="gics_sector_name", y="weight", title="Sector Weight")
-    section_html += pio.to_html(fig5, include_plotlyjs=False, full_html=False)
-
-    # 6. Industry Weight (deduped)
-    industry_weight = df_etf_dedup.groupby("gics_industry_group_name")["weight"].sum().reset_index()
-    fig6 = px.bar(industry_weight, x="gics_industry_group_name", y="weight", title="Industry Weight")
-    section_html += pio.to_html(fig6, include_plotlyjs=False, full_html=False)
-
-    section_html += "</div>"
-    html_sections += section_html
-
-# 4. Add dropdown selector
-dropdown_script = """
-<script>
-function showETF(selected) {
-    const sections = document.querySelectorAll('.etf-section');
-    sections.forEach(div => {
-        div.style.display = div.id === selected ? 'block' : 'none';
-    });
-}
-</script>
-"""
-
-dropdown_menu = "<select onchange='showETF(this.value)' style='margin:20px;'>"
-dropdown_menu += "".join([f"<option value='{etf}'>{etf}</option>" for etf in etfs])
-dropdown_menu += "</select>"
-
-# 5. Combine into final HTML
-full_html = f"""
-<html>
-<head>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <title>ETF Dashboard with Dropdown</title>
-</head>
-<body style='font-family:sans-serif;'>
-    <h1 style='text-align:center;'>ETF Dashboard by ETF-Index Name</h1>
-    <div style='text-align:center;'>{dropdown_menu}</div>
-    {html_sections}
-    {dropdown_script}
-    <script>showETF('{etfs[0]}')</script>
-</body>
-</html>
-"""
-
-# 6. Save file
-with open("etf_index_name_dropdown_dashboard.html", "w", encoding="utf-8") as f:
-    f.write(full_html)
+# Save to HTML
+with open("etf_weight_boxplot_with_sector.html", "w", encoding="utf-8") as f:
+    f.write(pio.to_html(fig, include_plotlyjs=True, full_html=True))
