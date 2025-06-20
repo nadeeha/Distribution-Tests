@@ -1,57 +1,37 @@
 import pandas as pd
 import plotly.express as px
 
-# Ensure df has relevant columns and drop missing
-df_filtered = df.dropna(subset=["gics_sector_name", "weight", "ETF-Index Name"]).copy()
+# Assuming you have a DataFrame `df` with the required columns:
+# "ETF-Index Name", "gics_sector_name", and "weight"
 
-# Unique ETF list
-etfs = df_filtered["ETF-Index Name"].dropna().unique().tolist()
-etfs.insert(0, "All ETFs")
-
-# Create box plot with all ETFs
-fig = px.box(
-    df_filtered,
-    x="gics_sector_name",
-    y="weight",
-    color="ETF-Index Name",
-    points="outliers",  # ✅ only show outliers
-    title="Weight Distribution by GICS Sector Across ETFs"
+# Step 1: Group by ETF and GICS sector, and sum weights
+sector_share = (
+    df.groupby(["ETF-Index Name", "gics_sector_name"])["weight"]
+    .sum()
+    .groupby(level=0)
+    .apply(lambda x: 100 * x / x.sum())  # Normalize to percentage
+    .reset_index(name="pct")
 )
 
-# Create dropdown buttons
-dropdown_buttons = []
+# Step 2: Plot stacked bar chart
+fig = px.bar(
+    sector_share,
+    x="ETF-Index Name",
+    y="pct",
+    color="gics_sector_name",
+    title="Sector Composition by ETF (Stacked %)",
+    labels={"pct": "Sector Share (%)", "gics_sector_name": "GICS Sector"},
+    text_auto=".1f"
+)
 
-# Button for "All ETFs"
-dropdown_buttons.append(dict(
-    label="All ETFs",
-    method="update",
-    args=[{"visible": [True] * len(fig.data)}]
-))
-
-# Buttons for individual ETFs
-for etf in etfs[1:]:
-    visibility = [(trace.name == etf) for trace in fig.data]
-    dropdown_buttons.append(dict(
-        label=etf,
-        method="update",
-        args=[{"visible": visibility}]
-    ))
-
-# Add dropdown menu to layout
+# Formatting
 fig.update_layout(
-    updatemenus=[{
-        "buttons": dropdown_buttons,
-        "direction": "down",
-        "showactive": True,
-        "x": 0.5,
-        "xanchor": "center",
-        "y": 1.15,
-        "yanchor": "top"
-    }],
-    xaxis_title="GICS Sector",
-    yaxis_title="Weight",
-    height=700
+    barmode="stack",
+    xaxis_title="ETF",
+    yaxis_title="Sector Share (%)",
+    legend_title="GICS Sector",
+    uniformtext_minsize=8,
+    uniformtext_mode='hide'
 )
 
-# Show plot
 fig.show()
