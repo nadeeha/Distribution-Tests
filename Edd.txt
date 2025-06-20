@@ -1,32 +1,56 @@
-import pandas as pd
 import plotly.graph_objects as go
-import plotly.io as pio
+import pandas as pd
 
-# Drop duplicate ISINs within each ETF and GICS sector
-isin_counts = df.drop_duplicates(subset=["ETF-Index Name", "ISIN", "gics_sector_name"])
+# Prepare dropdown options
+etf_options = df["ETF-Index Name"].dropna().unique().tolist()
+etf_options.insert(0, "All ETFs")  # Add "All" option
 
-# Group by ETF and sector, count ISINs
-heatmap_data = isin_counts.groupby(['ETF-Index Name', 'gics_sector_name'])['ISIN'].count().reset_index()
+# Prepare box plot traces for each ETF
+traces = []
+buttons = []
 
-# Pivot to matrix form
-heatmap_matrix = heatmap_data.pivot(index='gics_sector_name', columns='ETF-Index Name', values='ISIN').fillna(0)
-
-# Plotly heatmap
-fig = go.Figure(data=go.Heatmap(
-    z=heatmap_matrix.values,
-    x=heatmap_matrix.columns,
-    y=heatmap_matrix.index,
-    colorscale='Blues',
-    colorbar=dict(title='Unique ISIN Count')
+# Generate trace for "All ETFs"
+df_all = df.dropna(subset=["gics_sector_name", "weight"])
+traces.append(go.Box(
+    x=df_all["gics_sector_name"],
+    y=df_all["weight"],
+    name="All ETFs",
+    boxpoints="all",
+    visible=True  # only this one visible initially
 ))
+buttons.append(dict(label="All ETFs", method="update", args=[{"visible": [True] + [False]*(len(etf_options)-1)}]))
 
+# Generate traces for each individual ETF
+for etf in etf_options[1:]:
+    df_etf = df[df["ETF-Index Name"] == etf]
+    traces.append(go.Box(
+        x=df_etf["gics_sector_name"],
+        y=df_etf["weight"],
+        name=etf,
+        boxpoints="all",
+        visible=False
+    ))
+    # Set visibility mask
+    visibility = [False] * len(etf_options)
+    visibility[etf_options.index(etf)] = True
+    buttons.append(dict(label=etf, method="update", args=[{"visible": visibility}]))
+
+# Create figure with dropdown menu
+fig = go.Figure(data=traces)
 fig.update_layout(
-    title='Heatmap: ISIN Count by GICS Sector across ETFs',
-    xaxis_title='ETF-Index Name',
-    yaxis_title='GICS Sector',
-    height=600
+    updatemenus=[{
+        "buttons": buttons,
+        "direction": "down",
+        "showactive": True,
+        "x": 0.5,
+        "xanchor": "center",
+        "y": 1.15,
+        "yanchor": "top"
+    }],
+    title="Weight Distribution per GICS Sector by ETF",
+    xaxis_title="GICS Sector",
+    yaxis_title="Weight",
+    height=700
 )
 
-# Save as HTML
-with open("etf_gics_sector_isin_count_heatmap.html", "w", encoding="utf-8") as f:
-    f.write(pio.to_html(fig, include_plotlyjs=True, full_html=True))
+fig.show()
