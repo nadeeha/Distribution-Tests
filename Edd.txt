@@ -1,15 +1,32 @@
-# Country exposure (use full df, but deduplicate ISIN-level)
-df_etf_country = df[df["ETF-Index Name"] == etf].copy()
-df_etf_country['exposure'] = (df_etf_country['weight'] * df_etf_country['l6_revenue_pct']) / 100
-country_exposure = df_etf_country.groupby('am_country_of_risk_code')['exposure'].sum().reset_index()
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.io as pio
 
-fig_country = px.bar(
-    country_exposure,
-    x='am_country_of_risk_code',
-    y='exposure',
-    title="Country of Risk Exposure",
-    labels={'am_country_of_risk_code': 'Country Code', 'exposure': 'Exposure (%)'},
-    color='am_country_of_risk_code'
+# Drop duplicate ISINs within each ETF and GICS sector
+isin_counts = df.drop_duplicates(subset=["ETF-Index Name", "ISIN", "gics_sector_name"])
+
+# Group by ETF and sector, count ISINs
+heatmap_data = isin_counts.groupby(['ETF-Index Name', 'gics_sector_name'])['ISIN'].count().reset_index()
+
+# Pivot to matrix form
+heatmap_matrix = heatmap_data.pivot(index='gics_sector_name', columns='ETF-Index Name', values='ISIN').fillna(0)
+
+# Plotly heatmap
+fig = go.Figure(data=go.Heatmap(
+    z=heatmap_matrix.values,
+    x=heatmap_matrix.columns,
+    y=heatmap_matrix.index,
+    colorscale='Blues',
+    colorbar=dict(title='Unique ISIN Count')
+))
+
+fig.update_layout(
+    title='Heatmap: ISIN Count by GICS Sector across ETFs',
+    xaxis_title='ETF-Index Name',
+    yaxis_title='GICS Sector',
+    height=600
 )
 
-section_html += pio.to_html(fig_country, include_plotlyjs=False, full_html=False)
+# Save as HTML
+with open("etf_gics_sector_isin_count_heatmap.html", "w", encoding="utf-8") as f:
+    f.write(pio.to_html(fig, include_plotlyjs=True, full_html=True))
