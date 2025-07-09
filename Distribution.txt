@@ -1,39 +1,98 @@
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import plotly.io as pio
 
-# Assuming df is your ETF dataframe with columns: ETF-Index Name, SECTOR, weight, market_cap
+# Replace with your actual dataframe
+# Must include: 'ETF-Index Name', 'SECTOR', 'ISIN', 'weight', 'market_cap'
 
-# Metric 2a – Portfolio Sector Weight
+# Dummy example data
+df = pd.DataFrame({
+    'ETF-Index Name': ['ETF A'] * 4 + ['ETF B'] * 4,
+    'SECTOR': ['Tech', 'Health', 'Energy', 'Tech', 'Tech', 'Health', 'Energy', 'Finance'],
+    'ISIN': ['A1', 'A2', 'A3', 'A1', 'B1', 'B2', 'B3', 'B4'],
+    'weight': [10, 15, 5, 10, 20, 10, 5, 5],
+    'market_cap': [100, 200, 150, 100, 300, 150, 120, 80]
+})
+
+# Metric 1a: ISIN count per ETF-Sector
+metric_1a = df.groupby(['ETF-Index Name', 'SECTOR'])['ISIN'].nunique().unstack(fill_value=0)
+
+# Metric 1b: Total weight per ETF-Sector
+metric_1b = df.groupby(['ETF-Index Name', 'SECTOR'])['weight'].sum().unstack(fill_value=0)
+
+# Metric 2a: Portfolio sector weight (normalized)
 portfolio_wt = df.groupby(['ETF-Index Name', 'SECTOR'])['weight'].sum()
 portfolio_wt = portfolio_wt.groupby(level=0).apply(lambda x: x / x.sum()).unstack(fill_value=0)
 
-# Metric 2b – Market Cap Sector Weight
-cap = df.drop_duplicates(subset=['ETF-Index Name', 'ISIN'])  # Deduplicate ISIN-level market cap
+# Metric 2b: Market cap sector weight (normalized)
+cap = df.drop_duplicates(subset=['ETF-Index Name', 'ISIN'])
 cap_sector = cap.groupby(['ETF-Index Name', 'SECTOR'])['market_cap'].sum()
 cap_sector = cap_sector.groupby(level=0).apply(lambda x: x / x.sum()).unstack(fill_value=0)
 
-# Metric 2c – Active Multiple
+# Metric 2c: Active multiple
 active_multiple = portfolio_wt / cap_sector
 active_multiple = active_multiple.replace([np.inf, -np.inf], np.nan).fillna(0)
 
-def make_heatmap(data, title, colorscale):
-    return go.Figure(data=go.Heatmap(
-        z=data.values,
-        x=data.columns,
-        y=data.index,
-        colorscale=colorscale,
-        text=np.round(data.values, 2),
-        texttemplate="%{text}",
-        hoverinfo="x+y+z"
-    )).update_layout(title=title, xaxis_title="SECTOR", yaxis_title="ETF")
+# Function to make heatmaps
+def make_heatmap_html(df_data, title, colorscale):
+    fig = go.Figure(data=go.Heatmap(
+        z=df_data.values,
+        x=df_data.columns.tolist(),
+        y=df_data.index.tolist(),
+        text=np.round(df_data.values, 2).astype(str),
+        hovertemplate="ETF: %{y}<br>Sector: %{x}<br>Value: %{z}<extra></extra>",
+        colorscale=colorscale
+    ))
+    fig.update_layout(title=title, xaxis_title="Sector", yaxis_title="ETF Index")
+    return pio.to_html(fig, include_plotlyjs=False, full_html=False)
 
-# Generate figures
-fig2a = make_heatmap(portfolio_wt, "Metric 2a: Portfolio Sector Weight", "Blues")
-fig2b = make_heatmap(cap_sector, "Metric 2b: Market Cap Sector Weight", "Greens")
-fig2c = make_heatmap(active_multiple, "Metric 2c: Active Multiple", "Oranges")
+# Heatmap dictionary
+heatmaps = {
+    "Metric 1a: ISIN Count": make_heatmap_html(metric_1a, "Metric 1a: ISIN Count", "Blues"),
+    "Metric 1b: Weight Sum": make_heatmap_html(metric_1b, "Metric 1b: Total Weight", "Purples"),
+    "Metric 2a: Portfolio Sector Weight": make_heatmap_html(portfolio_wt, "Metric 2a: Portfolio Sector Weight", "Blues"),
+    "Metric 2b: Market Cap Sector Weight": make_heatmap_html(cap_sector, "Metric 2b: Market Cap Sector Weight", "Greens"),
+    "Metric 2c: Active Multiple": make_heatmap_html(active_multiple, "Metric 2c: Active Multiple", "Oranges")
+}
 
-# Display or export
-fig2a.show()
-fig2b.show()
-fig2c.show()
+# Dropdown logic
+dropdown_script = """
+<script>
+function showMetric(id) {
+    var sections = document.querySelectorAll('.metric-section');
+    sections.forEach(section => {
+        section.style.display = section.id === id ? 'block' : 'none';
+    });
+}
+</script>
+"""
+
+dropdown_menu = "<select onchange='showMetric(this.value)' style='margin:20px;'>"
+for key in heatmaps:
+    dropdown_menu += f"<option value='{key}'>{key}</option>"
+dropdown_menu += "</select>"
+
+# Combine heatmaps
+body_sections = "".join([f"<div id='{key}' class='metric-section' style='display:none'>{heatmaps[key]}</div>" for key in heatmaps])
+
+# Final HTML
+final_html = f"""
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>ETF Exposure Heatmaps</title>
+</head>
+<body style='font-family:sans-serif;'>
+    <h1 style='text-align:center;'>ETF Exposure Metrics</h1>
+    <div style='text-align:center;'>{dropdown_menu}</div>
+    {body_sections}
+    {dropdown_script}
+    <script>showMetric("{list(heatmaps.keys())[0]}")</script>
+</body>
+</html>
+"""
+
+# Save HTML to file
+with open("/mnt/data/etf_all_metrics_heatmap.html", "w", encoding="utf-8") as f:
+    f.write(final_html)
