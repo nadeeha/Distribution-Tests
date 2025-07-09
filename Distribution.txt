@@ -1,33 +1,78 @@
-import plotly.express as px
-import plotly.io as pio
+import pandas as pd
+import plotly.graph_objects as go
 
-# Deduplicate to one row per ISIN per ETF
-df_box = df.drop_duplicates(subset=["ETF-Index Name", "ISIN"])
+# Assuming df is your main DataFrame
+# Step 1: Drop duplicates at ISIN-ETF-GICS level (to avoid double counting due to L6 splits)
+df_unique = df[['ISIN', 'ETF-Index Name', 'gics_sector']].drop_duplicates()
 
-# Count ISINs per ETF
-isin_counts = df_box.groupby("ETF-Index Name")["ISIN"].nunique().reset_index(name="ISIN Count")
+# Step 2: Calculate total ISIN count per ETF (for Metric 1a denominator)
+total_isin_per_etf = df_unique.groupby('ETF-Index Name')['ISIN'].nunique().to_dict()
 
-# Merge count back to deduped df
-df_box = df_box.merge(isin_counts, on="ETF-Index Name", how="left")
+# Step 3: Calculate total ISIN count per GICS sector across all ETFs (for Metric 1b denominator)
+total_isin_per_sector = df_unique.groupby('gics_sector')['ISIN'].nunique().to_dict()
 
-# Create box plot with additional hover data
-fig = px.box(
-    df_box,
-    x="ETF-Index Name",
-    y="weight",
-    color="ETF-Index Name",
-    points="all",
-    hover_data=["ISIN", "gics_sector_name", "ISIN Count"],
-    title="Weight Distribution Across ETFs with Sector & ISIN Info"
+# Step 4: Count ISINs per (ETF, GICS)
+isin_count = df_unique.groupby(['gics_sector', 'ETF-Index Name'])['ISIN'].nunique().unstack(fill_value=0)
+
+# Step 5: Metric 1a: Normalize by ETF total ISINs
+metric_1a = isin_count.copy()
+for etf in metric_1a.columns:
+    metric_1a[etf] = metric_1a[etf] / total_isin_per_etf.get(etf, 1)
+
+# Step 6: Metric 1b: Normalize by sector universe
+metric_1b = isin_count.copy()
+for sector in metric_1b.index:
+    metric_1b.loc[sector] = metric_1b.loc[sector] / total_isin_per_sector.get(sector, 1)
+
+# Step 7: Create heatmaps with dropdown toggle
+fig = go.Figure()
+
+# Add trace for Metric 1a
+fig.add_trace(
+    go.Heatmap(
+        z=metric_1a.values,
+        x=metric_1a.columns,
+        y=metric_1a.index,
+        colorscale='Blues',
+        visible=True,
+        colorbar=dict(title='1a: Count / ETF Total'),
+        zmin=0, zmax=1
+    )
 )
 
+# Add trace for Metric 1b
+fig.add_trace(
+    go.Heatmap(
+        z=metric_1b.values,
+        x=metric_1b.columns,
+        y=metric_1b.index,
+        colorscale='Greens',
+        visible=False,
+        colorbar=dict(title='1b: Count / Sector Total'),
+        zmin=0, zmax=1
+    )
+)
+
+# Dropdown menu
 fig.update_layout(
-    xaxis_title="ETF",
-    yaxis_title="Weight",
-    showlegend=False,
-    height=650
+    title='ISIN Distribution Heatmap: Metric 1a vs 1b',
+    updatemenus=[
+        dict(
+            buttons=list([
+                dict(label='Metric 1a (ETF-normalized)',
+                     method='update',
+                     args=[{'visible': [True, False]},
+                           {'title': 'Metric 1a: Count / ETF Total'}]),
+                dict(label='Metric 1b (Sector-normalized)',
+                     method='update',
+                     args=[{'visible': [False, True]},
+                           {'title': 'Metric 1b: Count / Sector Total'}])
+            ]),
+            direction='down',
+            showactive=True
+        )
+    ]
 )
 
 # Save to HTML
-with open("etf_weight_boxplot_with_sector.html", "w", encoding="utf-8") as f:
-    f.write(pio.to_html(fig, include_plotlyjs=True, full_html=True))
+fig.write_html("heatmap_metric_1a_1b.html")
