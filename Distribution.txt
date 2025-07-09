@@ -1,112 +1,77 @@
 import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
 
-# Assume df is your main DataFrame
-df_unique = df[['ISIN', 'ETF-Index Name', 'gics_sector', 'weight', 'market_cap']].drop_duplicates()
+# Assume df is already defined with ISIN, ETF-Index Name, SECTOR, weight, market_cap
 
-# ---- Metric 1 ----
-isin_count = df_unique.groupby(['gics_sector', 'ETF-Index Name'])['ISIN'].nunique().unstack(fill_value=0)
+# --- Step 1: Dedup to avoid double-counting per ETF-ISIN-SECTOR
+df_unique = df[['ISIN', 'ETF-Index Name', 'SECTOR', 'weight', 'market_cap']].drop_duplicates()
+
+# --- Step 2: Metric 1a - ISIN count / ETF total ISINs
+isin_count = df_unique.groupby(['SECTOR', 'ETF-Index Name'])['ISIN'].nunique().unstack(fill_value=0)
 total_isin_per_etf = isin_count.sum(axis=0)
+metric_1a = isin_count.divide(total_isin_per_etf, axis=1)
+
+# --- Step 3: Metric 1b - ISIN count / SECTOR total ISINs
 total_isin_per_sector = isin_count.sum(axis=1)
+metric_1b = isin_count.divide(total_isin_per_sector, axis=0)
 
-metric_1a = isin_count.div(total_isin_per_etf, axis=1).fillna(0)
-metric_1b = isin_count.div(total_isin_per_sector, axis=0).fillna(0)
+# --- Step 4: Metric 2a - Weight sum / ETF total weight
+weight_sum = df_unique.groupby(['SECTOR', 'ETF-Index Name'])['weight'].sum().unstack(fill_value=0)
+total_weight_per_etf = weight_sum.sum(axis=0)
+metric_2a = weight_sum.divide(total_weight_per_etf, axis=1)
 
-# ---- Metric 2 ----
-sector_weight = df_unique.groupby(["gics_sector", "ETF-Index Name"])["weight"].sum().unstack(fill_value=0)
-sector_weight_2a = sector_weight.div(sector_weight.sum(axis=0), axis=1).fillna(0)
+# --- Step 5: Metric 2b - Market Cap sum / ETF total Market Cap
+mcap_sum = df_unique.groupby(['SECTOR', 'ETF-Index Name'])['market_cap'].sum().unstack(fill_value=0)
+total_mcap_per_etf = mcap_sum.sum(axis=0)
+metric_2b = mcap_sum.divide(total_mcap_per_etf, axis=1)
 
-sector_mcap = df_unique.groupby(["gics_sector", "ETF-Index Name"])["market_cap"].sum().unstack(fill_value=0)
-sector_weight_2b = sector_mcap.div(sector_mcap.sum(axis=0), axis=1).fillna(0)
+# --- Step 6: Create plotly heatmaps
+fig = go.Figure()
 
-active_multiple_2c = (sector_weight_2a / sector_weight_2b.replace(0, np.nan)).replace([np.inf, -np.inf], np.nan).fillna(0).round(2)
+metrics = {
+    "Metric 1a - ISIN / ETF": metric_1a,
+    "Metric 1b - ISIN / Sector": metric_1b,
+    "Metric 2a - Weight %": metric_2a,
+    "Metric 2b - Market Cap %": metric_2b,
+}
 
-# ---- Plotly Heatmaps ----
-def heatmap_html(data, colorscale, title, colorbar_title):
-    fig = go.Figure(data=go.Heatmap(
-        z=data.values,
-        x=data.columns,
-        y=data.index,
-        colorscale=colorscale,
-        colorbar=dict(title=colorbar_title),
-        zmin=0, zmax=np.nanmax(data.values)
-    ))
-    fig.update_layout(title=title)
-    return fig.to_html(include_plotlyjs=False, full_html=False)
+for i, (title, data) in enumerate(metrics.items()):
+    fig.add_trace(
+        go.Heatmap(
+            z=data.values,
+            x=data.columns,
+            y=data.index,
+            colorscale='Viridis',
+            visible=(i == 0),
+            colorbar=dict(title=title),
+            zmin=0,
+            zmax=1
+        )
+    )
 
-# Generate all charts
-heatmap1a = heatmap_html(metric_1a, 'Blues', 'Metric 1a: Count / ETF Total', 'Metric 1a')
-heatmap1b = heatmap_html(metric_1b, 'Greens', 'Metric 1b: Count / Sector Total', 'Metric 1b')
-heatmap2a = heatmap_html(sector_weight_2a, 'Purples', 'Metric 2a: Portfolio Sector Weight', 'Metric 2a')
-heatmap2b = heatmap_html(sector_weight_2b, 'Oranges', 'Metric 2b: Market Cap Sector Weight', 'Metric 2b')
-heatmap2c = heatmap_html(active_multiple_2c, 'Viridis', 'Metric 2c: Active Multiple', 'Metric 2c')
+# --- Step 7: Add dropdown to toggle metrics
+dropdown_buttons = [
+    dict(label=title,
+         method='update',
+         args=[{'visible': [i == j for j in range(len(metrics))]},
+               {'title': title}])
+    for i, title in enumerate(metrics.keys())
+]
 
-# ---- Full HTML with Tabs ----
-html_tabs = f"""
-<html>
-<head>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        .tab {{
-            display: none;
-        }}
-        .tab-button {{
-            padding: 10px;
-            margin: 5px;
-            background-color: #eee;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }}
-        .tab-button:hover {{
-            background-color: #ccc;
-        }}
-        .tab-button.active {{
-            background-color: #aaa;
-        }}
-    </style>
-    <script>
-        function openTab(tabName) {{
-            const tabs = document.getElementsByClassName('tab');
-            for (let i = 0; i < tabs.length; i++) {{
-                tabs[i].style.display = 'none';
-            }}
-            const buttons = document.getElementsByClassName('tab-button');
-            for (let i = 0; i < buttons.length; i++) {{
-                buttons[i].classList.remove('active');
-            }}
-            document.getElementById(tabName).style.display = 'block';
-            document.getElementById(tabName + '-btn').classList.add('active');
-        }}
-    </script>
-</head>
-<body onload="openTab('metric1')">
-    <h1 style="text-align:center;">Multi-Metric ETF Exposure Dashboard</h1>
-    <div style="text-align:center;">
-        <button class="tab-button" id="metric1-btn" onclick="openTab('metric1')">Metric 1 (ISIN Count)</button>
-        <button class="tab-button" id="metric2-btn" onclick="openTab('metric2')">Metric 2 (Weight / Exposure)</button>
-    </div>
+fig.update_layout(
+    title='ETF Sector Metrics Heatmap',
+    updatemenus=[dict(
+        active=0,
+        buttons=dropdown_buttons,
+        direction='down',
+        showactive=True,
+        x=0.5,
+        xanchor='center',
+        y=1.15,
+        yanchor='top'
+    )],
+    margin=dict(t=100)
+)
 
-    <div id="metric1" class="tab">
-        <h2 style="text-align:center;">Metric 1a: ETF-Normalized ISIN Count</h2>
-        {heatmap1a}
-        <h2 style="text-align:center;">Metric 1b: Sector-Normalized ISIN Count</h2>
-        {heatmap1b}
-    </div>
-
-    <div id="metric2" class="tab">
-        <h2 style="text-align:center;">Metric 2a: Portfolio Sector Weight</h2>
-        {heatmap2a}
-        <h2 style="text-align:center;">Metric 2b: Market Cap Sector Weight</h2>
-        {heatmap2b}
-        <h2 style="text-align:center;">Metric 2c: Active Multiple</h2>
-        {heatmap2c}
-    </div>
-</body>
-</html>
-"""
-
-# Save to HTML
-with open("etf_multitab_dashboard.html", "w", encoding="utf-8") as f:
-    f.write(html_tabs)
+# --- Step 8: Save to HTML
+fig.write_html("heatmap_metrics.html")
