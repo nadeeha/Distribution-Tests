@@ -1,22 +1,92 @@
-Slide Title: MLOps Readiness – Full Demo Capability vs. Level 2 Goals
+Perfect — here’s a clean, professional way to present both the code repository structure and the GCS bucket structure for an MLOps-ready Vertex AI project. You can use this as a slide or reference template in your internal documentation.
 
 
 ---
 
-✅ Our Vertex AI Demo Now Covers Key Level 2 Capabilities
+✅ Slide Title: Recommended Folder Structure for MLOps Projects
 
-Capability	Implementation in Churn Demo	MLOps Level
 
-Data Ingestion & EDA	Performed in Vertex AI Notebooks with EDA summary	✔️ Level 1
-Feature Engineering	Configured Feature Store for offline + online serving	✔️ Level 1
-Dataset Creation	Dataset created using AutoML service or manual splits	✔️ Level 1
-Model Training – AutoML/Custom	Training jobs (AutoML + XGBoost) automated with job logs	✔️ Level 1
-Model Registry	Model metadata registered, versioned with tags	✔️ Level 1
-Model Evaluation	ROC/AUC/Recall documented in evaluation notebook	✔️ Level 1
-Online Deployment	Deployed to Vertex AI Endpoint with test input validations	✔️ Level 1
-Batch Deployment	Predictions written to GCS for batch scoring	✔️ Level 1
-Monitoring & Drift Detection	Drift detection and alert thresholds configured (via Model Monitoring)	🟡 Level 2-ready
-Pipelines (Train → Eval → Deploy)	Vertex Pipelines built using SDK to orchestrate the full ML lifecycle	✔️ Level 2
-CI/CD Integration	GitHub Actions + Cloud Build auto-trigger training, tests, and pipeline deploys	✔️ Level 2
-Continuous Training (CT)	Auto-triggered training pipeline from new data or drift alerts (Cloud Scheduler / Function setup)	✔️ Level 2
-Approval Workflow	Staged deployment with manual approval before pushing to production	✔️ Level 2
+---
+
+🗂️ 1. Code Repository Structure (GitHub/GitLab)
+
+Source of truth for all production logic, pipelines, configs
+
+ml-churn-mlops/                        # Root project folder
+├── data/                              # Data validation, schema logic
+│   └── validate_schema.py
+├── features/                          # Feature engineering code
+│   └── build_features.py
+├── training/                          # Training logic (custom/AutoML wrappers)
+│   └── train_model.py
+├── evaluation/                        # Model performance evaluation
+│   └── evaluate_metrics.py
+├── pipelines/                         # Vertex AI Pipeline definitions
+│   ├── churn_pipeline.py
+│   └── compile_pipeline.py
+├── deployment/                        # Online & batch deploy logic, test calls
+│   ├── deploy_model.py
+│   └── test_endpoint.py
+├── tests/                             # Unit/integration tests for CI/CD
+│   └── test_train_pipeline.py
+├── notebooks/                         # EDA / experimentation only
+│   └── churn_eda.ipynb
+├── scripts/                           # Helper or utility scripts
+│   └── utils.py
+├── requirements.txt                   # Python dependencies
+├── Dockerfile                         # For custom training containers (if used)
+└── README.md                          # Overview, architecture, setup steps
+
+
+---
+
+☁️ 2. GCS Bucket Structure (Artifact and Data Storage)
+
+Used by Vertex AI Pipelines, Feature Store, and deployment services
+
+gs://mlops-churn-demo/                # Root GCS bucket
+├── raw_data/                         # Uploaded CSVs, Parquet files, etc.
+│   └── customer_data_2025-07-09.csv
+├── processed_data/                   # Cleaned data after prep/feature logic
+│   └── split/ (train.csv, test.csv)
+├── features/                         # Feature Store ingestion snapshots
+│   └── features_2025-07-01.json
+├── models/                           # Trained model artifacts
+│   └── model_v1/
+│       ├── model.bst
+│       └── metadata.json
+├── pipeline_runs/                    # Vertex Pipeline outputs and logs
+│   └── churn_pipeline_2025_07_09/
+├── evaluation_reports/               # ROC/PR curves, metrics, drift reports
+│   └── model_v1_eval.json
+├── batch_predictions/                # Output of batch scoring jobs
+│   └── predictions_2025_07_01.csv
+└── monitoring_logs/                  # Drift, skew, and quality checks
+    └── model_v1_drift_2025_07.json
+
+
+---
+
+🧠 Best Practices Summary (Bullet Points)
+
+Keep code modular and versioned in Git
+
+Use CI/CD pipelines for testing and deployment
+
+Structure GCS with timestamped folders for traceability
+
+Avoid storing raw code in GCS — only outputs and specs
+
+Use environment-based separation: mlops-staging-bucket/, mlops-prod-bucket/
+
+
+
+---
+
+Would you like:
+
+A downloadable PNG diagram of this folder structure?
+
+A repo template (zip or GitHub link) that matches this format?
+
+A Confluence-ready table version of both structures?
