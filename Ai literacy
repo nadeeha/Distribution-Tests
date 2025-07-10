@@ -1,58 +1,38 @@
-Thanks, Nadeeha — that helps! Based on your stakeholders (Data Science, IT, Business Owners, IQ Lab, Innovation & Ventures), I’ll build a RACI matrix grouped by focus area (e.g., Data, Modeling, Deployment, Reporting, etc.) and then list specific service tasks within each focus.
+---
+
+Slide Title: Problem Statement – Why MLOps Matters for Us
 
 
 ---
 
-📘 RACI Matrix – Pilot & Production (Structured by Focus Area)
+🧩 The Challenge
 
-Focus Area	Service Task	Data Science	IT	Business Owners	IQ Lab	Innovation & Ventures
+Despite advances in Data Science & ML capabilities across our team…
 
-1. Data Enablement	Ingest and clean FactSet data into BQ	C	R/A	I	I	I
-	Maintain entity & ISIN mapping	R	C	I	I	I
-	Enable versioning and delta loads	C	R	I	I	I
-2. Theme Classification Engine	Build L6 → Theme mapping logic using GenAI + rules	R/A	C	C	C	C
-	Validate edge cases with GPT or domain input	R		C	A	C
-	Finalize inclusion/exclusion rules per theme	R		A	C	C
-3. Model Portfolio Construction	Apply rules to create portfolios (MA & PB use cases)	R/A	C	C	C	I
-	Define backtesting or performance metrics	R		A	C	C
-4. Automation & Deployment	Set up Airflow/Composer jobs for pipeline	C	R/A	I	I	I
-	Build modular config-driven scripts	R	C	I	I	I
-	Ensure compliance logging (GenAI use, overrides)	R	C	I	A	I
-5. Reporting & Consumption	Export portfolio outputs to dashboards (Power BI, etc.)	R	C	I	I	I
-	Create downloadable outputs (Excel/PDF)	R	C	I		
-	Build SDG-aligned theme overlays	R	C	C	I	A
-6. Governance & Oversight	Ensure explainability of model outputs	R		A	C	C
-	Conduct regular stakeholder reviews	A	I	R	C	C
+Only 10–20% of ML projects globally make it to production (Gartner, 2023).
+
+Many models remain trapped in experimentation—never scaled or deployed.
+
+Common blockers: lack of MLOps foundations—versioning, deployment, monitoring, CI/CD.
+
 
 
 
 ---
 
-📌 Legend
+🔍 Reality Within Our Team
 
-R: Responsible — does the work
+While we've built numerous ML use cases, only a few are truly operationalized or part of production workflows.
 
-A: Accountable — owns the outcome
+Reuse, reproducibility, and collaborative development are limited.
 
-C: Consulted — provides input
-
-I: Informed — kept in the loop
+There's a gap between experimentation and real-world deployment.
 
 
 
 ---
 
-📎 How to Present in Confluence
+🧱 Our Group’s Mission
 
-1. Create collapsible sections per focus area
-
-
-2. Use tables like above within each section
-
-
-3. Add stakeholder personas (e.g., “IT = Cloud Engineering team”) for clarity
-
-
-
-Would you like a downloadable version (Excel, PNG table, or Lucidchart) or a visual matrix showing it as a grid with stakeholders on columns and tasks as rows?
-
+> Although we’re called the “Enhancing MLOps Practices” working group,
+in practice, our core focus has been on establishing foundational MLOps capabilities first.
