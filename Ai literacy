@@ -1,38 +1,18 @@
----
-
-Slide Title: Problem Statement – Why MLOps Matters for Us
+Great! Here's a comparison table you can directly use in your slide to illustrate the MLOps maturity levels (Level 0 to Level 2), based on Google's framework:
 
 
 ---
 
-🧩 The Challenge
+Slide Title: MLOps Maturity Levels (Google Cloud Framework)
 
-Despite advances in Data Science & ML capabilities across our team…
+Aspect	Level 0: Manual	Level 1: Pipeline Automation	Level 2: Full CI/CD Automation
 
-Only 10–20% of ML projects globally make it to production (Gartner, 2023).
-
-Many models remain trapped in experimentation—never scaled or deployed.
-
-Common blockers: lack of MLOps foundations—versioning, deployment, monitoring, CI/CD.
-
-
-
-
----
-
-🔍 Reality Within Our Team
-
-While we've built numerous ML use cases, only a few are truly operationalized or part of production workflows.
-
-Reuse, reproducibility, and collaborative development are limited.
-
-There's a gap between experimentation and real-world deployment.
-
-
-
----
-
-🧱 Our Group’s Mission
-
-> Although we’re called the “Enhancing MLOps Practices” working group,
-in practice, our core focus has been on establishing foundational MLOps capabilities first.
+Process	Manual & ad hoc	Partially automated via pipelines	Fully automated with CI/CD and triggers
+Reproducibility	Low	Medium – Experiments reproducible	High – Entire lifecycle reproducible
+Model Training	Manual (scripts, notebooks)	Automated pipelines (e.g., Vertex Pipelines)	Continuous training (triggered by new data)
+Deployment	Manual (copy/paste, UI upload)	Automated (pipeline deploy to test/staging)	CI/CD to production with approval steps
+Versioning	Not enforced	Code & model versioning	Code, data, model versioning fully integrated
+Monitoring	Absent	Limited (manual checks)	Full monitoring + drift detection + alerting
+Testing	None	Basic (e.g., metrics logging)	Automated unit, integration, model performance
+Team Scalability	1–2 people	Project team	Multiple models, cross-functional teams
+Use Case Suitability	Research, PoC	MVPs, internal tools	Business-critical production systems
