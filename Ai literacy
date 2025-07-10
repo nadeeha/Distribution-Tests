@@ -1,18 +1,22 @@
-Great! Here's a comparison table you can directly use in your slide to illustrate the MLOps maturity levels (Level 0 to Level 2), based on Google's framework:
+Slide Title: MLOps Readiness – Full Demo Capability vs. Level 2 Goals
 
 
 ---
 
-Slide Title: MLOps Maturity Levels (Google Cloud Framework)
+✅ Our Vertex AI Demo Now Covers Key Level 2 Capabilities
 
-Aspect	Level 0: Manual	Level 1: Pipeline Automation	Level 2: Full CI/CD Automation
+Capability	Implementation in Churn Demo	MLOps Level
 
-Process	Manual & ad hoc	Partially automated via pipelines	Fully automated with CI/CD and triggers
-Reproducibility	Low	Medium – Experiments reproducible	High – Entire lifecycle reproducible
-Model Training	Manual (scripts, notebooks)	Automated pipelines (e.g., Vertex Pipelines)	Continuous training (triggered by new data)
-Deployment	Manual (copy/paste, UI upload)	Automated (pipeline deploy to test/staging)	CI/CD to production with approval steps
-Versioning	Not enforced	Code & model versioning	Code, data, model versioning fully integrated
-Monitoring	Absent	Limited (manual checks)	Full monitoring + drift detection + alerting
-Testing	None	Basic (e.g., metrics logging)	Automated unit, integration, model performance
-Team Scalability	1–2 people	Project team	Multiple models, cross-functional teams
-Use Case Suitability	Research, PoC	MVPs, internal tools	Business-critical production systems
+Data Ingestion & EDA	Performed in Vertex AI Notebooks with EDA summary	✔️ Level 1
+Feature Engineering	Configured Feature Store for offline + online serving	✔️ Level 1
+Dataset Creation	Dataset created using AutoML service or manual splits	✔️ Level 1
+Model Training – AutoML/Custom	Training jobs (AutoML + XGBoost) automated with job logs	✔️ Level 1
+Model Registry	Model metadata registered, versioned with tags	✔️ Level 1
+Model Evaluation	ROC/AUC/Recall documented in evaluation notebook	✔️ Level 1
+Online Deployment	Deployed to Vertex AI Endpoint with test input validations	✔️ Level 1
+Batch Deployment	Predictions written to GCS for batch scoring	✔️ Level 1
+Monitoring & Drift Detection	Drift detection and alert thresholds configured (via Model Monitoring)	🟡 Level 2-ready
+Pipelines (Train → Eval → Deploy)	Vertex Pipelines built using SDK to orchestrate the full ML lifecycle	✔️ Level 2
+CI/CD Integration	GitHub Actions + Cloud Build auto-trigger training, tests, and pipeline deploys	✔️ Level 2
+Continuous Training (CT)	Auto-triggered training pipeline from new data or drift alerts (Cloud Scheduler / Function setup)	✔️ Level 2
+Approval Workflow	Staged deployment with manual approval before pushing to production	✔️ Level 2
