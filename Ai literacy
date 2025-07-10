@@ -1,69 +1,83 @@
-Great choice! Here's a clear and logical decision flowchart to help teams choose between server vs. serverless deployment for ML use cases — tailored for Vertex AI, Cloud Run, and related GCP tools.
+Perfect — here's a modified version of the "Champion vs Guardian" role definition slide, tailored specifically for your MLOps Working Group and incorporating your rolling responsibility approach.
 
 
 ---
 
-✅ Slide Title: Server vs Serverless – Deployment Decision Flowchart
+✅ Modified Slide: MLOps Working Group – Role Definition
 
 
 ---
 
-🧭 Decision Flowchart
+Role Definition: MLOps Guardians & Champions
 
-START
-  |
-  |-- Is your workload long-running, stateful, or needs GPU/TPU access?
-  |        |
-  |       Yes
-  |        |--> Use SERVER (GCE VM, GKE, custom training on Vertex AI)
-  |
-  |-- No
-  |        |
-  |        |-- Does your use case require scheduled, event-based, or stateless execution?
-  |                |
-  |               Yes
-  |                |--> Use SERVERLESS (Cloud Run, Cloud Functions, Vertex Pipelines)
-  |
-  |-- Does it require high customization (e.g., custom libraries, drivers)?
-  |        |
-  |       Yes
-  |        |--> Use SERVER (GCE/GKE with custom containers)
-  |
-  |-- Is it a lightweight REST API for model inference or preprocessing?
-  |        |
-  |       Yes
-  |        |--> Use SERVERLESS (Cloud Run with custom container or Vertex Endpoint)
-  |
-  |-- Do you need always-on ultra-low latency (<100ms)?
-  |        |
-  |       Yes
-  |        |--> Use SERVER with autoscaling or Vertex Endpoint with dedicated resources
-  |
-  |-- DEFAULT PATH
-  |        |
-  |        |--> Use SERVERLESS for simplicity, cost-efficiency, and fast scaling
+Guardians 🔒	Champions 🚀
+
+🛡️ Ensure stability, quality, and standards in MLOps adoption	💡 Drive innovation and scaling of MLOps across the org
+✅ Protect workflow reproducibility and pipeline integrity	🔄 Promote culture change towards automation & CI/CD
+📁 Maintain version control, naming conventions, folder structures	🔍 Identify new tools, frameworks, or use cases to pilot
+📊 Track and govern model registry, monitoring, and access	📣 Share learnings, conduct demos and training sessions
+🧪 Validate project readiness for production (checklists, reviews)	♻️ Build and promote reusable pipeline components
+📌 Ensure compliance and governance alignment	🏗️ Drive cross-project collaboration and integration
+📋 Document best practices and update the playbook	🌍 Act as thought leader and MLOps evangelist internally
+
 
 
 ---
 
-🧠 Usage Tip
+🎯 Objective
 
-> You can adapt this decision tree per project stage:
+Standardize and operationalize MLOps best practices for both:
 
-Use serverless for prototyping, batch jobs, and internal tools
+1. Existing ML Projects → Bring to Level 1/2 maturity
 
-Use server infra for high-performance prod deployments or specialized workloads
 
+2. Future Projects → Enable production-readiness by design
 
 
 
 
 ---
 
-Would you like this flowchart:
+📆 Rolling Role Assignment Approach
 
-As a Lucidchart / draw.io editable prompt?
+🌀 Roles of Champion and Guardian will rotate every quarter or sprint, based on availability, contribution, or project phase
 
-Exported as PNG or SVG?
+Each member will:
 
-Styled with icons and colors for PowerPoint or Confluence?
+Take turns leading as Champion (strategic enabler)
+
+Support in a Guardian capacity (technical QA / enforcer)
+
+
+This ensures:
+
+Broader ownership
+
+Increased skill transfer
+
+Balanced innovation vs standardization
+
+
+
+
+---
+
+✅ Next Steps
+
+Nominate initial members for Champion & Guardian roles
+
+Draft key responsibilities and decision rights
+
+Resolve overlaps via clear boundaries or co-leads
+
+
+
+---
+
+Would you like this slide:
+
+Formatted in PowerPoint with icons and side-by-side layout?
+
+As a Confluence section with copyable markdown?
+
+With a RACI-style table showing responsibilities by phase (e.g., demo, deployment, CI/CD setup)?
